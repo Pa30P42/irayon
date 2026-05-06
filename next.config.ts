@@ -6,7 +6,11 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    remotePatterns: [{ protocol: 'https', hostname: 'images.unsplash.com' }],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      // Supabase Storage public bucket — hostname is `<project-ref>.supabase.co`.
+      { protocol: 'https', hostname: '*.supabase.co', pathname: '/storage/v1/object/public/**' },
+    ],
   },
   experimental: {
     typedRoutes: true,

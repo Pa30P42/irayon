@@ -1,36 +1,23 @@
-import { mockListings } from '@/data/mock-listings';
-import { listingFiltersSchema } from '@/lib/validations';
-import { NextResponse } from 'next/server';
+import {
+  apiBadRequest,
+  apiPaginated,
+  apiServerError,
+  type Paginated,
+} from '@/lib/api/api-response';
+import { listListings } from '@/lib/api/listings-service';
+import { listingsQuerySchema, searchParamsToObject } from '@/lib/api/listings-validator';
+import type { Listing } from '@/types';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+export async function GET(request: Request): Promise<Response> {
+  const url = new URL(request.url);
+  const parsed = listingsQuerySchema.safeParse(searchParamsToObject(url.searchParams));
+  if (!parsed.success) return apiBadRequest(parsed.error);
 
-  const parsed = listingFiltersSchema.safeParse({
-    category: searchParams.get('category') ?? undefined,
-    region: searchParams.get('region') ?? undefined,
-    minPrice: searchParams.get('minPrice') ?? undefined,
-    maxPrice: searchParams.get('maxPrice') ?? undefined,
-    capacity: searchParams.get('capacity') ?? undefined,
-    amenities: searchParams.getAll('amenities'),
-  });
-
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  try {
+    const result = await listListings(parsed.data);
+    return apiPaginated<Listing>(result satisfies Paginated<Listing>);
+  } catch (err) {
+    console.error('GET /api/listings failed', err);
+    return apiServerError();
   }
-
-  const f = parsed.data;
-  const results = mockListings.filter((l) => {
-    if (f.category && l.category !== f.category) return false;
-    if (f.region && l.region !== f.region) return false;
-    if (f.minPrice !== undefined && l.price < f.minPrice) return false;
-    if (f.maxPrice !== undefined && l.price > f.maxPrice) return false;
-    if (f.capacity !== undefined && l.capacity < f.capacity) return false;
-    if (f.amenities && f.amenities.length > 0) {
-      const has = f.amenities.every((a) => (l.amenities as string[]).includes(a));
-      if (!has) return false;
-    }
-    return true;
-  });
-
-  return NextResponse.json({ data: results, total: results.length });
 }

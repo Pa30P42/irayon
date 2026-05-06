@@ -1,5 +1,6 @@
 import { SiteFooter } from '@/components/layout/site-footer';
 import { SiteHeader } from '@/components/layout/site-header';
+import { QueryProvider } from '@/components/providers/query-provider';
 import { routing, type Locale } from '@/i18n/routing';
 import { SITE } from '@/lib/constants';
 import type { Metadata } from 'next';
@@ -50,11 +51,13 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
     <html lang={locale} className={inter.variable}>
       <body className="bg-surface flex min-h-screen flex-col">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <NuqsAdapter>
-            <SiteHeader />
-            <main className="flex-1">{children}</main>
-            <SiteFooter />
-          </NuqsAdapter>
+          <QueryProvider>
+            <NuqsAdapter>
+              <SiteHeader />
+              <main className="flex-1">{children}</main>
+              <SiteFooter />
+            </NuqsAdapter>
+          </QueryProvider>
         </NextIntlClientProvider>
       </body>
     </html>
