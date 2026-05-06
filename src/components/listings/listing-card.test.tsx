@@ -28,6 +28,8 @@ const baseListing: Listing = {
   title: { az: 'AZ', ru: 'RU', en: 'Test Villa' },
   description: { az: 'd', ru: 'd', en: 'd' },
   region: 'gabala',
+  direction: 'others',
+  placeType: 'villa-cottage',
   price: 320,
   images: ['https://example.test/img.jpg'],
   amenities: ['wifi', 'pool', 'bbq', 'kitchen'],
@@ -36,7 +38,10 @@ const baseListing: Listing = {
   reviewCount: 150,
   capacity: 6,
   bedrooms: 3,
+  meals: ['breakfast'],
+  activities: [],
   location: { lat: 0, lng: 0, address: 'Vandam' },
+  createdAt: '2025-01-01T00:00:00.000Z',
 };
 
 describe('ListingCard', () => {

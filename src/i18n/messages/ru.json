@@ -64,7 +64,8 @@
   "listings": {
     "title": "Все виллы",
     "subtitle": "Выберите идеальное место для отдыха",
-    "noResults": "Ничего не найдено",
+    "noResults": "Нет вилл, соответствующих фильтрам",
+    "foundCount": "{count, plural, =0 {Найдено 0 вилл} one {Найдена # вилла} few {Найдено # виллы} other {Найдено # вилл}}",
     "guests": "гостей",
     "bedrooms": "спальни",
     "bookNow": "Забронировать",
@@ -73,7 +74,142 @@
     "rating": "Рейтинг",
     "reviews": "отзывов",
     "topPick": "Рекомендуем",
-    "new": "Новинка"
+    "new": "Новинка",
+    "sort": {
+      "label": "Сортировка",
+      "price-asc": "Цена: по возрастанию",
+      "price-desc": "Цена: по убыванию",
+      "rating": "По рейтингу",
+      "newest": "Новые"
+    },
+    "view": {
+      "label": "Вид",
+      "grid": "Сеткой",
+      "list": "Списком"
+    }
+  },
+  "detail": {
+    "share": "Поделиться",
+    "save": "Сохранить",
+    "saved": "Сохранено",
+    "showAllPhotos": "Все фото",
+    "photoCount": "{current} / {total}",
+    "previousPhoto": "Предыдущее фото",
+    "nextPhoto": "Следующее фото",
+    "memberSince": "На сайте с {year}",
+    "host": "Хозяин: {name}",
+    "highlights": {
+      "guests": "{count, plural, one {До # гостя} few {До # гостей} other {До # гостей}}",
+      "bedrooms": "{count, plural, one {# спальня} few {# спальни} other {# спален}}",
+      "category": {
+        "mountain": "Виды на горы",
+        "forest": "В лесу",
+        "river": "У реки",
+        "sea": "У моря",
+        "lake": "На берегу озера"
+      }
+    },
+    "description": {
+      "title": "Об этом месте",
+      "showMore": "Показать больше",
+      "showLess": "Показать меньше"
+    },
+    "amenities": {
+      "title": "Что предлагает это место",
+      "groups": {
+        "essentials": "Основное",
+        "outdoor": "Отдых на улице и спа",
+        "kitchen": "Кухня",
+        "family": "Семья",
+        "extras": "Дополнительно"
+      }
+    },
+    "location": {
+      "title": "Где вы остановитесь",
+      "mapPlaceholder": "Превью карты"
+    },
+    "booking": {
+      "perNight": "/ ночь",
+      "checkIn": "Заезд",
+      "checkOut": "Выезд",
+      "selectDates": "Выбрать даты",
+      "guests": "Гости",
+      "nightsX": "{nights, plural, one {# ночь} few {# ночи} other {# ночей}} × {price}",
+      "cleaningFee": "Уборка",
+      "total": "Итого",
+      "contactHost": "Связаться с хозяином",
+      "selectDatesFirst": "Выберите даты, чтобы увидеть расчёт"
+    },
+    "similar": {
+      "title": "Ещё в этом регионе"
+    }
+  },
+  "filter": {
+    "title": "Фильтр",
+    "reset": "Сбросить",
+    "resetAll": "Сбросить всё",
+    "apply": "{count, plural, =0 {Нет вариантов} one {Показать # вариант} few {Показать # варианта} other {Показать # вариантов}}",
+    "groups": {
+      "direction": "Направление",
+      "type": "Тип места",
+      "guests": "Количество гостей",
+      "placement": "Тип размещения",
+      "food": "Услуги питания",
+      "extra": "Дополнительно",
+      "basic": "Базовые потребности",
+      "fun": "Развлечения"
+    },
+    "options": {
+      "direction": {
+        "ismayilli": "Исмаиллы",
+        "guba": "Губа",
+        "lerik": "Лерик",
+        "zagatala": "Загатала",
+        "others": "Другие"
+      },
+      "type": {
+        "a-frame": "A-frame",
+        "villa-cottage": "Вилла и коттедж",
+        "hotel": "Отель",
+        "modular": "Модульный дом",
+        "village-room": "Комната в сельском домике"
+      },
+      "guests": {
+        "lt5": "меньше 5",
+        "5to10": "от 5 до 10",
+        "gt10": "больше 10"
+      },
+      "placement": {
+        "forest": "В лесу / около леса",
+        "water": "У воды"
+      },
+      "food": {
+        "breakfast": "завтрак включен",
+        "on-request": "питание (по запросу)"
+      },
+      "extra": {
+        "pool": "бассейн",
+        "sauna": "сауна",
+        "jacuzzi": "джакузи",
+        "fireplace": "камин",
+        "kids": "развлечения для детей",
+        "bbq": "мангал-зона",
+        "kitchen": "кухня",
+        "ev-charger": "зарядка электромобиля"
+      },
+      "basic": {
+        "crib": "детская кроватка",
+        "ac": "кондиционер",
+        "washer": "стиральная машинка",
+        "iron": "утюг",
+        "hairdryer": "фен"
+      },
+      "fun": {
+        "quad": "Квадроцикл",
+        "horse": "верховая езда",
+        "fishing": "рыбалка"
+      }
+    }
   },
   "categories": {
     "mountain": "Горы",
@@ -81,6 +217,26 @@
     "river": "Река",
     "sea": "Море",
     "lake": "Озеро"
+  },
+  "amenity": {
+    "wifi": "Wi-Fi",
+    "parking": "Парковка",
+    "pool": "Бассейн",
+    "sauna": "Сауна",
+    "jacuzzi": "Джакузи",
+    "fireplace": "Камин",
+    "kitchen": "Кухня",
+    "bbq": "Мангал",
+    "pets": "Можно с питомцами",
+    "heating": "Отопление",
+    "ac": "Кондиционер",
+    "tv": "Телевизор",
+    "washer": "Стиральная машина",
+    "iron": "Утюг",
+    "hairdryer": "Фен",
+    "crib": "Детская кроватка",
+    "kids": "Развлечения для детей",
+    "ev-charger": "Зарядка электромобиля"
   },
   "regions": {
     "gabala": "Габала",
@@ -92,7 +248,8 @@
     "ismayilli": "Исмаиллы",
     "goychay": "Гёйчай",
     "absheron": "Апшерон",
-    "lerik": "Лерик"
+    "lerik": "Лерик",
+    "zagatala": "Загатала"
   },
   "footer": {
     "rights": "Все права защищены",

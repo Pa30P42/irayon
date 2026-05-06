@@ -23,6 +23,8 @@ const REGION_IMAGES: Record<Region, string> = {
     'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=70',
   lerik:
     'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&w=800&q=70',
+  zagatala:
+    'https://images.unsplash.com/photo-1485470733090-0aae1788d5af?auto=format&fit=crop&w=800&q=70',
 };
 
 export function RegionsGrid() {

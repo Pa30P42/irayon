@@ -8,6 +8,8 @@ const make = (overrides: Partial<Listing> & Pick<Listing, 'id'>): Listing => ({
   title: { az: 't', ru: 't', en: 't' },
   description: { az: 'd', ru: 'd', en: 'd' },
   region: 'gabala',
+  direction: 'others',
+  placeType: 'villa-cottage',
   price: 200,
   images: [],
   amenities: [],
@@ -16,7 +18,10 @@ const make = (overrides: Partial<Listing> & Pick<Listing, 'id'>): Listing => ({
   reviewCount: 10,
   capacity: 4,
   bedrooms: 2,
+  meals: [],
+  activities: [],
   location: { lat: 0, lng: 0, address: '' },
+  createdAt: '2025-01-01T00:00:00.000Z',
   ...overrides,
 });
 

@@ -64,7 +64,8 @@
   "listings": {
     "title": "Bütün villalar",
     "subtitle": "Mükəmməl istirahət üçün ideal məkanı seçin",
-    "noResults": "Heç bir nəticə tapılmadı",
+    "noResults": "Filtrə uyğun villa tapılmadı",
+    "foundCount": "{count, plural, =0 {Villa tapılmadı} one {# villa tapıldı} other {# villa tapıldı}}",
     "guests": "qonaq",
     "bedrooms": "yataq otağı",
     "bookNow": "İndi rezerv et",
@@ -73,7 +74,142 @@
     "rating": "Reytinq",
     "reviews": "rəy",
     "topPick": "Tövsiyə olunur",
-    "new": "Yeni"
+    "new": "Yeni",
+    "sort": {
+      "label": "Sırala",
+      "price-asc": "Qiymət: ucuzdan bahaya",
+      "price-desc": "Qiymət: bahadan ucuza",
+      "rating": "Ən yüksək reytinq",
+      "newest": "Yeni"
+    },
+    "view": {
+      "label": "Görünüş",
+      "grid": "Şəbəkə",
+      "list": "Siyahı"
+    }
+  },
+  "detail": {
+    "share": "Paylaş",
+    "save": "Yadda saxla",
+    "saved": "Yadda saxlandı",
+    "showAllPhotos": "Bütün şəkillər",
+    "photoCount": "{current} / {total}",
+    "previousPhoto": "Əvvəlki şəkil",
+    "nextPhoto": "Növbəti şəkil",
+    "memberSince": "{year}-dən üzv",
+    "host": "Ev sahibi: {name}",
+    "highlights": {
+      "guests": "{count, plural, one {# qonağa qədər} other {# qonağa qədər}}",
+      "bedrooms": "{count, plural, one {# yataq otağı} other {# yataq otağı}}",
+      "category": {
+        "mountain": "Dağ mənzərəsi",
+        "forest": "Meşədə",
+        "river": "Çay sahilində",
+        "sea": "Dəniz sahilində",
+        "lake": "Göl sahilində"
+      }
+    },
+    "description": {
+      "title": "Bu yer haqqında",
+      "showMore": "Daha çox göstər",
+      "showLess": "Daha az göstər"
+    },
+    "amenities": {
+      "title": "Burada nələr var",
+      "groups": {
+        "essentials": "Əsas",
+        "outdoor": "Açıq hava və SPA",
+        "kitchen": "Mətbəx",
+        "family": "Ailə",
+        "extras": "Əlavələr"
+      }
+    },
+    "location": {
+      "title": "Hansı məkanda qalacaqsınız",
+      "mapPlaceholder": "Xəritə önizləməsi"
+    },
+    "booking": {
+      "perNight": "/ gecə",
+      "checkIn": "Giriş",
+      "checkOut": "Çıxış",
+      "selectDates": "Tarix seç",
+      "guests": "Qonaqlar",
+      "nightsX": "{nights, plural, one {# gecə} other {# gecə}} × {price}",
+      "cleaningFee": "Təmizlik haqqı",
+      "total": "Cəmi",
+      "contactHost": "Ev sahibi ilə əlaqə",
+      "selectDatesFirst": "Hesablamanı görmək üçün tarixləri seçin"
+    },
+    "similar": {
+      "title": "Bu regiondakı digərləri"
+    }
+  },
+  "filter": {
+    "title": "Filter",
+    "reset": "Sıfırla",
+    "resetAll": "Hamısını sıfırla",
+    "apply": "{count, plural, =0 {Variant yoxdur} one {# variantı göstər} other {# variantı göstər}}",
+    "groups": {
+      "direction": "İstiqamət",
+      "type": "Yer növü",
+      "guests": "Qonaq sayı",
+      "placement": "Yerləşmə növü",
+      "food": "Yemək xidmətləri",
+      "extra": "Əlavələr",
+      "basic": "Əsas ehtiyaclar",
+      "fun": "Əyləncələr"
+    },
+    "options": {
+      "direction": {
+        "ismayilli": "İsmayıllı",
+        "guba": "Quba",
+        "lerik": "Lerik",
+        "zagatala": "Zaqatala",
+        "others": "Digərləri"
+      },
+      "type": {
+        "a-frame": "A-frame",
+        "villa-cottage": "Villa və kottec",
+        "hotel": "Otel",
+        "modular": "Modul ev",
+        "village-room": "Kənd evində otaq"
+      },
+      "guests": {
+        "lt5": "5-dən az",
+        "5to10": "5-dən 10-a qədər",
+        "gt10": "10-dan çox"
+      },
+      "placement": {
+        "forest": "Meşədə / meşə yaxınlığında",
+        "water": "Su kənarında"
+      },
+      "food": {
+        "breakfast": "səhər yeməyi daxil",
+        "on-request": "yemək (sorğu ilə)"
+      },
+      "extra": {
+        "pool": "hovuz",
+        "sauna": "sauna",
+        "jacuzzi": "jakuzi",
+        "fireplace": "kamin",
+        "kids": "uşaqlar üçün əyləncə",
+        "bbq": "mangal sahəsi",
+        "kitchen": "mətbəx",
+        "ev-charger": "elektromobil zaryadı"
+      },
+      "basic": {
+        "crib": "uşaq beşiyi",
+        "ac": "kondisioner",
+        "washer": "paltaryuyan",
+        "iron": "ütü",
+        "hairdryer": "saç qurutmaq üçün cihaz"
+      },
+      "fun": {
+        "quad": "Kvadrosikl",
+        "horse": "at sürmə",
+        "fishing": "balıq tutmaq"
+      }
+    }
   },
   "categories": {
     "mountain": "Dağ",
@@ -81,6 +217,26 @@
     "river": "Çay",
     "sea": "Dəniz",
     "lake": "Göl"
+  },
+  "amenity": {
+    "wifi": "Wi-Fi",
+    "parking": "Avtopark",
+    "pool": "Hovuz",
+    "sauna": "Sauna",
+    "jacuzzi": "Jakuzi",
+    "fireplace": "Kamin",
+    "kitchen": "Mətbəx",
+    "bbq": "Mangal",
+    "pets": "Heyvanlarla",
+    "heating": "İstilik sistemi",
+    "ac": "Kondisioner",
+    "tv": "Televizor",
+    "washer": "Paltaryuyan",
+    "iron": "Ütü",
+    "hairdryer": "Saç qurutmaq üçün cihaz",
+    "crib": "Uşaq beşiyi",
+    "kids": "Uşaqlar üçün əyləncə",
+    "ev-charger": "Elektromobil zaryadı"
   },
   "regions": {
     "gabala": "Qəbələ",
@@ -92,7 +248,8 @@
     "ismayilli": "İsmayıllı",
     "goychay": "Göyçay",
     "absheron": "Abşeron",
-    "lerik": "Lerik"
+    "lerik": "Lerik",
+    "zagatala": "Zaqatala"
   },
   "footer": {
     "rights": "Bütün hüquqlar qorunur",

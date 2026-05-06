@@ -1,12 +1,14 @@
 'use client';
-// Client component: combines URL-state filters with the listings hook.
+// Client component: wires URL filters to listings + grid + top bar.
 
-import { useFilters } from '@/hooks/use-filters';
-import { useListings } from '@/hooks/use-listings';
+import { useListingsFilter } from '@/hooks/use-listings-filter';
 import type { Listing, Locale } from '@/types';
 import { useTranslations } from 'next-intl';
-import { ListingFiltersBar } from './listing-filters';
+import { useCallback } from 'react';
+import { ActiveFiltersBar } from './active-filters-bar';
 import { ListingGrid } from './listing-grid';
+import { ListingsTopBar } from './listings-top-bar';
+import { NoResults } from './no-results';
 
 type ListingsViewProps = {
   initialListings: Listing[];
@@ -15,13 +17,35 @@ type ListingsViewProps = {
 
 export function ListingsView({ initialListings, locale }: ListingsViewProps) {
   const t = useTranslations('listings');
-  const { filters } = useFilters();
-  const { listings } = useListings({ initial: initialListings, filters });
+  const { state, sort, view, setState, commit, reset, setSort, setView, filtered } =
+    useListingsFilter({ listings: initialListings });
+
+  const onSearch = useCallback((q: string) => setState({ q: q || '' }), [setState]);
 
   return (
     <>
-      <ListingFiltersBar />
-      <ListingGrid listings={listings} locale={locale} emptyMessage={t('noResults')} />
+      <ListingsTopBar
+        state={state}
+        listings={initialListings}
+        sort={sort}
+        view={view}
+        onSearch={onSearch}
+        onApplyFilters={commit}
+        onSortChange={setSort}
+        onViewChange={setView}
+      />
+
+      <ActiveFiltersBar state={state} onChange={commit} onReset={reset} />
+
+      <p className="text-foreground-muted py-3 text-sm">
+        {t('foundCount', { count: filtered.length })}
+      </p>
+
+      {filtered.length === 0 ? (
+        <NoResults onReset={reset} />
+      ) : (
+        <ListingGrid listings={filtered} locale={locale} view={view} />
+      )}
     </>
   );
 }

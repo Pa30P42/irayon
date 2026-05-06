@@ -11,7 +11,7 @@ export function Input({ className, type = 'text', ...props }: InputProps) {
     <input
       type={type}
       className={cn(
-        'bg-background placeholder:text-foreground-muted h-10 w-full rounded-md border border-[var(--color-border)] px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
+        'bg-background placeholder:text-foreground-muted h-10 w-full rounded-md border border-[var(--color-border)] px-3 py-2 text-sm text-black focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50',
         className,
       )}
       {...props}

@@ -64,7 +64,8 @@
   "listings": {
     "title": "All villas",
     "subtitle": "Pick the perfect place for your retreat",
-    "noResults": "No results found",
+    "noResults": "No villas match your filters",
+    "foundCount": "{count, plural, =0 {No villas found} one {# villa found} other {# villas found}}",
     "guests": "guests",
     "bedrooms": "bedrooms",
     "bookNow": "Book now",
@@ -73,7 +74,142 @@
     "rating": "Rating",
     "reviews": "reviews",
     "topPick": "Top pick",
-    "new": "New"
+    "new": "New",
+    "sort": {
+      "label": "Sort by",
+      "price-asc": "Price: low to high",
+      "price-desc": "Price: high to low",
+      "rating": "Top rated",
+      "newest": "Newest"
+    },
+    "view": {
+      "label": "View",
+      "grid": "Grid view",
+      "list": "List view"
+    }
+  },
+  "detail": {
+    "share": "Share",
+    "save": "Save",
+    "saved": "Saved",
+    "showAllPhotos": "Show all photos",
+    "photoCount": "{current} / {total}",
+    "previousPhoto": "Previous photo",
+    "nextPhoto": "Next photo",
+    "memberSince": "Member since {year}",
+    "host": "Hosted by {name}",
+    "highlights": {
+      "guests": "{count, plural, one {Up to # guest} other {Up to # guests}}",
+      "bedrooms": "{count, plural, one {# bedroom} other {# bedrooms}}",
+      "category": {
+        "mountain": "Mountain views",
+        "forest": "In the forest",
+        "river": "By the river",
+        "sea": "By the sea",
+        "lake": "Lakeside"
+      }
+    },
+    "description": {
+      "title": "About this place",
+      "showMore": "Show more",
+      "showLess": "Show less"
+    },
+    "amenities": {
+      "title": "What this place offers",
+      "groups": {
+        "essentials": "Essentials",
+        "outdoor": "Outdoor & wellness",
+        "kitchen": "Kitchen & dining",
+        "family": "Family",
+        "extras": "Extras"
+      }
+    },
+    "location": {
+      "title": "Where you'll be",
+      "mapPlaceholder": "Map preview"
+    },
+    "booking": {
+      "perNight": "/ night",
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "selectDates": "Select dates",
+      "guests": "Guests",
+      "nightsX": "{nights, plural, one {# night} other {# nights}} × {price}",
+      "cleaningFee": "Cleaning fee",
+      "total": "Total",
+      "contactHost": "Contact host",
+      "selectDatesFirst": "Select dates to see the breakdown"
+    },
+    "similar": {
+      "title": "More in this region"
+    }
+  },
+  "filter": {
+    "title": "Filter",
+    "reset": "Reset",
+    "resetAll": "Reset all",
+    "apply": "{count, plural, =0 {No options} one {Show # option} other {Show # options}}",
+    "groups": {
+      "direction": "Direction",
+      "type": "Place type",
+      "guests": "Number of guests",
+      "placement": "Placement",
+      "food": "Meals",
+      "extra": "Extras",
+      "basic": "Basic needs",
+      "fun": "Activities"
+    },
+    "options": {
+      "direction": {
+        "ismayilli": "Ismayilli",
+        "guba": "Guba",
+        "lerik": "Lerik",
+        "zagatala": "Zagatala",
+        "others": "Others"
+      },
+      "type": {
+        "a-frame": "A-frame",
+        "villa-cottage": "Villa & cottage",
+        "hotel": "Hotel",
+        "modular": "Modular home",
+        "village-room": "Room in a village house"
+      },
+      "guests": {
+        "lt5": "Up to 5",
+        "5to10": "5 to 10",
+        "gt10": "More than 10"
+      },
+      "placement": {
+        "forest": "In or near a forest",
+        "water": "By the water"
+      },
+      "food": {
+        "breakfast": "Breakfast included",
+        "on-request": "Meals on request"
+      },
+      "extra": {
+        "pool": "Pool",
+        "sauna": "Sauna",
+        "jacuzzi": "Jacuzzi",
+        "fireplace": "Fireplace",
+        "kids": "Kids' entertainment",
+        "bbq": "BBQ area",
+        "kitchen": "Kitchen",
+        "ev-charger": "EV charger"
+      },
+      "basic": {
+        "crib": "Baby crib",
+        "ac": "Air conditioning",
+        "washer": "Washing machine",
+        "iron": "Iron",
+        "hairdryer": "Hairdryer"
+      },
+      "fun": {
+        "quad": "Quad bike",
+        "horse": "Horseback riding",
+        "fishing": "Fishing"
+      }
+    }
   },
   "categories": {
     "mountain": "Mountain",
@@ -81,6 +217,26 @@
     "river": "River",
     "sea": "Sea",
     "lake": "Lake"
+  },
+  "amenity": {
+    "wifi": "Wi-Fi",
+    "parking": "Parking",
+    "pool": "Pool",
+    "sauna": "Sauna",
+    "jacuzzi": "Jacuzzi",
+    "fireplace": "Fireplace",
+    "kitchen": "Kitchen",
+    "bbq": "BBQ",
+    "pets": "Pet-friendly",
+    "heating": "Heating",
+    "ac": "Air conditioning",
+    "tv": "TV",
+    "washer": "Washing machine",
+    "iron": "Iron",
+    "hairdryer": "Hairdryer",
+    "crib": "Baby crib",
+    "kids": "Kids' entertainment",
+    "ev-charger": "EV charger"
   },
   "regions": {
     "gabala": "Gabala",
@@ -92,7 +248,8 @@
     "ismayilli": "Ismayilli",
     "goychay": "Goychay",
     "absheron": "Absheron",
-    "lerik": "Lerik"
+    "lerik": "Lerik",
+    "zagatala": "Zagatala"
   },
   "footer": {
     "rights": "All rights reserved",

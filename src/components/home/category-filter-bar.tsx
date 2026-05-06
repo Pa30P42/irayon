@@ -33,7 +33,7 @@ const ICON_MAP: Record<HomeCategory, Icon> = {
 
 export function CategoryFilterBar() {
   const t = useTranslations('home.categories');
-  const { category, setCategory, isActive } = useCategoryFilter();
+  const { setCategory, isActive } = useCategoryFilter();
 
   return (
     <nav aria-label={t('all')} className="border-border bg-background sticky top-16 z-30 border-b">
