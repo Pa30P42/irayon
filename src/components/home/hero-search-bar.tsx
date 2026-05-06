@@ -1,17 +1,17 @@
 'use client';
 // Client component: holds search inputs + filter draft, then navigates to /listings.
 
+import { FilterModal } from '@/components/listings/filter-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { FilterModal } from '@/components/listings/filter-modal';
-import { useRouter } from '@/i18n/navigation';
 import { mockListings } from '@/data/mock-listings';
+import { useRouter } from '@/i18n/navigation';
 import { emptyFilterState } from '@/lib/constants';
 import { countActiveFilters } from '@/lib/listings-filter';
+import type { ListingsFilterState } from '@/types';
 import { IconAdjustmentsHorizontal, IconMapPin, IconSearch, IconUsers } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
-import type { ListingsFilterState } from '@/types';
 
 const appendArray = (params: URLSearchParams, key: string, values: readonly string[]) => {
   if (values.length > 0) params.set(key, values.join(','));
