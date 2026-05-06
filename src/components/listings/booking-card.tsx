@@ -1,4 +1,4 @@
-import { formatPrice, formatPhoneNumber } from '@/lib/utils';
+import { formatPrice } from '@/lib/utils';
 import type { Listing, Locale } from '@/types';
 import { useTranslations } from 'next-intl';
 import { CallButton } from './call-button';
@@ -22,10 +22,6 @@ export function BookingCard({ listing, locale }: BookingCardProps) {
       </p>
 
       <CallButton listingId={listing.id} phone={listing.phone} source="detail" />
-
-      <p className="text-foreground-muted text-center text-xs">
-        {formatPhoneNumber(listing.phone)}
-      </p>
     </aside>
   );
 }
