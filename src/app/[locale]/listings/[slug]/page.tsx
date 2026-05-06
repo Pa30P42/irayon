@@ -1,12 +1,12 @@
-import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import Image from 'next/image';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { findListingBySlug, mockListings } from '@/data/mock-listings';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { formatPrice, pickLocalized } from '@/lib/utils';
+import { findListingBySlug, mockListings } from '@/data/mock-listings';
 import type { Locale } from '@/i18n/routing';
+import { formatPrice, pickLocalized } from '@/lib/utils';
+import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import Image from 'next/image';
+import { notFound } from 'next/navigation';
 
 type ListingDetailProps = {
   params: Promise<{ locale: Locale; slug: string }>;
@@ -46,13 +46,13 @@ export default async function ListingDetailPage({ params }: ListingDetailProps) 
     <article className="container-wide py-10">
       <header className="mb-6">
         <Badge>{tCat(listing.category)}</Badge>
-        <h1 className="text-3xl md:text-4xl font-semibold mt-3">{title}</h1>
+        <h1 className="mt-3 text-3xl font-semibold md:text-4xl">{title}</h1>
         <p className="text-foreground-muted mt-2">{listing.location.address}</p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
+      <div className="mb-8 grid grid-cols-1 gap-3 md:grid-cols-2">
         {listing.images.slice(0, 4).map((src, idx) => (
-          <div key={src} className="relative aspect-[4/3] overflow-hidden rounded-lg bg-accent">
+          <div key={src} className="bg-accent relative aspect-[4/3] overflow-hidden rounded-lg">
             <Image
               src={src}
               alt={`${title} ${idx + 1}`}
@@ -65,11 +65,11 @@ export default async function ListingDetailPage({ params }: ListingDetailProps) 
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
           <p className="text-base leading-relaxed">{description}</p>
 
-          <div className="flex flex-wrap gap-4 text-sm text-foreground-muted">
+          <div className="text-foreground-muted flex flex-wrap gap-4 text-sm">
             <span>
               {listing.capacity} {t('guests')}
             </span>
@@ -82,8 +82,8 @@ export default async function ListingDetailPage({ params }: ListingDetailProps) 
           </div>
 
           <section>
-            <h2 className="text-xl font-semibold mb-3">{t('amenities')}</h2>
-            <ul className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <h2 className="mb-3 text-xl font-semibold">{t('amenities')}</h2>
+            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {listing.amenities.map((a) => (
                 <li key={a} className="text-foreground-muted capitalize">
                   · {a}
@@ -93,15 +93,15 @@ export default async function ListingDetailPage({ params }: ListingDetailProps) 
           </section>
         </div>
 
-        <aside className="border border-border rounded-xl p-6 h-fit sticky top-6 bg-background">
+        <aside className="border-border bg-background sticky top-6 h-fit rounded-xl border p-6">
           <div className="text-2xl font-semibold">
             {formatPrice(listing.price, locale)} {tCommon('currency')}
-            <span className="text-sm font-normal text-foreground-muted">
+            <span className="text-foreground-muted text-sm font-normal">
               {' '}
               / {tCommon('perNight')}
             </span>
           </div>
-          <Button className="w-full mt-4" size="lg">
+          <Button className="mt-4 w-full" size="lg">
             {t('bookNow')}
           </Button>
         </aside>

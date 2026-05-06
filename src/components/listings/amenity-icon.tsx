@@ -1,19 +1,19 @@
+import type { Amenity } from '@/types';
 import {
-  IconWifi,
+  IconAirConditioning,
+  IconBath,
   IconCar,
-  IconSwimming,
+  IconDeviceTv,
   IconFlame,
-  IconToolsKitchen2,
   IconGrillFork,
   IconPaw,
+  IconSwimming,
   IconTemperature,
-  IconAirConditioning,
-  IconDeviceTv,
+  IconToolsKitchen2,
   IconWashMachine,
-  IconBath,
+  IconWifi,
   type Icon,
 } from '@tabler/icons-react';
-import type { Amenity } from '@/types';
 
 const ICONS: Record<Amenity, Icon> = {
   wifi: IconWifi,

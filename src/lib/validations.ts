@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CATEGORIES, REGIONS, AMENITIES } from './constants';
+import { AMENITIES, CATEGORIES, REGIONS } from './constants';
 
 export const localeSchema = z.enum(['az', 'ru', 'en']);
 

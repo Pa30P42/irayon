@@ -1,15 +1,15 @@
 'use client';
 // Client component: holds search inputs and date popovers, then navigates.
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { IconCalendar, IconMapPin, IconSearch, IconUsers } from '@tabler/icons-react';
-import { useRouter } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
+import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useLocale } from '@/hooks/use-locale';
+import { useRouter } from '@/i18n/navigation';
+import { IconCalendar, IconMapPin, IconSearch, IconUsers } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
 const dateLocaleFor = (locale: string): string => {
   switch (locale) {
@@ -21,9 +21,6 @@ const dateLocaleFor = (locale: string): string => {
       return 'en-US';
   }
 };
-
-const formatDate = (date: Date | undefined, locale: string, fallback: string): string =>
-  date ? format(date, 'PP', { locale: undefined }) ?? new Intl.DateTimeFormat(dateLocaleFor(locale), { dateStyle: 'medium' }).format(date) : fallback;
 
 export function HeroSearchBar() {
   const t = useTranslations('home.search');
@@ -51,9 +48,9 @@ export function HeroSearchBar() {
         e.preventDefault();
         onSearch();
       }}
-      className="bg-background/95 backdrop-blur rounded-2xl border border-border shadow-xl p-3 grid grid-cols-1 md:grid-cols-[1.4fr_1fr_1fr_1fr_auto] gap-2 items-stretch w-full max-w-4xl"
+      className="bg-background/95 border-border grid w-full max-w-4xl grid-cols-1 items-stretch gap-2 rounded-2xl border p-3 shadow-xl backdrop-blur md:grid-cols-[1.4fr_1fr_1fr_1fr_auto]"
     >
-      <label className="flex items-center gap-2 px-3 rounded-md border border-transparent hover:border-border">
+      <label className="hover:border-border flex items-center gap-2 rounded-md border border-transparent px-3">
         <IconMapPin size={18} className="text-foreground-muted" aria-hidden />
         <span className="sr-only">{t('location')}</span>
         <Input
@@ -61,7 +58,7 @@ export function HeroSearchBar() {
           value={location}
           onChange={(e) => setLocation(e.target.value)}
           placeholder={t('placeholder')}
-          className="border-none focus-visible:ring-0 px-0"
+          className="border-none px-0 focus-visible:ring-0"
         />
       </label>
 
@@ -81,7 +78,7 @@ export function HeroSearchBar() {
         minDate={checkIn}
       />
 
-      <label className="flex items-center gap-2 px-3 rounded-md border border-transparent hover:border-border">
+      <label className="hover:border-border flex items-center gap-2 rounded-md border border-transparent px-3">
         <IconUsers size={18} className="text-foreground-muted" aria-hidden />
         <span className="sr-only">{t('guests')}</span>
         <Input
@@ -90,7 +87,7 @@ export function HeroSearchBar() {
           max={20}
           value={guests}
           onChange={(e) => setGuests(Number(e.target.value) || 1)}
-          className="border-none focus-visible:ring-0 px-0"
+          className="border-none px-0 focus-visible:ring-0"
         />
       </label>
 
@@ -121,7 +118,7 @@ function DateField({ label, placeholder, date, onSelect, locale, minDate }: Date
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="flex items-center gap-2 px-3 h-10 rounded-md border border-transparent hover:border-border text-left text-sm w-full"
+          className="hover:border-border flex h-10 w-full items-center gap-2 rounded-md border border-transparent px-3 text-left text-sm"
           aria-label={label}
         >
           <IconCalendar size={18} className="text-foreground-muted" aria-hidden />

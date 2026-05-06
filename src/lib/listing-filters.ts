@@ -1,4 +1,4 @@
-import type { Listing, HomeCategory } from '@/types';
+import type { HomeCategory, Listing } from '@/types';
 
 export function filterByHomeCategory(listings: Listing[], category: HomeCategory): Listing[] {
   switch (category) {

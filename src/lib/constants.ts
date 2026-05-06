@@ -1,4 +1,4 @@
-import type { ListingCategory, Region, Amenity, HomeCategory } from '@/types';
+import type { Amenity, HomeCategory, ListingCategory, Region } from '@/types';
 
 export const SITE = {
   name: 'IRayon',

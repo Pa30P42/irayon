@@ -1,12 +1,12 @@
 'use client';
 // Client component: combines URL-state filters with the listings hook.
 
-import { useTranslations } from 'next-intl';
 import { useFilters } from '@/hooks/use-filters';
 import { useListings } from '@/hooks/use-listings';
+import type { Listing, Locale } from '@/types';
+import { useTranslations } from 'next-intl';
 import { ListingFiltersBar } from './listing-filters';
 import { ListingGrid } from './listing-grid';
-import type { Listing, Locale } from '@/types';
 
 type ListingsViewProps = {
   initialListings: Listing[];

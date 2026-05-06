@@ -1,10 +1,10 @@
 'use client';
 // Client component: holds local toggle state for favoriting a listing.
 
-import { useState, type MouseEvent } from 'react';
-import { useTranslations } from 'next-intl';
-import { IconHeart, IconHeartFilled } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
+import { IconHeart, IconHeartFilled } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
+import { useState, type MouseEvent } from 'react';
 
 type FavoriteButtonProps = {
   initial?: boolean;

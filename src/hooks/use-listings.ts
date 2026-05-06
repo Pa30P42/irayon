@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
 import type { Listing, ListingFilters } from '@/types';
+import { useEffect, useMemo, useState } from 'react';
 
 type UseListingsArgs = {
   initial?: Listing[];

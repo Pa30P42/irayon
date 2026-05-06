@@ -1,8 +1,8 @@
 'use client';
 
-import { useQueryStates, parseAsString, parseAsInteger, parseAsArrayOf } from 'nuqs';
+import type { Amenity, ListingCategory, ListingFilters, Region } from '@/types';
+import { parseAsArrayOf, parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useMemo } from 'react';
-import type { ListingFilters, ListingCategory, Region, Amenity } from '@/types';
 
 const parsers = {
   category: parseAsString,

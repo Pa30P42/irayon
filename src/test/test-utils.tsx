@@ -1,8 +1,8 @@
-import type { ReactElement, ReactNode } from 'react';
+import enMessages from '@/i18n/messages/en.json';
 import { render, type RenderOptions, type RenderResult } from '@testing-library/react';
 import { NextIntlClientProvider, type AbstractIntlMessages } from 'next-intl';
 import { NuqsTestingAdapter, type UrlUpdateEvent } from 'nuqs/adapters/testing';
-import enMessages from '@/i18n/messages/en.json';
+import type { ReactElement, ReactNode } from 'react';
 
 type ProvidersProps = {
   children: ReactNode;

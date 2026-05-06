@@ -1,4 +1,4 @@
-import type { Listing, Amenity } from '@/types';
+import type { Amenity, Listing } from '@/types';
 
 export type ListingBadge = 'topPick' | 'new' | null;
 

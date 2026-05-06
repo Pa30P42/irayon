@@ -1,10 +1,10 @@
+import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import { SiteLogo } from './site-logo';
 import { SiteNav } from './site-nav';
-import { LanguageSwitcher } from '@/components/shared/language-switcher';
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 bg-background/90 backdrop-blur border-b border-[var(--color-border)]">
+    <header className="bg-background/90 sticky top-0 z-40 border-b border-[var(--color-border)] backdrop-blur">
       <div className="container-wide flex h-16 items-center justify-between">
         <SiteLogo />
         <SiteNav />

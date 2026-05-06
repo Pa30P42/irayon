@@ -1,8 +1,8 @@
 'use client';
 // Client component because Next.js error boundaries must be client components.
 
-import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { useEffect } from 'react';
 
 export default function LocaleErrorBoundary({
   error,

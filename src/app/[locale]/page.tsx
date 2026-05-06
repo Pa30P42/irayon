@@ -1,13 +1,13 @@
-import type { Metadata } from 'next';
-import { Suspense } from 'react';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { HeroSection } from '@/components/home/hero-section';
 import { CategoryFilterBar } from '@/components/home/category-filter-bar';
 import { FeaturedListings } from '@/components/home/featured-listings';
+import { HeroSection } from '@/components/home/hero-section';
 import { MapTeaser } from '@/components/home/map-teaser';
 import { RegionsGrid } from '@/components/home/regions-grid';
 import { mockListings } from '@/data/mock-listings';
 import type { Locale } from '@/i18n/routing';
+import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Suspense } from 'react';
 
 type HomePageProps = {
   params: Promise<{ locale: Locale }>;
@@ -32,7 +32,9 @@ export default async function HomePage({ params }: HomePageProps) {
       <Suspense fallback={null}>
         <CategoryFilterBar />
       </Suspense>
-      <Suspense fallback={<div className="container-wide py-12 text-foreground-muted">Loading…</div>}>
+      <Suspense
+        fallback={<div className="container-wide text-foreground-muted py-12">Loading…</div>}
+      >
         <FeaturedListings initialListings={mockListings} locale={locale} />
       </Suspense>
       <MapTeaser />

@@ -1,14 +1,14 @@
+import { SiteFooter } from '@/components/layout/site-footer';
+import { SiteHeader } from '@/components/layout/site-header';
+import { routing, type Locale } from '@/i18n/routing';
+import { SITE } from '@/lib/constants';
 import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
-import { Inter } from 'next/font/google';
-import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
+import { Inter } from 'next/font/google';
+import { notFound } from 'next/navigation';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
-import { routing, type Locale } from '@/i18n/routing';
-import { SiteHeader } from '@/components/layout/site-header';
-import { SiteFooter } from '@/components/layout/site-footer';
-import { SITE } from '@/lib/constants';
+import type { ReactNode } from 'react';
 import '../globals.css';
 
 const inter = Inter({
@@ -48,7 +48,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
 
   return (
     <html lang={locale} className={inter.variable}>
-      <body className="bg-surface min-h-screen flex flex-col">
+      <body className="bg-surface flex min-h-screen flex-col">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <NuqsAdapter>
             <SiteHeader />

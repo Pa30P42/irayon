@@ -1,9 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
-import userEvent from '@testing-library/user-event';
-import type { ComponentProps } from 'react';
-import { ListingCard } from './listing-card';
 import { renderWithProviders, screen } from '@/test/test-utils';
 import type { Listing } from '@/types';
+import userEvent from '@testing-library/user-event';
+import type { ComponentProps } from 'react';
+import { describe, expect, it, vi } from 'vitest';
+import { ListingCard } from './listing-card';
 
 vi.mock('@/i18n/navigation', () => ({
   Link: ({ href, children, ...rest }: ComponentProps<'a'> & { href: string }) => (
@@ -16,9 +16,10 @@ vi.mock('@/i18n/navigation', () => ({
 }));
 
 vi.mock('next/image', () => ({
-  default: ({ alt, src }: { alt: string; src: string }) =>
+  default: ({ alt, src }: { alt: string; src: string }) => (
     // eslint-disable-next-line @next/next/no-img-element
-    <img alt={alt} src={src} />,
+    <img alt={alt} src={src} />
+  ),
 }));
 
 const baseListing: Listing = {
@@ -61,9 +62,10 @@ describe('ListingCard', () => {
 
     await user.click(fav);
 
-    expect(
-      screen.getByRole('button', { name: /remove from favorites/i }),
-    ).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: /remove from favorites/i })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
   });
 
   it('shows at most 3 amenity icons', () => {

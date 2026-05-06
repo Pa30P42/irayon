@@ -1,23 +1,23 @@
 'use client';
 // Client component: reads/writes the ?category= URL state via nuqs.
 
-import { useTranslations } from 'next-intl';
-import {
-  IconWorld,
-  IconMountain,
-  IconTrees,
-  IconWaveSine,
-  IconBeach,
-  IconSwimming,
-  IconGrillFork,
-  IconSnowflake,
-  IconHome,
-  type Icon,
-} from '@tabler/icons-react';
-import { HOME_CATEGORIES } from '@/lib/constants';
 import { useCategoryFilter } from '@/hooks/use-category-filter';
+import { HOME_CATEGORIES } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import type { HomeCategory } from '@/types';
+import {
+  IconBeach,
+  IconGrillFork,
+  IconHome,
+  IconMountain,
+  IconSnowflake,
+  IconSwimming,
+  IconTrees,
+  IconWaveSine,
+  IconWorld,
+  type Icon,
+} from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 const ICON_MAP: Record<HomeCategory, Icon> = {
   all: IconWorld,
@@ -36,15 +36,12 @@ export function CategoryFilterBar() {
   const { category, setCategory, isActive } = useCategoryFilter();
 
   return (
-    <nav
-      aria-label={t('all')}
-      className="border-b border-border bg-background sticky top-16 z-30"
-    >
+    <nav aria-label={t('all')} className="border-border bg-background sticky top-16 z-30 border-b">
       <div className="container-wide">
         <ul
           role="tablist"
           aria-label="Categories"
-          className="flex gap-1 sm:gap-2 overflow-x-auto py-3 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-thin"
+          className="scrollbar-thin -mx-4 flex gap-1 overflow-x-auto px-4 py-3 sm:mx-0 sm:gap-2 sm:px-0"
         >
           {HOME_CATEGORIES.map((c) => {
             const Icon = ICON_MAP[c];
@@ -58,7 +55,7 @@ export function CategoryFilterBar() {
                   data-active={active || undefined}
                   onClick={() => setCategory(c)}
                   className={cn(
-                    'group relative flex flex-col items-center gap-1 px-3 py-2 rounded-md text-xs font-medium text-foreground-muted transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                    'group text-foreground-muted hover:text-foreground focus-visible:ring-primary relative flex flex-col items-center gap-1 rounded-md px-3 py-2 text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:outline-none',
                     active && 'text-primary',
                   )}
                 >
@@ -67,7 +64,7 @@ export function CategoryFilterBar() {
                   <span
                     aria-hidden
                     className={cn(
-                      'absolute -bottom-3 left-2 right-2 h-0.5 rounded-full bg-primary transition-opacity',
+                      'bg-primary absolute right-2 -bottom-3 left-2 h-0.5 rounded-full transition-opacity',
                       active ? 'opacity-100' : 'opacity-0',
                     )}
                   />

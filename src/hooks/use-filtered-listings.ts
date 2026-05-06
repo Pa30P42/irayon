@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo } from 'react';
 import { filterByHomeCategory } from '@/lib/listing-filters';
-import type { Listing, HomeCategory } from '@/types';
+import type { HomeCategory, Listing } from '@/types';
+import { useMemo } from 'react';
 
 type UseFilteredListingsArgs = {
   listings: Listing[];

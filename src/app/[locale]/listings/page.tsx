@@ -1,9 +1,9 @@
-import type { Metadata } from 'next';
-import { Suspense } from 'react';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ListingsView } from '@/components/listings/listings-view';
 import { mockListings } from '@/data/mock-listings';
 import type { Locale } from '@/i18n/routing';
+import type { Metadata } from 'next';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Suspense } from 'react';
 
 type ListingsPageProps = {
   params: Promise<{ locale: Locale }>;
@@ -27,7 +27,7 @@ export default async function ListingsPage({ params }: ListingsPageProps) {
   return (
     <section className="container-wide py-12">
       <header className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-semibold">{t('title')}</h1>
+        <h1 className="text-3xl font-semibold md:text-4xl">{t('title')}</h1>
         <p className="text-foreground-muted mt-2">{t('subtitle')}</p>
       </header>
       <Suspense fallback={<div className="text-foreground-muted">Loading…</div>}>

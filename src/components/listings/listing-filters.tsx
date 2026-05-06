@@ -1,13 +1,13 @@
 'use client';
 // Client component: reads/writes URL query params via nuqs.
 
-import { useTranslations } from 'next-intl';
-import { Select } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Select } from '@/components/ui/select';
 import { useFilters } from '@/hooks/use-filters';
 import { CATEGORIES } from '@/lib/constants';
 import type { ListingCategory } from '@/types';
+import { useTranslations } from 'next-intl';
 
 export function ListingFiltersBar() {
   const t = useTranslations('categories');
@@ -15,8 +15,8 @@ export function ListingFiltersBar() {
   const { filters, setFilters, reset } = useFilters();
 
   return (
-    <div className="flex flex-wrap items-end gap-4 mb-6">
-      <div className="flex-1 min-w-[180px]">
+    <div className="mb-6 flex flex-wrap items-end gap-4">
+      <div className="min-w-[180px] flex-1">
         <Label htmlFor="category" className="mb-1 block">
           {tCommon('filter')}
         </Label>

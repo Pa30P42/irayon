@@ -1,13 +1,13 @@
-import Image from 'next/image';
-import { useTranslations } from 'next-intl';
-import { IconStarFilled } from '@tabler/icons-react';
-import { Link } from '@/i18n/navigation';
 import { Badge } from '@/components/ui/badge';
-import { FavoriteButton } from './favorite-button';
-import { AmenityIcon } from './amenity-icon';
-import { formatPrice, pickLocalized } from '@/lib/utils';
+import { Link } from '@/i18n/navigation';
 import { getListingBadge, pickTopAmenities } from '@/lib/listing-card-helpers';
+import { formatPrice, pickLocalized } from '@/lib/utils';
 import type { Listing, Locale } from '@/types';
+import { IconStarFilled } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import { AmenityIcon } from './amenity-icon';
+import { FavoriteButton } from './favorite-button';
 
 type ListingCardProps = {
   listing: Listing;
@@ -31,9 +31,9 @@ export function ListingCard({ listing, locale, priority = false }: ListingCardPr
       <Link
         href={`/listings/${listing.slug}`}
         aria-label={title}
-        className="block rounded-xl overflow-hidden bg-background border border-border transition-shadow hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="bg-background border-border focus-visible:ring-primary block overflow-hidden rounded-xl border transition-shadow hover:shadow-lg focus-visible:ring-2 focus-visible:outline-none"
       >
-        <div className="relative aspect-4/3 overflow-hidden bg-accent">
+        <div className="bg-accent relative aspect-4/3 overflow-hidden">
           {cover ? (
             <Image
               src={cover}
@@ -52,15 +52,18 @@ export function ListingCard({ listing, locale, priority = false }: ListingCardPr
         </div>
         <div className="p-4">
           <div className="flex items-start justify-between gap-3">
-            <h3 className="font-medium text-base line-clamp-2">{title}</h3>
-            <div className="flex items-center gap-1 text-sm shrink-0" aria-label={t('rating')}>
+            <h3 className="line-clamp-2 text-base font-medium">{title}</h3>
+            <div className="flex shrink-0 items-center gap-1 text-sm" aria-label={t('rating')}>
               <IconStarFilled size={14} aria-hidden />
               <span>{listing.rating.toFixed(1)}</span>
             </div>
           </div>
-          <p className="text-sm text-foreground-muted mt-1">{regionName}</p>
+          <p className="text-foreground-muted mt-1 text-sm">{regionName}</p>
           {topAmenities.length > 0 ? (
-            <ul className="mt-3 flex items-center gap-3 text-foreground-muted" aria-label={t('amenities')}>
+            <ul
+              className="text-foreground-muted mt-3 flex items-center gap-3"
+              aria-label={t('amenities')}
+            >
               {topAmenities.map((a) => (
                 <li key={a}>
                   <AmenityIcon amenity={a} />
@@ -72,10 +75,7 @@ export function ListingCard({ listing, locale, priority = false }: ListingCardPr
             <span className="font-semibold">
               {formatPrice(listing.price, locale)} {tCommon('currency')}
             </span>
-            <span className="text-foreground-muted text-sm">
-              {' '}
-              / {tCommon('perNight')}
-            </span>
+            <span className="text-foreground-muted text-sm"> / {tCommon('perNight')}</span>
           </p>
         </div>
       </Link>

@@ -1,10 +1,9 @@
-import { describe, it, expect } from 'vitest';
-import { renderHook } from '@testing-library/react';
-import { useFilteredListings } from './use-filtered-listings';
 import type { Listing } from '@/types';
+import { renderHook } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
+import { useFilteredListings } from './use-filtered-listings';
 
 const make = (overrides: Partial<Listing> & Pick<Listing, 'id'>): Listing => ({
-  id: overrides.id,
   slug: overrides.id,
   title: { az: 't', ru: 't', en: 't' },
   description: { az: 'd', ru: 'd', en: 'd' },

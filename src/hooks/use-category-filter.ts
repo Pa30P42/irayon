@@ -1,8 +1,8 @@
 'use client';
 
-import { useQueryState, parseAsStringLiteral } from 'nuqs';
 import { HOME_CATEGORIES } from '@/lib/constants';
 import type { HomeCategory } from '@/types';
+import { parseAsStringLiteral, useQueryState } from 'nuqs';
 
 const categoryParser = parseAsStringLiteral(HOME_CATEGORIES).withDefault('all');
 

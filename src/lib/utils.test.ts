@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { cn, formatPrice, pickLocalized, localeToBcp47 } from './utils';
+import { describe, expect, it } from 'vitest';
+import { cn, formatPrice, localeToBcp47, pickLocalized } from './utils';
 
 describe('cn', () => {
   it('merges class names and resolves tailwind conflicts', () => {

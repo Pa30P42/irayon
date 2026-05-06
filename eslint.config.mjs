@@ -32,7 +32,7 @@ const eslintConfig = [
       'react/self-closing-comp': 'warn',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'prefer-const': 'error',
-      'eqeqeq': ['error', 'smart'],
+      eqeqeq: ['error', 'smart'],
     },
   },
   {

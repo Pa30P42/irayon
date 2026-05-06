@@ -1,8 +1,8 @@
 'use client';
 
-import { useLocale as useIntlLocale } from 'next-intl';
-import { localeToBcp47 } from '@/lib/utils';
 import type { Locale } from '@/i18n/routing';
+import { localeToBcp47 } from '@/lib/utils';
+import { useLocale as useIntlLocale } from 'next-intl';
 
 type UseLocaleResult = {
   locale: Locale;

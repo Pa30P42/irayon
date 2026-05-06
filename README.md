@@ -15,15 +15,15 @@ Open <http://localhost:3000> — the middleware redirects to the default locale 
 
 ## Scripts
 
-| Command            | Purpose                       |
-| ------------------ | ----------------------------- |
-| `npm run dev`      | Next dev server (Turbopack)   |
-| `npm run build`    | Production build              |
-| `npm run start`    | Run production build          |
-| `npm run lint`     | ESLint flat config            |
-| `npm run format`   | Prettier                      |
-| `npm run typecheck`| `tsc --noEmit`                |
-| `npm run test`     | Vitest                        |
+| Command             | Purpose                     |
+| ------------------- | --------------------------- |
+| `npm run dev`       | Next dev server (Turbopack) |
+| `npm run build`     | Production build            |
+| `npm run start`     | Run production build        |
+| `npm run lint`      | ESLint flat config          |
+| `npm run format`    | Prettier                    |
+| `npm run typecheck` | `tsc --noEmit`              |
+| `npm run test`      | Vitest                      |
 
 ## Locales
 
