@@ -7,67 +7,143 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Enum values are mapped to the kebab/lowercase forms used by the API DTOs,
+// so the wire format is the same on both sides of the service boundary.
+
 enum ListingCategory {
-  MOUNTAIN
-  FOREST
-  RIVER
-  SEA
-  LAKE
+  MOUNTAIN @map("mountain")
+  FOREST   @map("forest")
+  RIVER    @map("river")
+  SEA      @map("sea")
+  LAKE     @map("lake")
+
+  @@map("listing_category")
+}
+
+enum Direction {
+  ISMAYILLI @map("ismayilli")
+  GUBA      @map("guba")
+  LERIK     @map("lerik")
+  ZAGATALA  @map("zagatala")
+  OTHERS    @map("others")
+
+  @@map("direction")
+}
+
+enum PlaceType {
+  A_FRAME       @map("a-frame")
+  VILLA_COTTAGE @map("villa-cottage")
+  HOTEL         @map("hotel")
+  MODULAR       @map("modular")
+  VILLAGE_ROOM  @map("village-room")
+
+  @@map("place_type")
+}
+
+enum Meal {
+  BREAKFAST  @map("breakfast")
+  ON_REQUEST @map("on-request")
+
+  @@map("meal")
+}
+
+enum Activity {
+  QUAD    @map("quad")
+  HORSE   @map("horse")
+  FISHING @map("fishing")
+
+  @@map("activity")
 }
 
 model Region {
-  id          String    @id @default(cuid())
-  slug        String    @unique
-  nameAz      String
-  nameRu      String
-  nameEn      String
-  descriptionAz String?
-  descriptionRu String?
-  descriptionEn String?
-  listings    Listing[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id         String    @id @default(cuid())
+  slug       String    @unique
+  /// Localized name: { az: string, ru: string, en: string }
+  name       Json
+  coverImage String?
+  listings   Listing[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@map("regions")
 }
 
 model Amenity {
-  id        String     @id @default(cuid())
-  slug      String     @unique
-  nameAz    String
-  nameRu    String
-  nameEn    String
+  id        String           @id @default(cuid())
+  slug      String           @unique
   icon      String?
-  listings  Listing[]  @relation("ListingAmenities")
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  /// Group key: essentials | outdoor | kitchen | family | extras
+  category  String
+  /// Localized name: { az, ru, en }
+  name      Json
+  listings  ListingAmenity[]
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@index([category])
+  @@map("amenities")
 }
 
 model Listing {
-  id            String          @id @default(cuid())
-  slug          String          @unique
-  titleAz       String
-  titleRu       String
-  titleEn       String
-  descriptionAz String          @db.Text
-  descriptionRu String          @db.Text
-  descriptionEn String          @db.Text
-  category      ListingCategory
-  price         Int
-  rating        Float           @default(0)
-  reviewCount   Int             @default(0)
-  capacity      Int
-  bedrooms      Int
-  images        String[]
-  lat           Float
-  lng           Float
-  address       String
-  regionId      String
-  region        Region          @relation(fields: [regionId], references: [id])
-  amenities     Amenity[]       @relation("ListingAmenities")
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  /// Localized title: { az, ru, en }
+  title       Json
+  /// Localized description: { az, ru, en }
+  description Json
+  regionId    String
+  region      Region          @relation(fields: [regionId], references: [id])
+  direction   Direction
+  placeType   PlaceType
+  category    ListingCategory
+  price       Int
+  rating      Float           @default(0)
+  reviewCount Int             @default(0)
+  capacity    Int
+  bedrooms    Int
+  lat         Float
+  lng         Float
+  address     String
+  phone       String?
+  meals       Meal[]
+  activities  Activity[]
+
+  amenities ListingAmenity[]
+  images    Image[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([category])
   @@index([regionId])
+  @@index([direction])
+  @@index([placeType])
   @@index([price])
+  @@index([rating])
   @@index([createdAt])
+  @@map("listings")
+}
+
+model ListingAmenity {
+  listingId String
+  listing   Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  amenityId String
+  amenity   Amenity @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([listingId, amenityId])
+  @@index([amenityId])
+  @@map("listing_amenities")
+}
+
+model Image {
+  id        String   @id @default(cuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  order     Int      @default(0)
+  alt       String?
+  createdAt DateTime @default(now())
+
+  @@index([listingId, order])
+  @@map("images")
 }
