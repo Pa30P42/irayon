@@ -1,43 +1,44 @@
 'use client';
-// Client component: holds search inputs and date popovers, then navigates.
+// Client component: holds search inputs + filter draft, then navigates to /listings.
 
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useLocale } from '@/hooks/use-locale';
+import { FilterModal } from '@/components/listings/filter-modal';
 import { useRouter } from '@/i18n/navigation';
-import { IconCalendar, IconMapPin, IconSearch, IconUsers } from '@tabler/icons-react';
+import { mockListings } from '@/data/mock-listings';
+import { emptyFilterState } from '@/lib/constants';
+import { countActiveFilters } from '@/lib/listings-filter';
+import { IconAdjustmentsHorizontal, IconMapPin, IconSearch, IconUsers } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import type { ListingsFilterState } from '@/types';
 
-const dateLocaleFor = (locale: string): string => {
-  switch (locale) {
-    case 'az':
-      return 'az-AZ';
-    case 'ru':
-      return 'ru-RU';
-    default:
-      return 'en-US';
-  }
+const appendArray = (params: URLSearchParams, key: string, values: readonly string[]) => {
+  if (values.length > 0) params.set(key, values.join(','));
 };
 
 export function HeroSearchBar() {
   const t = useTranslations('home.search');
-  const { locale } = useLocale();
   const router = useRouter();
 
   const [location, setLocation] = useState('');
-  const [checkIn, setCheckIn] = useState<Date | undefined>();
-  const [checkOut, setCheckOut] = useState<Date | undefined>();
   const [guests, setGuests] = useState<number>(2);
+  const [filters, setFilters] = useState<ListingsFilterState>(() => emptyFilterState());
+  const tFilter = useTranslations('filter');
+  const activeCount = countActiveFilters(filters);
 
   const onSearch = () => {
     const params = new URLSearchParams();
     if (location.trim()) params.set('q', location.trim());
-    if (checkIn) params.set('checkIn', checkIn.toISOString().slice(0, 10));
-    if (checkOut) params.set('checkOut', checkOut.toISOString().slice(0, 10));
     if (guests > 0) params.set('capacity', String(guests));
+    appendArray(params, 'direction', filters.direction);
+    appendArray(params, 'type', filters.type);
+    if (filters.guests) params.set('guests', filters.guests);
+    appendArray(params, 'placement', filters.placement);
+    appendArray(params, 'food', filters.food);
+    appendArray(params, 'extra', filters.extra);
+    appendArray(params, 'basic', filters.basic);
+    appendArray(params, 'fun', filters.fun);
     const qs = params.toString();
     router.push(qs ? `/listings?${qs}` : '/listings');
   };
@@ -48,7 +49,7 @@ export function HeroSearchBar() {
         e.preventDefault();
         onSearch();
       }}
-      className="bg-background/95 border-border grid w-full max-w-4xl grid-cols-1 items-stretch gap-2 rounded-2xl border p-3 shadow-xl backdrop-blur md:grid-cols-[1.4fr_1fr_1fr_1fr_auto]"
+      className="bg-background/95 border-border grid w-full max-w-4xl grid-cols-1 items-stretch gap-2 rounded-2xl border p-3 shadow-xl backdrop-blur md:grid-cols-[1.6fr_auto_1fr_auto]"
     >
       <label className="hover:border-border flex items-center gap-2 rounded-md border border-transparent px-3">
         <IconMapPin size={18} className="text-foreground-muted" aria-hidden />
@@ -62,20 +63,21 @@ export function HeroSearchBar() {
         />
       </label>
 
-      <DateField
-        label={t('checkIn')}
-        placeholder={t('selectDate')}
-        date={checkIn}
-        onSelect={setCheckIn}
-        locale={locale}
-      />
-      <DateField
-        label={t('checkOut')}
-        placeholder={t('selectDate')}
-        date={checkOut}
-        onSelect={setCheckOut}
-        locale={locale}
-        minDate={checkIn}
+      <FilterModal
+        state={filters}
+        listings={mockListings}
+        onApply={setFilters}
+        trigger={
+          <Button type="button" size="lg" variant="default" className="gap-2">
+            <IconAdjustmentsHorizontal size={18} aria-hidden />
+            <span>{tFilter('title')}</span>
+            {activeCount > 0 ? (
+              <span className="ml-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-white/20 px-1.5 text-xs">
+                {activeCount}
+              </span>
+            ) : null}
+          </Button>
+        }
       />
 
       <label className="hover:border-border flex items-center gap-2 rounded-md border border-transparent px-3">
@@ -96,44 +98,5 @@ export function HeroSearchBar() {
         <span className="md:hidden">{t('searchButton')}</span>
       </Button>
     </form>
-  );
-}
-
-type DateFieldProps = {
-  label: string;
-  placeholder: string;
-  date: Date | undefined;
-  onSelect: (date: Date | undefined) => void;
-  locale: string;
-  minDate?: Date;
-};
-
-function DateField({ label, placeholder, date, onSelect, locale, minDate }: DateFieldProps) {
-  const display = date
-    ? new Intl.DateTimeFormat(dateLocaleFor(locale), { dateStyle: 'medium' }).format(date)
-    : placeholder;
-
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          className="hover:border-border flex h-10 w-full items-center gap-2 rounded-md border border-transparent px-3 text-left text-sm"
-          aria-label={label}
-        >
-          <IconCalendar size={18} className="text-foreground-muted" aria-hidden />
-          <span className={date ? 'text-foreground' : 'text-foreground-muted'}>{display}</span>
-        </button>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="w-auto p-0">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={onSelect}
-          disabled={minDate ? { before: minDate } : undefined}
-          initialFocus
-        />
-      </PopoverContent>
-    </Popover>
   );
 }

@@ -78,6 +78,8 @@ export type Listing = {
   reviewCount: number;
   capacity: number;
   bedrooms: number;
+  /** E.164-formatted phone number used by the "Call" CTA. */
+  phone: string;
   meals: Meal[];
   activities: Activity[];
   location: ListingLocation;

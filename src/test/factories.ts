@@ -16,6 +16,7 @@ export const makeListing = (overrides: Partial<Listing> & Pick<Listing, 'id'>): 
   reviewCount: 10,
   capacity: 4,
   bedrooms: 2,
+  phone: '+994500000000',
   meals: [],
   activities: [],
   location: { lat: 0, lng: 0, address: '' },

@@ -89,8 +89,9 @@ describe('ListingDetailContent', () => {
     expect(screen.getByRole('heading', { level: 3, name: 'Nohur Lake Villa' })).toBeInTheDocument();
   });
 
-  it('shows "select dates first" placeholder before any range is picked', () => {
+  it('renders a Call button linking to the listing phone number', () => {
     renderWithProviders(<ListingDetailContent listing={listing} similar={similar} locale="en" />);
-    expect(screen.getByText(/select dates to see the breakdown/i)).toBeInTheDocument();
+    const link = screen.getByRole('link', { name: /call/i });
+    expect(link).toHaveAttribute('href', `tel:${listing.phone}`);
   });
 });

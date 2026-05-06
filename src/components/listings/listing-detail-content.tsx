@@ -30,7 +30,7 @@ export function ListingDetailContent({ listing, similar, locale }: ListingDetail
           <ListingLocation listing={listing} />
         </div>
         <div className="lg:relative">
-          <BookingCard pricePerNight={listing.price} capacity={listing.capacity} locale={locale} />
+          <BookingCard listing={listing} locale={locale} />
         </div>
       </div>
 

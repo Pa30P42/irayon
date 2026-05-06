@@ -38,6 +38,7 @@ const baseListing: Listing = {
   reviewCount: 150,
   capacity: 6,
   bedrooms: 3,
+  phone: '+994500000000',
   meals: ['breakfast'],
   activities: [],
   location: { lat: 0, lng: 0, address: 'Vandam' },
