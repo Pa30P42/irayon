@@ -1,0 +1,60 @@
+{
+  "common": {
+    "appName": "IRayon",
+    "tagline": "Nature retreats across Azerbaijan",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "search": "Search",
+    "filter": "Filter",
+    "viewAll": "View all",
+    "currency": "AZN",
+    "perNight": "night"
+  },
+  "nav": {
+    "home": "Home",
+    "listings": "Villas",
+    "regions": "Regions",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "home": {
+    "heroTitle": "Unforgettable getaways in Azerbaijan's most beautiful corners",
+    "heroSubtitle": "Discover villas in mountains, forests and by the lakes",
+    "ctaExplore": "Explore villas",
+    "featuredTitle": "Featured villas",
+    "featuredSubtitle": "The most loved places by our travelers"
+  },
+  "listings": {
+    "title": "All villas",
+    "subtitle": "Pick the perfect place for your retreat",
+    "noResults": "No results found",
+    "guests": "guests",
+    "bedrooms": "bedrooms",
+    "bookNow": "Book now",
+    "amenities": "Amenities",
+    "location": "Location",
+    "rating": "Rating",
+    "reviews": "reviews"
+  },
+  "categories": {
+    "mountain": "Mountain",
+    "forest": "Forest",
+    "river": "River",
+    "sea": "Sea",
+    "lake": "Lake"
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "company": "Company",
+    "support": "Support",
+    "legal": "Legal",
+    "follow": "Follow us"
+  },
+  "language": {
+    "label": "Language",
+    "az": "Azerbaijani",
+    "ru": "Russian",
+    "en": "English"
+  }
+}

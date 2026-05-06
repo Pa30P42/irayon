@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ListingCategory {
+  MOUNTAIN
+  FOREST
+  RIVER
+  SEA
+  LAKE
+}
+
+model Region {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  nameAz      String
+  nameRu      String
+  nameEn      String
+  descriptionAz String?
+  descriptionRu String?
+  descriptionEn String?
+  listings    Listing[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Amenity {
+  id        String     @id @default(cuid())
+  slug      String     @unique
+  nameAz    String
+  nameRu    String
+  nameEn    String
+  icon      String?
+  listings  Listing[]  @relation("ListingAmenities")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Listing {
+  id            String          @id @default(cuid())
+  slug          String          @unique
+  titleAz       String
+  titleRu       String
+  titleEn       String
+  descriptionAz String          @db.Text
+  descriptionRu String          @db.Text
+  descriptionEn String          @db.Text
+  category      ListingCategory
+  price         Int
+  rating        Float           @default(0)
+  reviewCount   Int             @default(0)
+  capacity      Int
+  bedrooms      Int
+  images        String[]
+  lat           Float
+  lng           Float
+  address       String
+  regionId      String
+  region        Region          @relation(fields: [regionId], references: [id])
+  amenities     Amenity[]       @relation("ListingAmenities")
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([category])
+  @@index([regionId])
+  @@index([price])
+}

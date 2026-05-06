@@ -1,0 +1,60 @@
+{
+  "common": {
+    "appName": "IRayon",
+    "tagline": "Azərbaycanın təbiət qoynunda istirahət",
+    "loading": "Yüklənir...",
+    "error": "Xəta baş verdi",
+    "retry": "Yenidən cəhd et",
+    "search": "Axtar",
+    "filter": "Filter",
+    "viewAll": "Hamısına bax",
+    "currency": "AZN",
+    "perNight": "gecə"
+  },
+  "nav": {
+    "home": "Ana səhifə",
+    "listings": "Villalar",
+    "regions": "Regionlar",
+    "about": "Haqqımızda",
+    "contact": "Əlaqə"
+  },
+  "home": {
+    "heroTitle": "Azərbaycanın gözəl guşələrində unudulmaz tətil",
+    "heroSubtitle": "Dağlarda, meşələrdə və göl kənarında yerləşən villaları kəşf edin",
+    "ctaExplore": "Villaları araşdır",
+    "featuredTitle": "Seçilmiş villalar",
+    "featuredSubtitle": "Səyahətçilərimizin ən çox bəyəndiyi yerlər"
+  },
+  "listings": {
+    "title": "Bütün villalar",
+    "subtitle": "Mükəmməl istirahət üçün ideal məkanı seçin",
+    "noResults": "Heç bir nəticə tapılmadı",
+    "guests": "qonaq",
+    "bedrooms": "yataq otağı",
+    "bookNow": "İndi rezerv et",
+    "amenities": "Şərait",
+    "location": "Məkan",
+    "rating": "Reytinq",
+    "reviews": "rəy"
+  },
+  "categories": {
+    "mountain": "Dağ",
+    "forest": "Meşə",
+    "river": "Çay",
+    "sea": "Dəniz",
+    "lake": "Göl"
+  },
+  "footer": {
+    "rights": "Bütün hüquqlar qorunur",
+    "company": "Şirkət",
+    "support": "Dəstək",
+    "legal": "Hüquqi",
+    "follow": "Bizi izləyin"
+  },
+  "language": {
+    "label": "Dil",
+    "az": "Azərbaycanca",
+    "ru": "Rus dili",
+    "en": "İngilis dili"
+  }
+}
