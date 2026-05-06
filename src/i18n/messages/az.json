@@ -9,7 +9,9 @@
     "filter": "Filter",
     "viewAll": "Hamısına bax",
     "currency": "AZN",
-    "perNight": "gecə"
+    "perNight": "gecə",
+    "favorite": "Sevimlilərə əlavə et",
+    "unfavorite": "Sevimlilərdən sil"
   },
   "nav": {
     "home": "Ana səhifə",
@@ -19,11 +21,45 @@
     "contact": "Əlaqə"
   },
   "home": {
-    "heroTitle": "Azərbaycanın gözəl guşələrində unudulmaz tətil",
-    "heroSubtitle": "Dağlarda, meşələrdə və göl kənarında yerləşən villaları kəşf edin",
-    "ctaExplore": "Villaları araşdır",
-    "featuredTitle": "Seçilmiş villalar",
-    "featuredSubtitle": "Səyahətçilərimizin ən çox bəyəndiyi yerlər"
+    "hero": {
+      "title": "Azərbaycanın gözəl guşələrində unudulmaz tətil",
+      "subtitle": "Dağlarda, meşələrdə və göl kənarında yerləşən villaları kəşf edin",
+      "cta": "Villaları araşdır"
+    },
+    "search": {
+      "placeholder": "Hara getmək istəyirsən?",
+      "location": "Məkan",
+      "checkIn": "Giriş tarixi",
+      "checkOut": "Çıxış tarixi",
+      "guests": "Qonaqlar",
+      "guestCount": "{count, plural, one {# qonaq} other {# qonaq}}",
+      "selectDate": "Tarix seç",
+      "searchButton": "Axtar"
+    },
+    "categories": {
+      "all": "Hamısı",
+      "mountain": "Dağ",
+      "forest": "Meşə",
+      "river": "Çay",
+      "sea": "Dəniz",
+      "pool": "Hovuz",
+      "bbq": "Mangal",
+      "winter": "Qış",
+      "cabin": "Kottec"
+    },
+    "featured": {
+      "title": "Seçilmiş villalar",
+      "subtitle": "Səyahətçilərimizin ən çox bəyəndiyi yerlər"
+    },
+    "regions": {
+      "title": "Azərbaycanın regionları",
+      "subtitle": "Hər region öz unikal təcrübəsini təqdim edir"
+    },
+    "map": {
+      "title": "Xəritədə kəşf et",
+      "subtitle": "Bütün villaları interaktiv xəritədə görün və mükəmməl yeri tapın",
+      "cta": "Xəritəni aç"
+    }
   },
   "listings": {
     "title": "Bütün villalar",
@@ -35,7 +71,9 @@
     "amenities": "Şərait",
     "location": "Məkan",
     "rating": "Reytinq",
-    "reviews": "rəy"
+    "reviews": "rəy",
+    "topPick": "Tövsiyə olunur",
+    "new": "Yeni"
   },
   "categories": {
     "mountain": "Dağ",
@@ -43,6 +81,18 @@
     "river": "Çay",
     "sea": "Dəniz",
     "lake": "Göl"
+  },
+  "regions": {
+    "gabala": "Qəbələ",
+    "sheki": "Şəki",
+    "guba": "Quba",
+    "lankaran": "Lənkəran",
+    "gusar": "Qusar",
+    "gakh": "Qax",
+    "ismayilli": "İsmayıllı",
+    "goychay": "Göyçay",
+    "absheron": "Abşeron",
+    "lerik": "Lerik"
   },
   "footer": {
     "rights": "Bütün hüquqlar qorunur",

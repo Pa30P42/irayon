@@ -69,4 +69,15 @@ export type ListingFilters = {
   amenities?: Amenity[];
 };
 
+export type HomeCategory =
+  | 'all'
+  | 'mountain'
+  | 'forest'
+  | 'river'
+  | 'sea'
+  | 'pool'
+  | 'bbq'
+  | 'winter'
+  | 'cabin';
+
 export type { Locale };

@@ -4,8 +4,12 @@ out
 build
 dist
 coverage
+.cache
+.turbo
 *.lock
 package-lock.json
 pnpm-lock.yaml
+yarn.lock
 .env*
 prisma/generated
+next-env.d.ts

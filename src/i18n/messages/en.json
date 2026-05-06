@@ -9,7 +9,9 @@
     "filter": "Filter",
     "viewAll": "View all",
     "currency": "AZN",
-    "perNight": "night"
+    "perNight": "night",
+    "favorite": "Add to favorites",
+    "unfavorite": "Remove from favorites"
   },
   "nav": {
     "home": "Home",
@@ -19,11 +21,45 @@
     "contact": "Contact"
   },
   "home": {
-    "heroTitle": "Unforgettable getaways in Azerbaijan's most beautiful corners",
-    "heroSubtitle": "Discover villas in mountains, forests and by the lakes",
-    "ctaExplore": "Explore villas",
-    "featuredTitle": "Featured villas",
-    "featuredSubtitle": "The most loved places by our travelers"
+    "hero": {
+      "title": "Unforgettable getaways in Azerbaijan's most beautiful corners",
+      "subtitle": "Discover villas in the mountains, forests and by the lakes",
+      "cta": "Explore villas"
+    },
+    "search": {
+      "placeholder": "Where do you want to go?",
+      "location": "Location",
+      "checkIn": "Check-in",
+      "checkOut": "Check-out",
+      "guests": "Guests",
+      "guestCount": "{count, plural, one {# guest} other {# guests}}",
+      "selectDate": "Select date",
+      "searchButton": "Search"
+    },
+    "categories": {
+      "all": "All",
+      "mountain": "Mountain",
+      "forest": "Forest",
+      "river": "River",
+      "sea": "Sea",
+      "pool": "Pool",
+      "bbq": "BBQ",
+      "winter": "Winter",
+      "cabin": "Cabin"
+    },
+    "featured": {
+      "title": "Featured villas",
+      "subtitle": "The most loved places by our travelers"
+    },
+    "regions": {
+      "title": "Regions of Azerbaijan",
+      "subtitle": "Each region offers its own unique experience"
+    },
+    "map": {
+      "title": "Discover on the map",
+      "subtitle": "Browse all villas on an interactive map and find the perfect spot",
+      "cta": "Open map"
+    }
   },
   "listings": {
     "title": "All villas",
@@ -35,7 +71,9 @@
     "amenities": "Amenities",
     "location": "Location",
     "rating": "Rating",
-    "reviews": "reviews"
+    "reviews": "reviews",
+    "topPick": "Top pick",
+    "new": "New"
   },
   "categories": {
     "mountain": "Mountain",
@@ -43,6 +81,18 @@
     "river": "River",
     "sea": "Sea",
     "lake": "Lake"
+  },
+  "regions": {
+    "gabala": "Gabala",
+    "sheki": "Sheki",
+    "guba": "Guba",
+    "lankaran": "Lankaran",
+    "gusar": "Gusar",
+    "gakh": "Gakh",
+    "ismayilli": "Ismayilli",
+    "goychay": "Goychay",
+    "absheron": "Absheron",
+    "lerik": "Lerik"
   },
   "footer": {
     "rights": "All rights reserved",

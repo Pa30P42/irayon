@@ -1,4 +1,4 @@
-import type { ListingCategory, Region, Amenity } from '@/types';
+import type { ListingCategory, Region, Amenity, HomeCategory } from '@/types';
 
 export const SITE = {
   name: 'IRayon',
@@ -49,3 +49,26 @@ export const PRICE_BOUNDS = {
 } as const;
 
 export const DEFAULT_PAGE_SIZE = 12;
+
+export const HOME_CATEGORIES: readonly HomeCategory[] = [
+  'all',
+  'mountain',
+  'forest',
+  'river',
+  'sea',
+  'pool',
+  'bbq',
+  'winter',
+  'cabin',
+] as const;
+
+export const HOME_FEATURED_LIMIT = 8;
+
+export const FEATURED_REGIONS: readonly Region[] = [
+  'gabala',
+  'sheki',
+  'guba',
+  'gusar',
+  'lankaran',
+  'absheron',
+] as const;

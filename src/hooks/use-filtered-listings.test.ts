@@ -1,0 +1,76 @@
+import { describe, it, expect } from 'vitest';
+import { renderHook } from '@testing-library/react';
+import { useFilteredListings } from './use-filtered-listings';
+import type { Listing } from '@/types';
+
+const make = (overrides: Partial<Listing> & Pick<Listing, 'id'>): Listing => ({
+  id: overrides.id,
+  slug: overrides.id,
+  title: { az: 't', ru: 't', en: 't' },
+  description: { az: 'd', ru: 'd', en: 'd' },
+  region: 'gabala',
+  price: 200,
+  images: [],
+  amenities: [],
+  category: 'mountain',
+  rating: 4,
+  reviewCount: 10,
+  capacity: 4,
+  bedrooms: 2,
+  location: { lat: 0, lng: 0, address: '' },
+  ...overrides,
+});
+
+const fixtures: Listing[] = [
+  make({ id: '1', category: 'mountain', amenities: ['pool', 'wifi'], bedrooms: 4 }),
+  make({ id: '2', category: 'forest', amenities: ['fireplace', 'heating'], bedrooms: 2 }),
+  make({ id: '3', category: 'sea', amenities: ['pool', 'bbq'], bedrooms: 5 }),
+  make({ id: '4', category: 'river', amenities: ['kitchen'], bedrooms: 1 }),
+  make({ id: '5', category: 'mountain', amenities: ['fireplace'], bedrooms: 3 }),
+];
+
+describe('useFilteredListings', () => {
+  it('returns all when category is "all"', () => {
+    const { result } = renderHook(() =>
+      useFilteredListings({ listings: fixtures, category: 'all' }),
+    );
+    expect(result.current.listings).toHaveLength(5);
+    expect(result.current.total).toBe(5);
+  });
+
+  it('filters by listing category', () => {
+    const { result } = renderHook(() =>
+      useFilteredListings({ listings: fixtures, category: 'mountain' }),
+    );
+    expect(result.current.listings.map((l) => l.id)).toEqual(['1', '5']);
+  });
+
+  it('filters "pool" by amenity', () => {
+    const { result } = renderHook(() =>
+      useFilteredListings({ listings: fixtures, category: 'pool' }),
+    );
+    expect(result.current.listings.map((l) => l.id)).toEqual(['1', '3']);
+  });
+
+  it('filters "winter" by fireplace + heating', () => {
+    const { result } = renderHook(() =>
+      useFilteredListings({ listings: fixtures, category: 'winter' }),
+    );
+    expect(result.current.listings.map((l) => l.id)).toEqual(['2']);
+  });
+
+  it('filters "cabin" by bedrooms <= 2', () => {
+    const { result } = renderHook(() =>
+      useFilteredListings({ listings: fixtures, category: 'cabin' }),
+    );
+    expect(result.current.listings.map((l) => l.id)).toEqual(['2', '4']);
+  });
+
+  it('respects the limit', () => {
+    const { result } = renderHook(() =>
+      useFilteredListings({ listings: fixtures, category: 'all', limit: 2 }),
+    );
+    expect(result.current.listings).toHaveLength(2);
+    expect(result.current.total).toBe(5);
+  });
+});
