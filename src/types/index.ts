@@ -155,6 +155,6 @@ export type FilterCompatibility = Record<string, { count: number; compatible: bo
 
 export type SortOption = 'price-asc' | 'price-desc' | 'rating' | 'newest';
 
-export type ListingsView = 'grid' | 'list';
+export type ListingsView = 'grid' | 'list' | 'map';
 
 export type { Locale };

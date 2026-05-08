@@ -18,7 +18,7 @@ export function SiteFooter() {
         <FooterColumn title={t('legal')} items={['Privacy', 'Terms', 'Cookies']} />
       </div>
       <div className="container-wide text-foreground-muted pb-8 text-xs">
-        © {year} IRayon. {t('rights')}.
+        © {year} iRayon. {t('rights')}.
       </div>
     </footer>
   );

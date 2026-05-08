@@ -13,7 +13,7 @@ type ListingHostProps = {
  */
 const hostNameFromSlug = (slug: string): string => {
   const tail = slug.split('-').slice(0, 2).join(' ');
-  return tail ? tail.replace(/\b\w/g, (c) => c.toUpperCase()) : 'IRayon Host';
+  return tail ? tail.replace(/\b\w/g, (c) => c.toUpperCase()) : 'iRayon Host';
 };
 
 export function ListingHost({ listing }: ListingHostProps) {

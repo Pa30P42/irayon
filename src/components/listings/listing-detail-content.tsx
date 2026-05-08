@@ -27,7 +27,7 @@ export function ListingDetailContent({ listing, similar, locale }: ListingDetail
           <ListingHighlights listing={listing} />
           <ListingDescription description={listing.description[locale]} />
           <ListingAmenities listing={listing} />
-          <ListingLocation listing={listing} />
+          <ListingLocation listing={listing} locale={locale} />
         </div>
         <div className="lg:relative">
           <BookingCard listing={listing} locale={locale} />

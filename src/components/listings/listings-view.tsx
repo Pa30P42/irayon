@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import { ActiveFiltersBar } from './active-filters-bar';
 import { ListingGrid } from './listing-grid';
+import { ListingsMapView } from './map/listings-map-view';
 import { ListingsTopBar } from './listings-top-bar';
 import { NoResults } from './no-results';
 
@@ -43,6 +44,8 @@ export function ListingsView({ initialListings, locale }: ListingsViewProps) {
 
       {filtered.length === 0 ? (
         <NoResults onReset={reset} />
+      ) : view === 'map' ? (
+        <ListingsMapView listings={filtered} locale={locale} />
       ) : (
         <ListingGrid listings={filtered} locale={locale} view={view} />
       )}

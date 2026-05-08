@@ -55,7 +55,7 @@ export default async function HomePage({ params }: HomePageProps) {
       >
         <FeaturedListings initialListings={listings} locale={locale} />
       </Suspense>
-      <MapTeaser />
+      <MapTeaser listings={listings} locale={locale} />
       <RegionsGrid locale={locale} />
     </>
   );

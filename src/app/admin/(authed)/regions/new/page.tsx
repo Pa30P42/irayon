@@ -2,7 +2,7 @@ import { NewRegionClient } from '@/components/admin/new-region-client';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'New region · IRayon Admin',
+  title: 'New region · iRayon Admin',
 };
 
 export default function NewRegionPage() {

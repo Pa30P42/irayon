@@ -29,5 +29,5 @@ export const listingsFilterParsers = {
   basic: parseAsArrayOf(parseAsStringLiteral(BASIC_AMENITIES)).withDefault([]),
   fun: parseAsArrayOf(parseAsStringLiteral(ACTIVITIES)).withDefault([]),
   sort: parseAsStringLiteral(SORT_OPTIONS),
-  view: parseAsStringLiteral(['grid', 'list'] as const).withDefault('grid'),
+  view: parseAsStringLiteral(['grid', 'list', 'map'] as const).withDefault('grid'),
 } satisfies UseQueryStatesKeysMap;
