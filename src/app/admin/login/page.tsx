@@ -11,7 +11,8 @@ export default async function AdminLoginPage({ searchParams }: PageProps) {
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="border-border bg-background w-full max-w-sm space-y-6 rounded-2xl border p-6 shadow-sm sm:p-8">
-        <header className="space-y-1 text-center">
+        <header className="flex flex-col items-center space-y-2 text-center">
+          <img src="/logo.svg" alt="IRayon" className="h-14 w-14" />
           <p className="text-primary text-xs font-semibold tracking-wide uppercase">
             IRayon · Admin
           </p>

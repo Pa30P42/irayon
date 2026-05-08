@@ -9,8 +9,9 @@ export default function AdminAuthedLayout({ children }: { children: ReactNode })
         <div className="container-wide flex h-14 items-center justify-between gap-3">
           <Link
             href="/admin/listings"
-            className="text-primary text-sm font-semibold tracking-wide uppercase"
+            className="text-primary flex items-center gap-2 text-sm font-semibold tracking-wide uppercase"
           >
+            <img src="/logo.svg" alt="" aria-hidden className="h-7 w-7" />
             IRayon · Admin
           </Link>
           <nav className="flex items-center gap-4 text-sm">
