@@ -3,7 +3,16 @@ import { SITE } from '@/lib/constants';
 import { formatPrice } from '@/lib/utils';
 import { ImageResponse } from 'next/og';
 
-export const runtime = 'edge';
+// Node runtime, NOT edge: the import chain (`getListingBySlug` → Prisma +
+// Supabase clients) blows past Vercel's 1 MB Edge bundle limit. Node
+// serverless has a 50 MB ceiling and easily fits the deps. Cold-start is
+// ~300ms slower than Edge, which is fine for OG images — they're cached by
+// every platform that fetches them and aren't on a user's critical path.
+//
+// `revalidate` enables ISR-style caching at the CDN edge so Vercel only
+// invokes the Node function on cache misses.
+export const runtime = 'nodejs';
+export const revalidate = 86400; // 1 day
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
