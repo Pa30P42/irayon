@@ -54,6 +54,58 @@
   }
 }
 
+/* ---- Brand loader animation ---------------------------------------------
+   Two stacked copies of the logo: a faded base and a coloured layer that
+   we reveal with an animated clip-path. The fill rises from the bottom,
+   pauses fully visible, then drains out so the cycle restarts cleanly.
+   -------------------------------------------------------------------------- */
+@keyframes brand-loader-fill {
+  0% {
+    clip-path: inset(100% 0 0 0);
+  }
+  45% {
+    clip-path: inset(0 0 0 0);
+  }
+  55% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+@keyframes brand-loader-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.brand-loader-fill {
+  animation: brand-loader-fill 2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  will-change: clip-path;
+}
+
+.brand-loader-pulse {
+  animation: brand-loader-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-loader-fill,
+  .brand-loader-pulse {
+    animation: none;
+  }
+  .brand-loader-fill {
+    clip-path: none;
+  }
+  .brand-loader-pulse {
+    opacity: 0.75;
+  }
+}
+
 /* ---- Leaflet map styling -------------------------------------------------
    Custom price-pin markers and popup styling that match the forest-green
    theme. Lives outside @layer because Leaflet ships its own classes that we
