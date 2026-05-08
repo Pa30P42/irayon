@@ -15,6 +15,7 @@ import type {
   SortOption,
 } from '@/types';
 import type { Prisma, PrismaClient } from '@prisma/client';
+import type { CreateListingInput } from './listings-create-validator';
 import type { ListingsQuery } from './listings-validator';
 
 export type ListListingsResult = {
@@ -38,8 +39,42 @@ export async function getListingBySlug(slug: string): Promise<Listing | null> {
   return isUsingMockData() ? getListingFromMock(slug) : getListingFromDb(slug);
 }
 
+export async function getListingById(id: string): Promise<Listing | null> {
+  if (isUsingMockData()) return mockListings.find((l) => l.id === id) ?? null;
+  return getListingByIdFromDb(id);
+}
+
+export async function updateListing(
+  id: string,
+  input: CreateListingInput,
+): Promise<Listing | null> {
+  if (isUsingMockData()) return mockListings.find((l) => l.id === id) ?? null;
+  return updateListingFromDb(id, input);
+}
+
 export async function listRegions(): Promise<RegionSummary[]> {
   return isUsingMockData() ? listRegionsFromMock() : listRegionsFromDb();
+}
+
+export type DeleteListingResult = {
+  deleted: boolean;
+  storageRemoved: number;
+  storageFailed: number;
+};
+
+/**
+ * Deletes a listing (and its image / amenity rows via DB cascade), then
+ * best-effort removes any of its images that live in our storage bucket.
+ * External URLs (Unsplash placeholders) are left as-is.
+ *
+ * Storage failures don't fail the whole call — the DB row is the source of
+ * truth. Orphans in the bucket can be reaped by a sweep later.
+ */
+export async function deleteListing(id: string): Promise<DeleteListingResult> {
+  if (isUsingMockData()) {
+    return { deleted: true, storageRemoved: 0, storageFailed: 0 };
+  }
+  return deleteListingFromDb(id);
 }
 
 export type RegionSummary = {
@@ -315,6 +350,97 @@ export async function getListingFromDb(
   return row ? rowToDto(row) : null;
 }
 
+export async function getListingByIdFromDb(
+  id: string,
+  db: PrismaClient = defaultPrisma,
+): Promise<Listing | null> {
+  const row = await db.listing.findUnique({ where: { id }, include: LISTING_INCLUDE });
+  return row ? rowToDto(row) : null;
+}
+
+export type ListingImageRef = { id: string; url: string };
+
+/**
+ * Returns image rows with their ids — needed by the admin edit flow so each
+ * thumbnail can target the per-image DELETE endpoint. Public DTOs only carry
+ * URLs because clients have no business addressing individual rows.
+ */
+export async function getListingImagesById(
+  id: string,
+  db: PrismaClient = defaultPrisma,
+): Promise<ListingImageRef[]> {
+  if (isUsingMockData()) {
+    const listing = mockListings.find((l) => l.id === id);
+    if (!listing) return [];
+    return listing.images.map((url, idx) => ({ id: `${id}-img-${idx}`, url }));
+  }
+  const rows = await db.image.findMany({
+    where: { listingId: id },
+    orderBy: { order: 'asc' },
+    select: { id: true, url: true },
+  });
+  return rows;
+}
+
+export async function updateListingFromDb(
+  id: string,
+  input: CreateListingInput,
+  db: PrismaClient = defaultPrisma,
+): Promise<Listing | null> {
+  const region = await db.region.findUnique({
+    where: { slug: input.region },
+    select: { id: true },
+  });
+  if (!region) return null;
+
+  const amenityRows =
+    input.amenities.length > 0
+      ? await db.amenity.findMany({
+          where: { slug: { in: input.amenities } },
+          select: { id: true, slug: true },
+        })
+      : [];
+
+  await db.$transaction([
+    db.listingAmenity.deleteMany({ where: { listingId: id } }),
+    db.listing.update({
+      where: { id },
+      data: {
+        title: {
+          az: input.title.az || input.title.en,
+          ru: input.title.ru || input.title.en,
+          en: input.title.en,
+        } as Prisma.InputJsonValue,
+        description: {
+          az: input.description.az || input.description.en,
+          ru: input.description.ru || input.description.en,
+          en: input.description.en,
+        } as Prisma.InputJsonValue,
+        regionId: region.id,
+        direction: dtoToPrismaEnum(input.direction) as Prisma.ListingUpdateInput['direction'],
+        placeType: dtoToPrismaEnum(input.placeType) as Prisma.ListingUpdateInput['placeType'],
+        category: dtoToPrismaEnum(input.category) as Prisma.ListingUpdateInput['category'],
+        price: input.price,
+        capacity: input.capacity,
+        bedrooms: input.bedrooms,
+        lat: input.lat,
+        lng: input.lng,
+        address: input.address,
+        phone: input.phone,
+        meals: { set: input.meals.map(dtoToPrismaEnum) as never },
+        activities: { set: input.activities.map(dtoToPrismaEnum) as never },
+        amenities:
+          amenityRows.length > 0
+            ? { create: amenityRows.map((a) => ({ amenityId: a.id })) }
+            : undefined,
+      },
+    }),
+  ]);
+
+  const fresh = await db.listing.findUnique({ where: { id }, include: LISTING_INCLUDE });
+  return fresh ? rowToDto(fresh) : null;
+}
+
 export async function listRegionsFromDb(
   db: PrismaClient = defaultPrisma,
 ): Promise<RegionSummary[]> {
@@ -328,4 +454,30 @@ export async function listRegionsFromDb(
     coverImage: r.coverImage,
     listingCount: r._count.listings,
   }));
+}
+
+export async function deleteListingFromDb(
+  id: string,
+  db: PrismaClient = defaultPrisma,
+  removeFromStorage: (url: string) => Promise<unknown> = (url) =>
+    import('@/lib/storage').then((m) => m.deleteListingImageByUrl(url)),
+): Promise<DeleteListingResult> {
+  // Snapshot the URLs before the cascade wipes them.
+  const images = await db.image.findMany({
+    where: { listingId: id },
+    select: { url: true },
+  });
+
+  // Throws (P2025) if the listing doesn't exist — the route handler maps that to 404.
+  await db.listing.delete({ where: { id } });
+
+  let storageRemoved = 0;
+  let storageFailed = 0;
+  const settled = await Promise.allSettled(images.map((img) => removeFromStorage(img.url)));
+  for (const r of settled) {
+    if (r.status === 'fulfilled') storageRemoved += 1;
+    else storageFailed += 1;
+  }
+
+  return { deleted: true, storageRemoved, storageFailed };
 }

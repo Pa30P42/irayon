@@ -24,7 +24,7 @@ const fileFieldSchema = z.custom<File>(
  * row is inserted with `order` continuing from the existing max.
  */
 export async function POST(request: Request, { params }: Context): Promise<Response> {
-  const auth = requireAdmin(request);
+  const auth = await requireAdmin(request);
   if (!auth.ok) return auth.response;
 
   const { id } = await params;

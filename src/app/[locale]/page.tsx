@@ -3,8 +3,8 @@ import { FeaturedListings } from '@/components/home/featured-listings';
 import { HeroSection } from '@/components/home/hero-section';
 import { MapTeaser } from '@/components/home/map-teaser';
 import { RegionsGrid } from '@/components/home/regions-grid';
-import { mockListings } from '@/data/mock-listings';
 import type { Locale } from '@/i18n/routing';
+import { listListings } from '@/lib/api/listings-service';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Suspense } from 'react';
@@ -26,6 +26,23 @@ export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
 
+  // Fetch a generous batch for the featured grid; FeaturedListings re-filters
+  // client-side by category from URL state.
+  const { data: listings } = await listListings({
+    q: '',
+    direction: [],
+    type: [],
+    placement: [],
+    food: [],
+    extra: [],
+    basic: [],
+    amenities: [],
+    fun: [],
+    sort: 'newest',
+    page: 1,
+    limit: 50,
+  });
+
   return (
     <>
       <HeroSection />
@@ -35,7 +52,7 @@ export default async function HomePage({ params }: HomePageProps) {
       <Suspense
         fallback={<div className="container-wide text-foreground-muted py-12">Loading…</div>}
       >
-        <FeaturedListings initialListings={mockListings} locale={locale} />
+        <FeaturedListings initialListings={listings} locale={locale} />
       </Suspense>
       <MapTeaser />
       <RegionsGrid />
