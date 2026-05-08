@@ -1,4 +1,4 @@
-# IRayon
+# iRayon
 
 Villa and cottage rentals across Azerbaijan — built with Next.js 15, React 19, Tailwind v4, next-intl, Prisma.
 

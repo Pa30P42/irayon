@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'IRayon Admin',
+  title: 'iRayon Admin',
   robots: { index: false, follow: false },
 };
 

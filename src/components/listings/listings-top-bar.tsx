@@ -6,7 +6,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { SORT_OPTIONS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import type { Listing, ListingsFilterState, ListingsView, SortOption } from '@/types';
-import { IconLayoutGrid, IconLayoutList, IconSearch } from '@tabler/icons-react';
+import { IconLayoutGrid, IconLayoutList, IconMap2, IconSearch } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 import { FilterModal } from './filter-modal';
@@ -100,6 +100,12 @@ export function ListingsTopBar({
           onClick={() => onViewChange('list')}
           label={tView('list')}
           icon={<IconLayoutList size={18} />}
+        />
+        <ViewButton
+          active={view === 'map'}
+          onClick={() => onViewChange('map')}
+          label={tView('map')}
+          icon={<IconMap2 size={18} />}
         />
       </div>
     </div>

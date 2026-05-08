@@ -2,7 +2,7 @@ import { EditRegionClient } from '@/components/admin/edit-region-client';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'Edit region · IRayon Admin',
+  title: 'Edit region · iRayon Admin',
 };
 
 type Props = { params: Promise<{ id: string }> };

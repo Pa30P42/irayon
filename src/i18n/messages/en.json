@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "IRayon",
+    "appName": "iRayon",
     "tagline": "Nature retreats across Azerbaijan",
     "loading": "Loading...",
     "error": "Something went wrong",
@@ -56,8 +56,10 @@
       "subtitle": "Each region offers its own unique experience"
     },
     "map": {
+      "label": "Map view",
       "title": "Discover on the map",
       "subtitle": "Browse all villas on an interactive map and find the perfect spot",
+      "count": "{count, plural, =0 {No spots yet} one {# spot on the map} other {# spots on the map}}",
       "cta": "Open map"
     }
   },
@@ -86,7 +88,14 @@
     "view": {
       "label": "View",
       "grid": "Grid view",
-      "list": "List view"
+      "list": "List view",
+      "map": "Map view"
+    },
+    "map": {
+      "title": "Villas on the map",
+      "empty": "No spots match these filters",
+      "showList": "Show list",
+      "showMap": "Show map"
     }
   },
   "detail": {

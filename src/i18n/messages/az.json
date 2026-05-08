@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "IRayon",
+    "appName": "iRayon",
     "tagline": "Azərbaycanın təbiət qoynunda istirahət",
     "loading": "Yüklənir...",
     "error": "Xəta baş verdi",
@@ -56,8 +56,10 @@
       "subtitle": "Hər region öz unikal təcrübəsini təqdim edir"
     },
     "map": {
+      "label": "Xəritə görünüşü",
       "title": "Xəritədə kəşf et",
       "subtitle": "Bütün villaları interaktiv xəritədə görün və mükəmməl yeri tapın",
+      "count": "{count, plural, =0 {Hələ heç bir məkan yoxdur} one {Xəritədə # məkan} other {Xəritədə # məkan}}",
       "cta": "Xəritəni aç"
     }
   },
@@ -86,7 +88,14 @@
     "view": {
       "label": "Görünüş",
       "grid": "Şəbəkə",
-      "list": "Siyahı"
+      "list": "Siyahı",
+      "map": "Xəritə"
+    },
+    "map": {
+      "title": "Xəritədə villalar",
+      "empty": "Bu filtrlərə uyğun məkan tapılmadı",
+      "showList": "Siyahını göstər",
+      "showMap": "Xəritəni göstər"
     }
   },
   "detail": {
