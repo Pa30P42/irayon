@@ -1,19 +1,6 @@
-import {
-  ACTIVITIES,
-  AMENITIES,
-  CATEGORIES,
-  DIRECTIONS,
-  MEALS,
-  PLACE_TYPES,
-  REGIONS,
-} from '@/lib/constants';
+import { ACTIVITIES, AMENITIES, CATEGORIES, MEALS, PLACE_TYPES } from '@/lib/constants';
 import { z } from 'zod';
-
-const localizedText = z.object({
-  az: z.string().trim().max(200).optional().default(''),
-  ru: z.string().trim().max(200).optional().default(''),
-  en: z.string().trim().min(1, 'English title is required').max(200),
-});
+import { localizedTextSchema } from './localized-text';
 
 const localizedDescription = z.object({
   az: z.string().trim().max(4000).optional().default(''),
@@ -22,10 +9,12 @@ const localizedDescription = z.object({
 });
 
 export const createListingSchema = z.object({
-  title: localizedText,
+  title: localizedTextSchema,
   description: localizedDescription,
-  region: z.enum(REGIONS as readonly [string, ...string[]]),
-  direction: z.enum(DIRECTIONS as readonly [string, ...string[]]),
+  /** Region slug. Validated against DB at the route handler. */
+  region: z.string().trim().min(1, 'Region is required'),
+  /** Optional FK to the listing's village. Null when no curated village fits. */
+  villageId: z.string().nullable().optional().default(null),
   placeType: z.enum(PLACE_TYPES as readonly [string, ...string[]]),
   category: z.enum(CATEGORIES as readonly [string, ...string[]]),
   price: z.coerce.number().int().positive().max(100_000),

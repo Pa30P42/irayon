@@ -17,6 +17,9 @@ export default function AdminAuthedLayout({ children }: { children: ReactNode })
             <Link href="/admin/listings" className="text-foreground-muted hover:text-foreground">
               Listings
             </Link>
+            <Link href="/admin/regions" className="text-foreground-muted hover:text-foreground">
+              Regions
+            </Link>
             <Link
               href="/admin/listings/new"
               className="text-foreground-muted hover:text-foreground"

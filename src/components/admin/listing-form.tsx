@@ -7,29 +7,14 @@ import { ImageUploader } from '@/components/admin/image-uploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
+import { useRegions, useVillagesByRegionSlug } from '@/hooks/use-public-regions';
 import { createListingSchema, type CreateListingInput } from '@/lib/api/listings-create-validator';
-import {
-  ACTIVITIES,
-  AMENITIES,
-  CATEGORIES,
-  DIRECTIONS,
-  MEALS,
-  PLACE_TYPES,
-  REGIONS,
-} from '@/lib/constants';
+import { ACTIVITIES, AMENITIES, CATEGORIES, MEALS, PLACE_TYPES } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import type {
-  Activity,
-  Amenity,
-  Direction,
-  ListingCategory,
-  Meal,
-  PlaceType,
-  Region,
-} from '@/types';
+import type { Activity, Amenity, ListingCategory, Meal, PlaceType } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconAlertCircle, IconCheck, IconCurrentLocation, IconLoader2 } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 
 type LocaleTab = 'en' | 'ru' | 'az';
@@ -39,8 +24,8 @@ type FormValues = CreateListingInput;
 const DEFAULT_VALUES: FormValues = {
   title: { az: '', ru: '', en: '' },
   description: { az: '', ru: '', en: '' },
-  region: 'gabala' as Region,
-  direction: 'others' as Direction,
+  region: 'gabala',
+  villageId: null,
   placeType: 'villa-cottage' as PlaceType,
   category: 'mountain' as ListingCategory,
   price: 200,
@@ -53,28 +38,6 @@ const DEFAULT_VALUES: FormValues = {
   amenities: [],
   meals: [],
   activities: [],
-};
-
-const REGION_LABEL: Record<Region, string> = {
-  gabala: 'Gabala (Qəbələ)',
-  sheki: 'Sheki (Şəki)',
-  guba: 'Guba (Quba)',
-  lankaran: 'Lankaran (Lənkəran)',
-  gusar: 'Gusar (Qusar)',
-  gakh: 'Gakh (Qax)',
-  ismayilli: 'Ismayilli (İsmayıllı)',
-  goychay: 'Goychay (Göyçay)',
-  absheron: 'Absheron (Abşeron)',
-  lerik: 'Lerik',
-  zagatala: 'Zagatala (Zaqatala)',
-};
-
-const DIRECTION_LABEL: Record<Direction, string> = {
-  ismayilli: 'Ismayilli',
-  guba: 'Guba',
-  lerik: 'Lerik',
-  zagatala: 'Zagatala',
-  others: 'Other',
 };
 
 const PLACE_TYPE_LABEL: Record<PlaceType, string> = {
@@ -174,6 +137,23 @@ export function ListingForm({
   const [readyFiles, setReadyFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<ExistingImage[]>(initialImages);
   const [submitState, setSubmitState] = useState<SubmitState>({ phase: 'idle' });
+
+  // Region/village data is admin-managed, so the form pulls them at runtime.
+  // Village options cascade from the currently-selected region.
+  const { data: regions } = useRegions();
+  const watchedRegion = watch('region');
+  const watchedVillageId = watch('villageId');
+  const { data: villages } = useVillagesByRegionSlug(watchedRegion);
+
+  // Clear villageId whenever the region changes to a region that doesn't own
+  // the currently-selected village. The cascade dropdown then re-populates.
+  useEffect(() => {
+    if (!watchedVillageId || !villages) return;
+    const stillBelongs = villages.some((v) => v.id === watchedVillageId);
+    if (!stillBelongs) {
+      setValue('villageId', null, { shouldValidate: false });
+    }
+  }, [watchedRegion, villages, watchedVillageId, setValue]);
 
   const onUseLocation = () => {
     if (!('geolocation' in navigator)) return;
@@ -373,29 +353,40 @@ export function ListingForm({
       <SectionCard title="Location">
         <Field label="Region" required htmlFor="region" error={errors.region?.message}>
           <Select id="region" {...register('region')}>
-            {REGIONS.map((r) => (
-              <option key={r} value={r}>
-                {REGION_LABEL[r as Region]}
-              </option>
-            ))}
+            {regions
+              ? regions.map((r) => (
+                  <option key={r.slug} value={r.slug}>
+                    {r.name.en}
+                    {r.name.az ? ` (${r.name.az})` : ''}
+                  </option>
+                ))
+              : null}
           </Select>
         </Field>
 
-        <Field label="Direction" required error={errors.direction?.message}>
+        <Field
+          label="Village"
+          htmlFor="village"
+          error={errors.villageId?.message}
+          hint="Optional sub-location. Cascades from the selected region."
+        >
           <Controller
             control={control}
-            name="direction"
+            name="villageId"
             render={({ field }) => (
-              <ChipGroup
-                ariaLabel="Direction"
-                single
-                selected={[field.value as Direction]}
-                onChange={(next) => field.onChange(next[0])}
-                options={DIRECTIONS.map((d) => ({
-                  value: d as Direction,
-                  label: DIRECTION_LABEL[d as Direction],
-                }))}
-              />
+              <Select
+                id="village"
+                value={field.value ?? ''}
+                onChange={(e) => field.onChange(e.target.value || null)}
+              >
+                <option value="">— No village —</option>
+                {villages?.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.name.en}
+                    {v.name.az ? ` (${v.name.az})` : ''}
+                  </option>
+                ))}
+              </Select>
             )}
           />
         </Field>

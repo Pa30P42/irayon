@@ -12,7 +12,7 @@ type ListingDetailProps = {
 
 const EMPTY_FILTER_QUERY = {
   q: '',
-  direction: [],
+  village: [],
   type: [],
   placement: [],
   food: [],

@@ -26,7 +26,7 @@ const okJson = async <T>(res: Response): Promise<T> => {
 export type ListingsQueryInput = Partial<ListingsQuery>;
 
 const isMultivalue = (key: string): boolean =>
-  ['direction', 'type', 'placement', 'food', 'extra', 'basic', 'amenities', 'fun'].includes(key);
+  ['village', 'type', 'placement', 'food', 'extra', 'basic', 'amenities', 'fun'].includes(key);
 
 export const buildListingsParams = (input: ListingsQueryInput = {}): URLSearchParams => {
   const params = new URLSearchParams();
@@ -63,11 +63,32 @@ export async function fetchListingBySlug(
   return okJson<Listing>(res);
 }
 
-export type RegionsResponse = {
-  data: Array<{ slug: string; name: unknown; coverImage: string | null; listingCount: number }>;
-};
+import type { RegionSummary, RegionWithVillages, Village } from '@/types';
+
+export type RegionsResponse = { data: RegionSummary[] };
+export type RegionsWithVillagesResponse = { data: RegionWithVillages[] };
+export type VillagesResponse = { data: Village[] };
 
 export async function fetchRegions(init?: RequestInit): Promise<RegionsResponse> {
   const res = await fetch(buildUrl('/api/regions'), init);
   return okJson<RegionsResponse>(res);
+}
+
+export async function fetchRegionsWithVillages(
+  init?: RequestInit,
+): Promise<RegionsWithVillagesResponse> {
+  const params = new URLSearchParams({ include: 'villages' });
+  const res = await fetch(buildUrl('/api/regions', params), init);
+  return okJson<RegionsWithVillagesResponse>(res);
+}
+
+export async function fetchVillagesByRegion(
+  regionSlug: string,
+  init?: RequestInit,
+): Promise<VillagesResponse> {
+  const res = await fetch(
+    buildUrl(`/api/regions/${encodeURIComponent(regionSlug)}/villages`),
+    init,
+  );
+  return okJson<VillagesResponse>(res);
 }

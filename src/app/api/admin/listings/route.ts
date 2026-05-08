@@ -31,6 +31,20 @@ export async function POST(request: Request): Promise<Response> {
   });
   if (!region) return apiNotFound(`Region "${input.region}" not found`);
 
+  // Validate the optional village belongs to the chosen region. Mismatches
+  // default to null rather than reject — the form's cascade should already
+  // prevent this, so a stale ID just degrades to "no village".
+  let villageId: string | null = null;
+  if (input.villageId) {
+    const village = await prisma.village.findUnique({
+      where: { id: input.villageId },
+      select: { regionId: true },
+    });
+    if (village && village.regionId === region.id) {
+      villageId = input.villageId;
+    }
+  }
+
   const baseSlug = slugify(input.title.en);
   if (!baseSlug) return apiServerError('Could not derive a slug from the title');
 
@@ -64,7 +78,7 @@ export async function POST(request: Request): Promise<Response> {
           en: input.description.en,
         } as Prisma.InputJsonValue,
         regionId: region.id,
-        direction: dtoToPrismaEnum(input.direction) as Prisma.ListingCreateInput['direction'],
+        villageId,
         placeType: dtoToPrismaEnum(input.placeType) as Prisma.ListingCreateInput['placeType'],
         category: dtoToPrismaEnum(input.category) as Prisma.ListingCreateInput['category'],
         price: input.price,

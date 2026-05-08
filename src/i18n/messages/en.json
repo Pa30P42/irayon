@@ -151,7 +151,7 @@
     "resetAll": "Reset all",
     "apply": "{count, plural, =0 {No options} one {Show # option} other {Show # options}}",
     "groups": {
-      "direction": "Direction",
+      "village": "Village",
       "type": "Place type",
       "guests": "Number of guests",
       "placement": "Placement",
@@ -161,13 +161,6 @@
       "fun": "Activities"
     },
     "options": {
-      "direction": {
-        "ismayilli": "Ismayilli",
-        "guba": "Guba",
-        "lerik": "Lerik",
-        "zagatala": "Zagatala",
-        "others": "Others"
-      },
       "type": {
         "a-frame": "A-frame",
         "villa-cottage": "Villa & cottage",
@@ -238,19 +231,6 @@
     "crib": "Baby crib",
     "kids": "Kids' entertainment",
     "ev-charger": "EV charger"
-  },
-  "regions": {
-    "gabala": "Gabala",
-    "sheki": "Sheki",
-    "guba": "Guba",
-    "lankaran": "Lankaran",
-    "gusar": "Gusar",
-    "gakh": "Gakh",
-    "ismayilli": "Ismayilli",
-    "goychay": "Goychay",
-    "absheron": "Absheron",
-    "lerik": "Lerik",
-    "zagatala": "Zagatala"
   },
   "footer": {
     "rights": "All rights reserved",

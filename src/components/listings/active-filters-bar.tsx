@@ -1,10 +1,13 @@
 'use client';
 
+import { useRegionsWithVillages } from '@/hooks/use-public-regions';
+import { useLocale } from '@/hooks/use-locale';
 import { toggleOption } from '@/lib/listings-filter';
-import { cn } from '@/lib/utils';
+import { cn, pickLocalized } from '@/lib/utils';
 import type { FilterGroupName, ListingsFilterState } from '@/types';
 import { IconX } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 
 type ActiveFiltersBarProps = {
   state: ListingsFilterState;
@@ -17,12 +20,27 @@ type Chip = { group: FilterGroupName; option: string; label: string };
 export function ActiveFiltersBar({ state, onChange, onReset }: ActiveFiltersBarProps) {
   const t = useTranslations('filter');
   const tOptions = useTranslations('filter.options');
+  const { locale } = useLocale();
+  const { data: regions } = useRegionsWithVillages();
+
+  // Build village slug → localized label so chips show readable names instead
+  // of slugs. Falls back to the slug while regions are loading.
+  const villageLabelBySlug = useMemo(() => {
+    const map = new Map<string, string>();
+    if (!regions) return map;
+    for (const region of regions) {
+      for (const v of region.villages) {
+        map.set(v.slug, pickLocalized(v.name, locale));
+      }
+    }
+    return map;
+  }, [regions, locale]);
 
   const chips: Chip[] = [
-    ...state.direction.map((o) => ({
-      group: 'direction' as const,
+    ...state.village.map((o) => ({
+      group: 'village' as const,
       option: o,
-      label: tOptions(`direction.${o}`),
+      label: villageLabelBySlug.get(o) ?? o,
     })),
     ...state.type.map((o) => ({
       group: 'type' as const,

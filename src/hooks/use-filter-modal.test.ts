@@ -32,7 +32,7 @@ describe('useFilterModal', () => {
   it('reset clears all selections but preserves the search query', () => {
     const initial = makeFilterState({
       q: 'guba',
-      direction: ['guba'],
+      village: ['qirmizi-qasaba'],
       extra: ['pool'],
       guests: 'lt5',
     });
@@ -42,7 +42,7 @@ describe('useFilterModal', () => {
     act(() => result.current.reset());
 
     expect(result.current.draft.q).toBe('guba');
-    expect(result.current.draft.direction).toEqual([]);
+    expect(result.current.draft.village).toEqual([]);
     expect(result.current.draft.extra).toEqual([]);
     expect(result.current.draft.guests).toBeNull();
   });

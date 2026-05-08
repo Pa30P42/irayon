@@ -7,7 +7,6 @@ import {
 import {
   ACTIVITIES,
   BASIC_AMENITIES,
-  DIRECTIONS,
   EXTRA_AMENITIES,
   GUEST_RANGES,
   MEALS,
@@ -18,7 +17,8 @@ import {
 
 export const listingsFilterParsers = {
   q: parseAsString.withDefault(''),
-  direction: parseAsArrayOf(parseAsStringLiteral(DIRECTIONS)).withDefault([]),
+  /** Village slugs are data-driven; no enum check at the parser level. */
+  village: parseAsArrayOf(parseAsString).withDefault([]),
   type: parseAsArrayOf(parseAsStringLiteral(PLACE_TYPES)).withDefault([]),
   guests: parseAsStringLiteral(GUEST_RANGES),
   placement: parseAsArrayOf(parseAsStringLiteral(PLACEMENTS)).withDefault([]),

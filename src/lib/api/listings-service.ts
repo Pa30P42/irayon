@@ -1,18 +1,19 @@
 import { mockListings } from '@/data/mock-listings';
-import { applyListingsFilter, countActiveFilters, sortListings } from '@/lib/listings-filter';
+import { applyListingsFilter, sortListings } from '@/lib/listings-filter';
 import { prisma as defaultPrisma } from '@/lib/prisma';
 import type {
   Activity,
   Amenity,
-  Direction,
   Listing,
   ListingCategory,
   ListingsFilterState,
   LocalizedText,
   Meal,
   PlaceType,
-  Region,
+  RegionSummary,
+  RegionWithVillages,
   SortOption,
+  Village,
 } from '@/types';
 import type { Prisma, PrismaClient } from '@prisma/client';
 import type { CreateListingInput } from './listings-create-validator';
@@ -56,6 +57,10 @@ export async function listRegions(): Promise<RegionSummary[]> {
   return isUsingMockData() ? listRegionsFromMock() : listRegionsFromDb();
 }
 
+export async function listRegionsWithVillages(): Promise<RegionWithVillages[]> {
+  return isUsingMockData() ? listRegionsWithVillagesFromMock() : listRegionsWithVillagesFromDb();
+}
+
 export type DeleteListingResult = {
   deleted: boolean;
   storageRemoved: number;
@@ -65,10 +70,6 @@ export type DeleteListingResult = {
 /**
  * Deletes a listing (and its image / amenity rows via DB cascade), then
  * best-effort removes any of its images that live in our storage bucket.
- * External URLs (Unsplash placeholders) are left as-is.
- *
- * Storage failures don't fail the whole call — the DB row is the source of
- * truth. Orphans in the bucket can be reaped by a sweep later.
  */
 export async function deleteListing(id: string): Promise<DeleteListingResult> {
   if (isUsingMockData()) {
@@ -77,13 +78,6 @@ export async function deleteListing(id: string): Promise<DeleteListingResult> {
   return deleteListingFromDb(id);
 }
 
-export type RegionSummary = {
-  slug: Region;
-  name: LocalizedText;
-  coverImage: string | null;
-  listingCount: number;
-};
-
 // ---------------------------------------------------------------------------
 // Mock implementations — used until a DATABASE_URL is configured.
 // ---------------------------------------------------------------------------
@@ -91,7 +85,7 @@ export type RegionSummary = {
 function queryToFilterState(query: ListingsQuery): ListingsFilterState {
   return {
     q: query.q ?? '',
-    direction: query.direction as Direction[],
+    village: query.village,
     type: query.type as PlaceType[],
     guests: query.guests ? (query.guests as ListingsFilterState['guests']) : null,
     placement: query.placement as ListingsFilterState['placement'],
@@ -106,7 +100,6 @@ export function listListingsFromMock(query: ListingsQuery): ListListingsResult {
   const filterState = queryToFilterState(query);
   let results = applyListingsFilter(mockListings, filterState);
 
-  // Apply legacy single-select filters that aren't part of ListingsFilterState.
   if (query.category) results = results.filter((l) => l.category === query.category);
   if (query.region) results = results.filter((l) => l.region === query.region);
   if (typeof query.price_min === 'number') {
@@ -144,18 +137,23 @@ export function getListingFromMock(slug: string): Listing | null {
 }
 
 export function listRegionsFromMock(): RegionSummary[] {
-  const counts = new Map<Region, number>();
+  const counts = new Map<string, number>();
   for (const l of mockListings) counts.set(l.region, (counts.get(l.region) ?? 0) + 1);
 
-  // Use the active filter count just to confirm the helper is wired (otherwise unused).
-  void countActiveFilters;
-
-  return Array.from(counts.entries()).map(([slug, listingCount]) => ({
+  return Array.from(counts.entries()).map(([slug, listingCount], idx) => ({
+    id: `mock_${slug}`,
     slug,
     name: { az: slug, ru: slug, en: slug },
     coverImage: null,
+    featured: idx < 6,
+    sortOrder: (idx + 1) * 10,
     listingCount,
+    villageCount: 0,
   }));
+}
+
+export function listRegionsWithVillagesFromMock(): RegionWithVillages[] {
+  return listRegionsFromMock().map((r) => ({ ...r, villages: [] }));
 }
 
 // ---------------------------------------------------------------------------
@@ -164,19 +162,12 @@ export function listRegionsFromMock(): RegionSummary[] {
 
 const LISTING_INCLUDE = {
   region: true,
+  village: true,
   amenities: { include: { amenity: true } },
   images: { orderBy: { order: 'asc' } },
 } as const satisfies Prisma.ListingInclude;
 
 type ListingRow = Prisma.ListingGetPayload<{ include: typeof LISTING_INCLUDE }>;
-
-const PRISMA_TO_DTO_DIRECTION: Record<string, Direction> = {
-  ISMAYILLI: 'ismayilli',
-  GUBA: 'guba',
-  LERIK: 'lerik',
-  ZAGATALA: 'zagatala',
-  OTHERS: 'others',
-};
 
 const PRISMA_TO_DTO_PLACE_TYPE: Record<string, PlaceType> = {
   A_FRAME: 'a-frame',
@@ -213,8 +204,11 @@ export function rowToDto(row: ListingRow): Listing {
     slug: row.slug,
     title: row.title as unknown as LocalizedText,
     description: row.description as unknown as LocalizedText,
-    region: row.region.slug as Region,
-    direction: PRISMA_TO_DTO_DIRECTION[row.direction] ?? 'others',
+    region: row.region.slug,
+    regionName: row.region.name as unknown as LocalizedText,
+    villageId: row.villageId,
+    villageSlug: row.village?.slug ?? null,
+    villageName: row.village ? (row.village.name as unknown as LocalizedText) : null,
     placeType: PRISMA_TO_DTO_PLACE_TYPE[row.placeType] ?? 'villa-cottage',
     category: PRISMA_TO_DTO_CATEGORY[row.category] ?? 'mountain',
     price: row.price,
@@ -238,10 +232,8 @@ function buildWhere(query: ListingsQuery): Prisma.ListingWhereInput {
     where.category = dtoToPrismaEnum(query.category) as Prisma.ListingWhereInput['category'];
   }
   if (query.region) where.region = { slug: query.region };
-  if (query.direction.length > 0) {
-    where.direction = {
-      in: query.direction.map(dtoToPrismaEnum),
-    } as Prisma.ListingWhereInput['direction'];
+  if (query.village.length > 0) {
+    where.village = { slug: { in: query.village } };
   }
   if (query.type.length > 0) {
     where.placeType = {
@@ -393,6 +385,20 @@ export async function updateListingFromDb(
   });
   if (!region) return null;
 
+  // If the form supplied a village, verify it belongs to the chosen region.
+  // Cross-region mismatches default to null rather than error — keeps the
+  // listing editable instead of bouncing users with a hard validation fail.
+  let villageId: string | null = null;
+  if (input.villageId) {
+    const village = await db.village.findUnique({
+      where: { id: input.villageId },
+      select: { regionId: true },
+    });
+    if (village && village.regionId === region.id) {
+      villageId = input.villageId;
+    }
+  }
+
   const amenityRows =
     input.amenities.length > 0
       ? await db.amenity.findMany({
@@ -417,7 +423,7 @@ export async function updateListingFromDb(
           en: input.description.en,
         } as Prisma.InputJsonValue,
         regionId: region.id,
-        direction: dtoToPrismaEnum(input.direction) as Prisma.ListingUpdateInput['direction'],
+        villageId,
         placeType: dtoToPrismaEnum(input.placeType) as Prisma.ListingUpdateInput['placeType'],
         category: dtoToPrismaEnum(input.category) as Prisma.ListingUpdateInput['category'],
         price: input.price,
@@ -441,18 +447,80 @@ export async function updateListingFromDb(
   return fresh ? rowToDto(fresh) : null;
 }
 
+const REGION_LIST_ORDER_BY: Prisma.RegionOrderByWithRelationInput[] = [
+  { sortOrder: 'asc' },
+  { slug: 'asc' },
+];
+
 export async function listRegionsFromDb(
   db: PrismaClient = defaultPrisma,
 ): Promise<RegionSummary[]> {
   const rows = await db.region.findMany({
-    include: { _count: { select: { listings: true } } },
-    orderBy: { slug: 'asc' },
+    include: { _count: { select: { listings: true, villages: true } } },
+    orderBy: REGION_LIST_ORDER_BY,
   });
   return rows.map((r) => ({
-    slug: r.slug as Region,
+    id: r.id,
+    slug: r.slug,
     name: r.name as unknown as LocalizedText,
     coverImage: r.coverImage,
+    featured: r.featured,
+    sortOrder: r.sortOrder,
     listingCount: r._count.listings,
+    villageCount: r._count.villages,
+  }));
+}
+
+export async function listRegionsWithVillagesFromDb(
+  db: PrismaClient = defaultPrisma,
+): Promise<RegionWithVillages[]> {
+  const rows = await db.region.findMany({
+    include: {
+      _count: { select: { listings: true, villages: true } },
+      villages: { orderBy: [{ sortOrder: 'asc' }, { slug: 'asc' }] },
+    },
+    orderBy: REGION_LIST_ORDER_BY,
+  });
+  return rows.map((r) => ({
+    id: r.id,
+    slug: r.slug,
+    name: r.name as unknown as LocalizedText,
+    coverImage: r.coverImage,
+    featured: r.featured,
+    sortOrder: r.sortOrder,
+    listingCount: r._count.listings,
+    villageCount: r._count.villages,
+    villages: r.villages.map((v) => ({
+      id: v.id,
+      slug: v.slug,
+      regionId: v.regionId,
+      regionSlug: r.slug,
+      name: v.name as unknown as LocalizedText,
+      sortOrder: v.sortOrder,
+    })),
+  }));
+}
+
+export async function listVillagesByRegionSlug(
+  regionSlug: string,
+  db: PrismaClient = defaultPrisma,
+): Promise<Village[]> {
+  const region = await db.region.findUnique({
+    where: { slug: regionSlug },
+    select: { id: true, slug: true },
+  });
+  if (!region) return [];
+  const rows = await db.village.findMany({
+    where: { regionId: region.id },
+    orderBy: [{ sortOrder: 'asc' }, { slug: 'asc' }],
+  });
+  return rows.map((v) => ({
+    id: v.id,
+    slug: v.slug,
+    regionId: v.regionId,
+    regionSlug: region.slug,
+    name: v.name as unknown as LocalizedText,
+    sortOrder: v.sortOrder,
   }));
 }
 

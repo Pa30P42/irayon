@@ -5,7 +5,6 @@ const validBase = {
   title: { en: 'Gabala Pine Retreat' },
   description: { en: 'A peaceful pine retreat in the woods.' },
   region: 'gabala',
-  direction: 'others',
   placeType: 'villa-cottage',
   category: 'forest',
   price: 320,
@@ -31,13 +30,27 @@ describe('createListingSchema', () => {
 
   it('requires English title', () => {
     expect(() => createListingSchema.parse({ ...validBase, title: { en: '' } })).toThrow(
-      /English title is required/,
+      /English name is required/,
     );
   });
 
-  it('rejects unknown enum values', () => {
-    expect(() => createListingSchema.parse({ ...validBase, region: 'narnia' })).toThrow();
+  it('accepts any non-empty region slug (data-driven; validated against DB at the route)', () => {
+    expect(() => createListingSchema.parse({ ...validBase, region: 'narnia' })).not.toThrow();
+    expect(() => createListingSchema.parse({ ...validBase, region: '' })).toThrow();
+  });
+
+  it('rejects unknown values for fixed-universe enums (category, placeType)', () => {
     expect(() => createListingSchema.parse({ ...validBase, category: 'volcano' })).toThrow();
+    expect(() => createListingSchema.parse({ ...validBase, placeType: 'unknown' })).toThrow();
+  });
+
+  it('accepts an explicit villageId or null', () => {
+    const withVillage = createListingSchema.parse({ ...validBase, villageId: 'vil_abc' });
+    expect(withVillage.villageId).toBe('vil_abc');
+    const withoutVillage = createListingSchema.parse({ ...validBase, villageId: null });
+    expect(withoutVillage.villageId).toBeNull();
+    const omitted = createListingSchema.parse(validBase);
+    expect(omitted.villageId).toBeNull();
   });
 
   it('rejects non-positive prices', () => {

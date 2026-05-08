@@ -37,20 +37,36 @@ export type Amenity =
   | 'kids'
   | 'ev-charger';
 
-export type Region =
-  | 'gabala'
-  | 'sheki'
-  | 'guba'
-  | 'lankaran'
-  | 'gusar'
-  | 'gakh'
-  | 'ismayilli'
-  | 'goychay'
-  | 'absheron'
-  | 'lerik'
-  | 'zagatala';
+/**
+ * Region slugs are now data-driven (admin can add/edit/remove). This is a
+ * plain `string` to avoid baking the catalogue into the type system.
+ */
+export type Region = string;
 
-export type Direction = 'ismayilli' | 'guba' | 'lerik' | 'zagatala' | 'others';
+export type Village = {
+  id: string;
+  slug: string;
+  regionId: string;
+  /** Convenience: parent region's slug, denormalized into the DTO. */
+  regionSlug: string;
+  name: LocalizedText;
+  sortOrder: number;
+};
+
+export type RegionSummary = {
+  id: string;
+  slug: string;
+  name: LocalizedText;
+  coverImage: string | null;
+  featured: boolean;
+  sortOrder: number;
+  listingCount: number;
+  villageCount: number;
+};
+
+export type RegionWithVillages = RegionSummary & {
+  villages: Village[];
+};
 
 export type PlaceType = 'a-frame' | 'villa-cottage' | 'hotel' | 'modular' | 'village-room';
 
@@ -68,7 +84,14 @@ export type Listing = {
   title: LocalizedText;
   description: LocalizedText;
   region: Region;
-  direction: Direction;
+  /** Localized region name; denormalized from the parent Region's JSON column. */
+  regionName: LocalizedText;
+  /** Optional FK to the listing's village. Null when no curated village fits. */
+  villageId: string | null;
+  /** Denormalized for display/filter convenience; null when villageId is null. */
+  villageSlug: string | null;
+  /** Localized village name; null when the listing has no village. */
+  villageName: LocalizedText | null;
   placeType: PlaceType;
   price: number;
   images: string[];
@@ -100,7 +123,8 @@ export type HomeCategory =
 
 export type ListingsFilterState = {
   q: string;
-  direction: Direction[];
+  /** Selected village slugs (multi). */
+  village: string[];
   type: PlaceType[];
   guests: GuestRange | null;
   placement: Placement[];
@@ -111,7 +135,7 @@ export type ListingsFilterState = {
 };
 
 export type FilterGroupName =
-  | 'direction'
+  | 'village'
   | 'type'
   | 'guests'
   | 'placement'

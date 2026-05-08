@@ -29,7 +29,7 @@ export default async function ListingsPage({ params }: ListingsPageProps) {
   // we cross several hundred, switch to query-driven server fetches.
   const { data: listings } = await listListings({
     q: '',
-    direction: [],
+    village: [],
     type: [],
     placement: [],
     food: [],

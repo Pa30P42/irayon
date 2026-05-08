@@ -1,4 +1,28 @@
-import type { Listing } from '@/types';
+import { REGION_SEED } from '@/data/region-seed';
+import { VILLAGE_SEED } from '@/data/village-seed';
+import type { Listing, LocalizedText } from '@/types';
+
+const REGION_NAME_BY_SLUG: Record<string, LocalizedText> = Object.fromEntries(
+  REGION_SEED.map((r) => [r.slug, r.name]),
+);
+
+const VILLAGE_NAME_BY_KEY: Record<string, LocalizedText> = Object.fromEntries(
+  VILLAGE_SEED.map((v) => [`${v.regionSlug}:${v.slug}`, v.name]),
+);
+
+type MockListingDraft = Omit<Listing, 'regionName' | 'villageName'>;
+
+const fillNames = (draft: MockListingDraft): Listing => ({
+  ...draft,
+  regionName: REGION_NAME_BY_SLUG[draft.region] ?? {
+    az: draft.region,
+    ru: draft.region,
+    en: draft.region,
+  },
+  villageName: draft.villageSlug
+    ? (VILLAGE_NAME_BY_KEY[`${draft.region}:${draft.villageSlug}`] ?? null)
+    : null,
+});
 
 const unsplash = (id: string) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1600&q=80`;
@@ -25,7 +49,7 @@ const PHOTO = {
   riverBend: unsplash('1524661135-423995f22d0b'),
 } as const;
 
-export const mockListings: Listing[] = [
+const MOCK_LISTING_DRAFTS: MockListingDraft[] = [
   {
     id: 'lst_01',
     slug: 'gabala-pine-retreat',
@@ -40,7 +64,8 @@ export const mockListings: Listing[] = [
       en: 'A cozy 4-bedroom villa surrounded by pine forests of Gabala. Open fireplace and a spacious terrace.',
     },
     region: 'gabala',
-    direction: 'others',
+    villageId: null,
+    villageSlug: 'vandam',
     placeType: 'villa-cottage',
     price: 320,
     images: [PHOTO.gabalaForest, PHOTO.pineCanopy, PHOTO.riverBend],
@@ -70,7 +95,8 @@ export const mockListings: Listing[] = [
       en: 'A traditional stone house near historic Sheki with panoramic Caucasus views.',
     },
     region: 'sheki',
-    direction: 'others',
+    villageId: null,
+    villageSlug: 'kish',
     placeType: 'village-room',
     price: 240,
     images: [PHOTO.shekiMountain, PHOTO.gakhValley, PHOTO.lerikRidge],
@@ -100,7 +126,8 @@ export const mockListings: Listing[] = [
       en: 'A spacious villa among the apple orchards of Guba. Pool and outdoor lounge.',
     },
     region: 'guba',
-    direction: 'guba',
+    villageId: null,
+    villageSlug: 'qirmizi-qasaba',
     placeType: 'villa-cottage',
     price: 410,
     images: [PHOTO.gubaPeaks, PHOTO.gusarAlpine, PHOTO.goychayOrchards],
@@ -141,7 +168,8 @@ export const mockListings: Listing[] = [
       en: 'A quiet cottage at the edge of Hirkan forest, among tea plantations.',
     },
     region: 'lankaran',
-    direction: 'others',
+    villageId: null,
+    villageSlug: 'hirkan',
     placeType: 'a-frame',
     price: 180,
     images: [PHOTO.lankaranWoods, PHOTO.pineCanopy, PHOTO.zagatalaGrove],
@@ -171,7 +199,8 @@ export const mockListings: Listing[] = [
       en: 'An alpine-style chalet near Shahdag ski resort. Sauna and fireplace.',
     },
     region: 'gusar',
-    direction: 'guba',
+    villageId: null,
+    villageSlug: 'laza-gusar',
     placeType: 'modular',
     price: 540,
     images: [PHOTO.gusarAlpine, PHOTO.shekiMountain, PHOTO.lerikRidge],
@@ -212,7 +241,8 @@ export const mockListings: Listing[] = [
       en: 'A wooden lodge on the Kurmukchay riverbank inside a dense forest. Great for trout fishing.',
     },
     region: 'gakh',
-    direction: 'zagatala',
+    villageId: null,
+    villageSlug: 'ilisu',
     placeType: 'a-frame',
     price: 220,
     images: [PHOTO.gakhValley, PHOTO.riverBend, PHOTO.lankaranWoods],
@@ -242,7 +272,8 @@ export const mockListings: Listing[] = [
       en: 'A modern villa among vineyards near Ivanovka village. Wine tasting available.',
     },
     region: 'ismayilli',
-    direction: 'ismayilli',
+    villageId: null,
+    villageSlug: 'ivanovka',
     placeType: 'villa-cottage',
     price: 290,
     images: [PHOTO.ismayilliVines, PHOTO.goychayOrchards, PHOTO.gabalaForest],
@@ -272,7 +303,8 @@ export const mockListings: Listing[] = [
       en: 'A family villa among the famous pomegranate orchards of Goychay. Large garden and outdoor kitchen.',
     },
     region: 'goychay',
-    direction: 'others',
+    villageId: null,
+    villageSlug: null,
     placeType: 'villa-cottage',
     price: 200,
     images: [PHOTO.goychayOrchards, PHOTO.riverBend, PHOTO.ismayilliVines],
@@ -302,7 +334,8 @@ export const mockListings: Listing[] = [
       en: 'A modern villa on the Caspian shore with private beach access. Pool and large terrace.',
     },
     region: 'absheron',
-    direction: 'others',
+    villageId: null,
+    villageSlug: 'mardakan',
     placeType: 'hotel',
     price: 620,
     images: [PHOTO.absheronSea, PHOTO.riverBend, PHOTO.gubaPeaks],
@@ -345,7 +378,8 @@ export const mockListings: Listing[] = [
       en: 'A small cabin in the high mountains of Lerik with clean air and stunning views.',
     },
     region: 'lerik',
-    direction: 'lerik',
+    villageId: null,
+    villageSlug: null,
     placeType: 'a-frame',
     price: 150,
     images: [PHOTO.lerikRidge, PHOTO.shekiMountain, PHOTO.pineCanopy],
@@ -375,7 +409,8 @@ export const mockListings: Listing[] = [
       en: 'A two-story villa on the shore of Nohur Lake. Boat rental and fishing available.',
     },
     region: 'gabala',
-    direction: 'others',
+    villageId: null,
+    villageSlug: 'nohur-gabala',
     placeType: 'villa-cottage',
     price: 380,
     images: [PHOTO.gabalaForest, PHOTO.riverBend, PHOTO.gakhValley],
@@ -405,7 +440,8 @@ export const mockListings: Listing[] = [
       en: 'A quiet cottage among century-old walnut trees. Ideal for a family getaway.',
     },
     region: 'zagatala',
-    direction: 'zagatala',
+    villageId: null,
+    villageSlug: null,
     placeType: 'village-room',
     price: 170,
     images: [PHOTO.zagatalaGrove, PHOTO.lankaranWoods, PHOTO.gabalaForest],
@@ -422,6 +458,8 @@ export const mockListings: Listing[] = [
     createdAt: '2025-12-09T10:00:00.000Z',
   },
 ];
+
+export const mockListings: Listing[] = MOCK_LISTING_DRAFTS.map(fillNames);
 
 const listingsBySlug = new Map(mockListings.map((listing) => [listing.slug, listing]));
 
