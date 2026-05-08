@@ -1,7 +1,8 @@
 import type { Prisma, PrismaClient } from '@prisma/client';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockDeep, type DeepMockProxy } from 'vitest-mock-extended';
 import {
+  deleteListingFromDb,
   getListingFromDb,
   getListingFromMock,
   listListingsFromDb,
@@ -262,5 +263,56 @@ describe('listRegionsFromDb', () => {
         listingCount: 3,
       },
     ]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// deleteListingFromDb — verifies cascade order + storage cleanup semantics.
+// ---------------------------------------------------------------------------
+
+describe('deleteListingFromDb', () => {
+  it('snapshots image URLs first, then deletes the row, then cleans storage', async () => {
+    const db = mockDeep<PrismaClient>();
+    db.image.findMany.mockResolvedValueOnce([
+      { url: 'https://example.supabase.co/storage/v1/object/public/listings/abc.jpg' },
+      { url: 'https://images.unsplash.com/photo-x' },
+    ] as never);
+    db.listing.delete.mockResolvedValueOnce({ id: 'lst1' } as never);
+
+    const remove = vi.fn().mockResolvedValue(undefined);
+    const result = await deleteListingFromDb('lst1', db, remove);
+
+    // Snapshot before delete.
+    expect(db.image.findMany).toHaveBeenCalledWith({
+      where: { listingId: 'lst1' },
+      select: { url: true },
+    });
+    expect(db.listing.delete).toHaveBeenCalledWith({ where: { id: 'lst1' } });
+    expect(remove).toHaveBeenCalledTimes(2);
+    expect(result).toEqual({ deleted: true, storageRemoved: 2, storageFailed: 0 });
+  });
+
+  it('reports storageFailed when individual storage removals throw, without throwing itself', async () => {
+    const db = mockDeep<PrismaClient>();
+    db.image.findMany.mockResolvedValueOnce([{ url: 'a' }, { url: 'b' }, { url: 'c' }] as never);
+    db.listing.delete.mockResolvedValueOnce({ id: 'lst1' } as never);
+
+    const remove = vi
+      .fn()
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error('boom'))
+      .mockResolvedValueOnce(undefined);
+
+    const result = await deleteListingFromDb('lst1', db, remove);
+    expect(result).toEqual({ deleted: true, storageRemoved: 2, storageFailed: 1 });
+  });
+
+  it('propagates Prisma errors when the listing does not exist (caller maps to 404)', async () => {
+    const db = mockDeep<PrismaClient>();
+    db.image.findMany.mockResolvedValueOnce([] as never);
+    const notFound = Object.assign(new Error('No record'), { code: 'P2025' });
+    db.listing.delete.mockRejectedValueOnce(notFound);
+
+    await expect(deleteListingFromDb('missing', db, vi.fn())).rejects.toThrow();
   });
 });

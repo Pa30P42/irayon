@@ -1,6 +1,6 @@
 import { ListingsView } from '@/components/listings/listings-view';
-import { mockListings } from '@/data/mock-listings';
 import type { Locale } from '@/i18n/routing';
+import { listListings } from '@/lib/api/listings-service';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Suspense } from 'react';
@@ -24,6 +24,24 @@ export default async function ListingsPage({ params }: ListingsPageProps) {
 
   const t = await getTranslations('listings');
 
+  // Server-side fetch of the full set; <ListingsView> filters/sorts client-side
+  // off the URL state. For a small catalog (~100 listings) this is fine; once
+  // we cross several hundred, switch to query-driven server fetches.
+  const { data: listings } = await listListings({
+    q: '',
+    direction: [],
+    type: [],
+    placement: [],
+    food: [],
+    extra: [],
+    basic: [],
+    amenities: [],
+    fun: [],
+    sort: 'newest',
+    page: 1,
+    limit: 100,
+  });
+
   return (
     <section className="container-wide py-12">
       <header className="mb-8">
@@ -31,7 +49,7 @@ export default async function ListingsPage({ params }: ListingsPageProps) {
         <p className="text-foreground-muted mt-2">{t('subtitle')}</p>
       </header>
       <Suspense fallback={<div className="text-foreground-muted">Loading…</div>}>
-        <ListingsView initialListings={mockListings} locale={locale} />
+        <ListingsView initialListings={listings} locale={locale} />
       </Suspense>
     </section>
   );

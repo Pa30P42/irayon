@@ -13,7 +13,7 @@ type Context = { params: Promise<{ id: string; imageId: string }> };
  * filesystem — only the DB row is deleted.
  */
 export async function DELETE(request: Request, { params }: Context): Promise<Response> {
-  const auth = requireAdmin(request);
+  const auth = await requireAdmin(request);
   if (!auth.ok) return auth.response;
 
   const { id, imageId } = await params;
