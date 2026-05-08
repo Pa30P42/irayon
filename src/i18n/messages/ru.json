@@ -11,7 +11,9 @@
     "currency": "AZN",
     "perNight": "ночь",
     "favorite": "В избранное",
-    "unfavorite": "Убрать из избранного"
+    "unfavorite": "Убрать из избранного",
+    "breadcrumb": "Хлебные крошки",
+    "skipToContent": "Перейти к контенту"
   },
   "nav": {
     "home": "Главная",

@@ -22,10 +22,10 @@ const base64urlEncode = (bytes: ArrayBuffer): string => {
 
 const base64urlDecode = (input: string): Uint8Array | null => {
   try {
-    const padded = input.replace(/-/g, '+').replace(/_/g, '/').padEnd(
-      input.length + ((4 - (input.length % 4)) % 4),
-      '=',
-    );
+    const padded = input
+      .replace(/-/g, '+')
+      .replace(/_/g, '/')
+      .padEnd(input.length + ((4 - (input.length % 4)) % 4), '=');
     const bin = atob(padded);
     const out = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
@@ -43,13 +43,10 @@ const constantTimeEqual = (a: Uint8Array, b: Uint8Array): boolean => {
 };
 
 const importKey = async (secret: string): Promise<CryptoKey> =>
-  crypto.subtle.importKey(
-    'raw',
-    encoder.encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign', 'verify'],
-  );
+  crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, [
+    'sign',
+    'verify',
+  ]);
 
 const getSecret = (): string | null => {
   const secret = process.env.ADMIN_SESSION_SECRET;
@@ -105,11 +102,7 @@ export async function verifyAdminSession(
   if (!providedSig) return false;
 
   const key = await importKey(secret);
-  const expectedSig = await crypto.subtle.sign(
-    'HMAC',
-    key,
-    encoder.encode(`admin:${expiresAt}`),
-  );
+  const expectedSig = await crypto.subtle.sign('HMAC', key, encoder.encode(`admin:${expiresAt}`));
   return constantTimeEqual(providedSig, new Uint8Array(expectedSig));
 }
 

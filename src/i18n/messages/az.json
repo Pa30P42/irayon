@@ -11,7 +11,9 @@
     "currency": "AZN",
     "perNight": "gecə",
     "favorite": "Sevimlilərə əlavə et",
-    "unfavorite": "Sevimlilərdən sil"
+    "unfavorite": "Sevimlilərdən sil",
+    "breadcrumb": "Səhifə yolu",
+    "skipToContent": "Əsas məzmuna keç"
   },
   "nav": {
     "home": "Ana səhifə",

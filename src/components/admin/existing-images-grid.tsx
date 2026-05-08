@@ -47,9 +47,7 @@ export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImag
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium">
           Current photos
-          <span className="text-foreground-muted ml-2 text-xs font-normal">
-            ({images.length})
-          </span>
+          <span className="text-foreground-muted ml-2 text-xs font-normal">({images.length})</span>
         </p>
         {error ? <p className="text-xs text-rose-600">{error}</p> : null}
       </div>
@@ -62,7 +60,13 @@ export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImag
               className="border-border bg-background relative overflow-hidden rounded-lg border"
             >
               <div className="bg-accent relative aspect-square">
-                <Image src={img.url} alt={`Photo ${idx + 1}`} fill sizes="200px" className="object-cover" />
+                <Image
+                  src={img.url}
+                  alt={`Photo ${idx + 1}`}
+                  fill
+                  sizes="200px"
+                  className="object-cover"
+                />
                 {idx === 0 && (
                   <span className="bg-primary absolute top-2 left-2 rounded-full px-2 py-0.5 text-xs font-medium text-white">
                     Cover

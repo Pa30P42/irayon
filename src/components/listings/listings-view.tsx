@@ -7,8 +7,8 @@ import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import { ActiveFiltersBar } from './active-filters-bar';
 import { ListingGrid } from './listing-grid';
-import { ListingsMapView } from './map/listings-map-view';
 import { ListingsTopBar } from './listings-top-bar';
+import { ListingsMapView } from './map/listings-map-view';
 import { NoResults } from './no-results';
 
 type ListingsViewProps = {

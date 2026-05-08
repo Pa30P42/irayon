@@ -98,7 +98,8 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
     if (err instanceof Error && 'code' in err) {
       const code = (err as { code: string }).code;
       if (code === 'P2025') return apiNotFound(`Village "${id}" not found`);
-      if (code === 'P2002') return apiConflict('A village with this slug already exists in the target region');
+      if (code === 'P2002')
+        return apiConflict('A village with this slug already exists in the target region');
     }
     console.error(`PATCH /api/admin/villages/${id} failed`, err);
     return apiServerError(err instanceof Error ? err.message : 'Update failed');

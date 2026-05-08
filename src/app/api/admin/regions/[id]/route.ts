@@ -136,13 +136,10 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
 
     const { listings, villages } = counts._count;
     if (listings > 0 || villages > 0) {
-      return apiConflict(
-        'Region has dependent records — reassign or delete them first',
-        {
-          listings: [String(listings)],
-          villages: [String(villages)],
-        },
-      );
+      return apiConflict('Region has dependent records — reassign or delete them first', {
+        listings: [String(listings)],
+        villages: [String(villages)],
+      });
     }
 
     await prisma.region.delete({ where: { id } });

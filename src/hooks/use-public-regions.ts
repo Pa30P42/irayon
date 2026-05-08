@@ -6,8 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 const PUBLIC_REGIONS_KEY = ['regions'] as const;
 const PUBLIC_REGIONS_WITH_VILLAGES_KEY = ['regions', 'with-villages'] as const;
 
-const villagesByRegionKey = (regionSlug: string) =>
-  ['regions', regionSlug, 'villages'] as const;
+const villagesByRegionKey = (regionSlug: string) => ['regions', regionSlug, 'villages'] as const;
 
 const okOrThrow = async <T>(res: Response): Promise<T> => {
   if (res.ok) return res.json() as Promise<T>;

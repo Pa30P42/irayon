@@ -1,6 +1,7 @@
 import { SiteFooter } from '@/components/layout/site-footer';
 import { SiteHeader } from '@/components/layout/site-header';
 import { QueryProvider } from '@/components/providers/query-provider';
+import { SkipLink } from '@/components/shared/skip-link';
 import { routing, type Locale } from '@/i18n/routing';
 import { SITE } from '@/lib/constants';
 import type { Metadata } from 'next';
@@ -52,8 +53,11 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
         <NextIntlClientProvider locale={locale} messages={messages}>
           <QueryProvider>
             <NuqsAdapter>
+              <SkipLink />
               <SiteHeader />
-              <main className="flex-1">{children}</main>
+              <main id="main" className="flex-1">
+                {children}
+              </main>
               <SiteFooter />
             </NuqsAdapter>
           </QueryProvider>

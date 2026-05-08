@@ -22,9 +22,7 @@ export function ListingsMapView({ listings, locale }: Props) {
   // Scroll the row corresponding to a marker click into view in the sidebar.
   useEffect(() => {
     if (!selectedId || !listRef.current) return;
-    const el = listRef.current.querySelector<HTMLLIElement>(
-      `[data-listing-id="${selectedId}"]`,
-    );
+    const el = listRef.current.querySelector<HTMLLIElement>(`[data-listing-id="${selectedId}"]`);
     el?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [selectedId]);
 
@@ -68,9 +66,7 @@ export function ListingsMapView({ listings, locale }: Props) {
         </aside>
 
         <div
-          className={
-            mobilePane === 'map' ? 'relative h-full' : 'relative hidden h-full lg:block'
-          }
+          className={mobilePane === 'map' ? 'relative h-full' : 'relative hidden h-full lg:block'}
         >
           <ListingsMapLoader
             listings={listings}

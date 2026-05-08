@@ -7,10 +7,13 @@ import type { Listing } from '@/types';
  * react-query routes the failure to its `error` channel.
  */
 
-const NEXT_PUBLIC_APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? '';
+// `NEXT_PUBLIC_SITE_URL` is the canonical name; `NEXT_PUBLIC_APP_URL` stays as
+// a fallback so older local .env files keep working. Empty string means we
+// fall through to `window.location.origin` at call time (browser-only).
+const ENV_SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? '';
 
 const buildUrl = (path: string, params?: URLSearchParams): string => {
-  const base = NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+  const base = ENV_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
   const qs = params && params.toString().length > 0 ? `?${params.toString()}` : '';
   return `${base}${path}${qs}`;
 };

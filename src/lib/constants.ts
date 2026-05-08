@@ -14,8 +14,20 @@ import type {
 export const SITE = {
   name: 'iRayon',
   description: 'Villa and cottage rentals across Azerbaijan',
-  url: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+  // `NEXT_PUBLIC_SITE_URL` is the canonical name (set per-Vercel-env).
+  // `NEXT_PUBLIC_APP_URL` is kept as a fallback for older local .env files.
+  url:
+    process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
 } as const;
+
+/**
+ * `true` only on the real production domain (`irayon.az`). Used to gate SEO
+ * surfaces (robots.txt, sitemap, page-level robots meta) so the temporary
+ * Vercel preview can't be indexed and create duplicate-content issues when
+ * the real domain is connected. Flip on by setting NEXT_PUBLIC_SITE_URL on
+ * the production env only.
+ */
+export const IS_PRODUCTION_DOMAIN = SITE.url.includes('irayon.az');
 
 export const CATEGORIES: readonly ListingCategory[] = [
   'mountain',

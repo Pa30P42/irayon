@@ -104,9 +104,7 @@ export function ListingsMap({
 }: ListingsMapProps) {
   const points = useMemo(
     () =>
-      listings.filter(
-        (l) => Number.isFinite(l.location.lat) && Number.isFinite(l.location.lng),
-      ),
+      listings.filter((l) => Number.isFinite(l.location.lat) && Number.isFinite(l.location.lng)),
     [listings],
   );
 
