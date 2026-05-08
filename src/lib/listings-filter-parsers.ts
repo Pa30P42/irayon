@@ -17,6 +17,8 @@ import {
 
 export const listingsFilterParsers = {
   q: parseAsString.withDefault(''),
+  /** Region slugs are data-driven; no enum check at the parser level. */
+  region: parseAsArrayOf(parseAsString).withDefault([]),
   /** Village slugs are data-driven; no enum check at the parser level. */
   village: parseAsArrayOf(parseAsString).withDefault([]),
   type: parseAsArrayOf(parseAsStringLiteral(PLACE_TYPES)).withDefault([]),

@@ -23,20 +23,27 @@ export function ActiveFiltersBar({ state, onChange, onReset }: ActiveFiltersBarP
   const { locale } = useLocale();
   const { data: regions } = useRegionsWithVillages();
 
-  // Build village slug → localized label so chips show readable names instead
-  // of slugs. Falls back to the slug while regions are loading.
-  const villageLabelBySlug = useMemo(() => {
-    const map = new Map<string, string>();
-    if (!regions) return map;
+  // Build region/village slug → localized label so chips show readable names
+  // instead of slugs. Falls back to the slug while regions are loading.
+  const { regionLabelBySlug, villageLabelBySlug } = useMemo(() => {
+    const regionMap = new Map<string, string>();
+    const villageMap = new Map<string, string>();
+    if (!regions) return { regionLabelBySlug: regionMap, villageLabelBySlug: villageMap };
     for (const region of regions) {
+      regionMap.set(region.slug, pickLocalized(region.name, locale));
       for (const v of region.villages) {
-        map.set(v.slug, pickLocalized(v.name, locale));
+        villageMap.set(v.slug, pickLocalized(v.name, locale));
       }
     }
-    return map;
+    return { regionLabelBySlug: regionMap, villageLabelBySlug: villageMap };
   }, [regions, locale]);
 
   const chips: Chip[] = [
+    ...state.region.map((o) => ({
+      group: 'region' as const,
+      option: o,
+      label: regionLabelBySlug.get(o) ?? o,
+    })),
     ...state.village.map((o) => ({
       group: 'village' as const,
       option: o,

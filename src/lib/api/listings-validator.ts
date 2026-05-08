@@ -32,8 +32,8 @@ const csvSlugs = z.preprocess(csvArray, z.array(z.string().min(1)).default([]));
 export const listingsQuerySchema = z.object({
   q: z.string().trim().max(200).optional().default(''),
   category: z.enum(CATEGORIES as readonly [string, ...string[]]).optional(),
-  /** Region slug (data-driven; not validated against an enum). */
-  region: z.string().trim().min(1).optional(),
+  /** Region slugs (multi). Single-value URLs (?region=gabala) parse fine. */
+  region: csvSlugs,
   /** Village slugs (multi). Validated against DB at the service layer. */
   village: csvSlugs,
   type: csvEnum(PLACE_TYPES as readonly [string, ...string[]]),

@@ -26,7 +26,9 @@ const okJson = async <T>(res: Response): Promise<T> => {
 export type ListingsQueryInput = Partial<ListingsQuery>;
 
 const isMultivalue = (key: string): boolean =>
-  ['village', 'type', 'placement', 'food', 'extra', 'basic', 'amenities', 'fun'].includes(key);
+  ['region', 'village', 'type', 'placement', 'food', 'extra', 'basic', 'amenities', 'fun'].includes(
+    key,
+  );
 
 export const buildListingsParams = (input: ListingsQueryInput = {}): URLSearchParams => {
   const params = new URLSearchParams();

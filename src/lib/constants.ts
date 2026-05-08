@@ -121,6 +121,7 @@ export const SORT_OPTIONS: readonly SortOption[] = [
  */
 export const emptyFilterState = (): ListingsFilterState => ({
   q: '',
+  region: [],
   village: [],
   type: [],
   guests: null,

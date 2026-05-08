@@ -11,8 +11,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useFilterModal } from '@/hooks/use-filter-modal';
-import { useRegionsWithVillages } from '@/hooks/use-public-regions';
-import { useLocale } from '@/hooks/use-locale';
 import {
   ACTIVITIES,
   BASIC_AMENITIES,
@@ -23,13 +21,13 @@ import {
   PLACE_TYPES,
 } from '@/lib/constants';
 import { applyListingsFilter, countActiveFilters } from '@/lib/listings-filter';
-import { pickLocalized } from '@/lib/utils';
 import type { Listing, ListingsFilterState } from '@/types';
 import { IconAdjustmentsHorizontal } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { FilterGroup } from './filter-group';
+import { LocationFilterPicker } from './location-filter-picker';
 
 type FilterModalProps = {
   state: ListingsFilterState;
@@ -41,37 +39,14 @@ type FilterModalProps = {
 export function FilterModal({ state, listings, onApply, trigger }: FilterModalProps) {
   const t = useTranslations('filter');
   const tOptions = useTranslations('filter.options');
-  const { locale } = useLocale();
 
-  const { open, setOpen, draft, toggle, reset, apply } = useFilterModal({
+  const { open, setOpen, draft, setDraft, toggle, reset, apply } = useFilterModal({
     initial: state,
     onApply,
   });
 
   const liveCount = useMemo(() => applyListingsFilter(listings, draft).length, [listings, draft]);
   const activeCount = countActiveFilters(state);
-
-  // Flatten admin-managed villages across regions for the village filter.
-  // Sub-headers per region would be a nicer UX but the FilterGroup is a flat
-  // checkbox list — group by region label inside the option label instead.
-  const { data: regions } = useRegionsWithVillages();
-  const { villageOptions, villageLabel } = useMemo(() => {
-    const opts: string[] = [];
-    const labels = new Map<string, string>();
-    if (regions) {
-      for (const region of regions) {
-        const regionLabel = pickLocalized(region.name, locale);
-        for (const v of region.villages) {
-          opts.push(v.slug);
-          labels.set(v.slug, `${pickLocalized(v.name, locale)} · ${regionLabel}`);
-        }
-      }
-    }
-    return {
-      villageOptions: opts,
-      villageLabel: (slug: string) => labels.get(slug) ?? slug,
-    };
-  }, [regions, locale]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -95,17 +70,10 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
         </DialogHeader>
 
         <div className="grid flex-1 grid-cols-1 gap-x-10 gap-y-8 overflow-y-auto px-6 py-6 sm:grid-cols-2">
-          {villageOptions.length > 0 ? (
-            <FilterGroup
-              title={t('groups.village')}
-              group="village"
-              options={villageOptions}
-              labelFor={villageLabel}
-              state={draft}
-              listings={listings}
-              onToggle={(opt) => toggle('village', opt)}
-            />
-          ) : null}
+          <LocationFilterPicker
+            state={{ region: draft.region, village: draft.village }}
+            onChange={({ region, village }) => setDraft({ ...draft, region, village })}
+          />
           <FilterGroup
             title={t('groups.type')}
             group="type"

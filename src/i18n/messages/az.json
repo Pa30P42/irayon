@@ -150,6 +150,9 @@
     "reset": "Sıfırla",
     "resetAll": "Hamısını sıfırla",
     "apply": "{count, plural, =0 {Variant yoxdur} one {# variantı göstər} other {# variantı göstər}}",
+    "loading": "Yüklənir…",
+    "locationSearchPlaceholder": "Kənd və ya region axtar",
+    "locationNoResults": "Uyğun nəticə yoxdur",
     "groups": {
       "village": "Kənd",
       "type": "Yer növü",

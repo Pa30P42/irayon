@@ -123,6 +123,12 @@ export type HomeCategory =
 
 export type ListingsFilterState = {
   q: string;
+  /**
+   * Selected region slugs (multi). OR-combined with `village` at the service
+   * layer: a listing matches if its region is in `region` OR its village is in
+   * `village`. When both are empty, no location filter is applied.
+   */
+  region: string[];
   /** Selected village slugs (multi). */
   village: string[];
   type: PlaceType[];
@@ -135,6 +141,7 @@ export type ListingsFilterState = {
 };
 
 export type FilterGroupName =
+  | 'region'
   | 'village'
   | 'type'
   | 'guests'

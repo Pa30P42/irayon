@@ -38,6 +38,7 @@ export function useListingsFilter({ listings }: UseListingsFilterArgs): UseListi
   const state = useMemo<ListingsFilterState>(
     () => ({
       q: raw.q,
+      region: raw.region,
       village: raw.village,
       type: raw.type,
       guests: raw.guests,

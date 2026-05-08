@@ -85,6 +85,7 @@ export async function deleteListing(id: string): Promise<DeleteListingResult> {
 function queryToFilterState(query: ListingsQuery): ListingsFilterState {
   return {
     q: query.q ?? '',
+    region: query.region,
     village: query.village,
     type: query.type as PlaceType[],
     guests: query.guests ? (query.guests as ListingsFilterState['guests']) : null,
@@ -101,7 +102,6 @@ export function listListingsFromMock(query: ListingsQuery): ListListingsResult {
   let results = applyListingsFilter(mockListings, filterState);
 
   if (query.category) results = results.filter((l) => l.category === query.category);
-  if (query.region) results = results.filter((l) => l.region === query.region);
   if (typeof query.price_min === 'number') {
     results = results.filter((l) => l.price >= query.price_min!);
   }
@@ -231,9 +231,18 @@ function buildWhere(query: ListingsQuery): Prisma.ListingWhereInput {
   if (query.category) {
     where.category = dtoToPrismaEnum(query.category) as Prisma.ListingWhereInput['category'];
   }
-  if (query.region) where.region = { slug: query.region };
-  if (query.village.length > 0) {
-    where.village = { slug: { in: query.village } };
+  // Location: OR(region, village). Pushed under AND so it composes with the
+  // other filters (food, fun, amenities) that already build their own AND[].
+  if (query.region.length > 0 || query.village.length > 0) {
+    const locationOr: Prisma.ListingWhereInput[] = [];
+    if (query.region.length > 0) {
+      locationOr.push({ region: { slug: { in: query.region } } });
+    }
+    if (query.village.length > 0) {
+      locationOr.push({ village: { slug: { in: query.village } } });
+    }
+    where.AND = (where.AND ?? []) as Prisma.ListingWhereInput[];
+    (where.AND as Prisma.ListingWhereInput[]).push({ OR: locationOr });
   }
   if (query.type.length > 0) {
     where.placeType = {

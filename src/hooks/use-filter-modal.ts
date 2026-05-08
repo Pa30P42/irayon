@@ -14,6 +14,8 @@ type UseFilterModalResult = {
   open: boolean;
   setOpen: (open: boolean) => void;
   draft: ListingsFilterState;
+  /** Replace the entire draft. Used by widgets that touch multiple groups at once (e.g. the location picker mutates `region` + `village` together). */
+  setDraft: (next: ListingsFilterState) => void;
   toggle: (group: FilterGroupName, option: string) => void;
   reset: () => void;
   apply: () => void;
@@ -49,5 +51,5 @@ export function useFilterModal({ initial, onApply }: UseFilterModalArgs): UseFil
     setOpen(false);
   }, [draft, onApply]);
 
-  return { open, setOpen, draft, toggle, reset, apply };
+  return { open, setOpen, draft, setDraft, toggle, reset, apply };
 }

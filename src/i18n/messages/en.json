@@ -150,6 +150,9 @@
     "reset": "Reset",
     "resetAll": "Reset all",
     "apply": "{count, plural, =0 {No options} one {Show # option} other {Show # options}}",
+    "loading": "Loading…",
+    "locationSearchPlaceholder": "Search villages or regions",
+    "locationNoResults": "No matches",
     "groups": {
       "village": "Village",
       "type": "Place type",

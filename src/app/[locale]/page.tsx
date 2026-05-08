@@ -30,6 +30,7 @@ export default async function HomePage({ params }: HomePageProps) {
   // client-side by category from URL state.
   const { data: listings } = await listListings({
     q: '',
+    region: [],
     village: [],
     type: [],
     placement: [],
