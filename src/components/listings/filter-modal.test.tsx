@@ -5,9 +5,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { FilterModal } from './filter-modal';
 
 const listings = [
-  makeListing({ id: '1', direction: 'guba', amenities: ['pool'] }),
-  makeListing({ id: '2', direction: 'lerik', amenities: ['fireplace'] }),
-  makeListing({ id: '3', direction: 'ismayilli', amenities: ['pool', 'sauna'] }),
+  makeListing({ id: '1', villageSlug: 'qirmizi-qasaba', amenities: ['pool'] }),
+  makeListing({ id: '2', villageSlug: 'hamarat', amenities: ['fireplace'] }),
+  makeListing({ id: '3', villageSlug: 'lahij', amenities: ['pool', 'sauna'] }),
 ];
 
 describe('FilterModal', () => {
@@ -20,7 +20,6 @@ describe('FilterModal', () => {
     await user.click(screen.getByRole('button', { name: /filter/i }));
 
     const dialog = await screen.findByRole('dialog');
-    expect(within(dialog).getByText('Direction')).toBeInTheDocument();
     expect(within(dialog).getByText('Place type')).toBeInTheDocument();
     expect(within(dialog).getByText('Extras')).toBeInTheDocument();
   });

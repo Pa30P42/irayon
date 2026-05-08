@@ -37,5 +37,15 @@ export const apiBadRequest = (error: ZodError) =>
     { status: 400 },
   );
 
+/**
+ * 409 with optional structured field info — used when a delete is blocked by
+ * referential integrity (e.g. region has listings, village has listings).
+ */
+export const apiConflict = (message: string, fields?: Record<string, string[]>) =>
+  NextResponse.json<ApiError>({ error: { message, fields } }, { status: 409 });
+
+export const apiUnauthorized = (message = 'Authentication required') =>
+  NextResponse.json<ApiError>({ error: { message } }, { status: 401 });
+
 export const apiServerError = (message = 'Internal server error') =>
   NextResponse.json<ApiError>({ error: { message } }, { status: 500 });

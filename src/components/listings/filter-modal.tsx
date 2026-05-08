@@ -14,7 +14,6 @@ import { useFilterModal } from '@/hooks/use-filter-modal';
 import {
   ACTIVITIES,
   BASIC_AMENITIES,
-  DIRECTIONS,
   EXTRA_AMENITIES,
   GUEST_RANGES,
   MEALS,
@@ -28,6 +27,7 @@ import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { FilterGroup } from './filter-group';
+import { LocationFilterPicker } from './location-filter-picker';
 
 type FilterModalProps = {
   state: ListingsFilterState;
@@ -40,7 +40,7 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
   const t = useTranslations('filter');
   const tOptions = useTranslations('filter.options');
 
-  const { open, setOpen, draft, toggle, reset, apply } = useFilterModal({
+  const { open, setOpen, draft, setDraft, toggle, reset, apply } = useFilterModal({
     initial: state,
     onApply,
   });
@@ -70,14 +70,9 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
         </DialogHeader>
 
         <div className="grid flex-1 grid-cols-1 gap-x-10 gap-y-8 overflow-y-auto px-6 py-6 sm:grid-cols-2">
-          <FilterGroup
-            title={t('groups.direction')}
-            group="direction"
-            options={DIRECTIONS}
-            labelFor={(o) => tOptions(`direction.${o}`)}
-            state={draft}
-            listings={listings}
-            onToggle={(opt) => toggle('direction', opt)}
+          <LocationFilterPicker
+            state={{ region: draft.region, village: draft.village }}
+            onChange={({ region, village }) => setDraft({ ...draft, region, village })}
           />
           <FilterGroup
             title={t('groups.type')}

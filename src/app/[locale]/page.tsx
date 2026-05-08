@@ -30,7 +30,8 @@ export default async function HomePage({ params }: HomePageProps) {
   // client-side by category from URL state.
   const { data: listings } = await listListings({
     q: '',
-    direction: [],
+    region: [],
+    village: [],
     type: [],
     placement: [],
     food: [],
@@ -55,7 +56,7 @@ export default async function HomePage({ params }: HomePageProps) {
         <FeaturedListings initialListings={listings} locale={locale} />
       </Suspense>
       <MapTeaser />
-      <RegionsGrid />
+      <RegionsGrid locale={locale} />
     </>
   );
 }

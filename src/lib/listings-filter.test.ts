@@ -13,7 +13,7 @@ import {
 const listings = [
   makeListing({
     id: '1',
-    direction: 'guba',
+    villageSlug: 'qirmizi-qasaba',
     placeType: 'villa-cottage',
     capacity: 8,
     category: 'mountain',
@@ -25,7 +25,7 @@ const listings = [
   }),
   makeListing({
     id: '2',
-    direction: 'lerik',
+    villageSlug: 'hamarat',
     placeType: 'a-frame',
     capacity: 3,
     category: 'forest',
@@ -37,7 +37,7 @@ const listings = [
   }),
   makeListing({
     id: '3',
-    direction: 'ismayilli',
+    villageSlug: 'lahij',
     placeType: 'villa-cottage',
     capacity: 12,
     category: 'sea',
@@ -49,7 +49,7 @@ const listings = [
   }),
   makeListing({
     id: '4',
-    direction: 'zagatala',
+    villageSlug: 'mamrux',
     placeType: 'village-room',
     capacity: 5,
     category: 'river',
@@ -66,9 +66,22 @@ describe('applyListingsFilter', () => {
     expect(applyListingsFilter(listings, makeFilterState())).toHaveLength(4);
   });
 
-  it('filters by direction (OR within group)', () => {
-    const out = applyListingsFilter(listings, makeFilterState({ direction: ['guba', 'lerik'] }));
+  it('filters by village (OR within group)', () => {
+    const out = applyListingsFilter(
+      listings,
+      makeFilterState({ village: ['qirmizi-qasaba', 'hamarat'] }),
+    );
     expect(out.map((l) => l.id)).toEqual(['1', '2']);
+  });
+
+  it('excludes listings without a village when village filter is active', () => {
+    const noVillage = makeListing({ id: '5', villageSlug: null });
+    expect(
+      applyListingsFilter(
+        [...listings, noVillage],
+        makeFilterState({ village: ['qirmizi-qasaba'] }),
+      ).map((l) => l.id),
+    ).toEqual(['1']);
   });
 
   it('filters by guests range', () => {
@@ -111,15 +124,15 @@ describe('applyListingsFilter', () => {
   it('combines filters across groups (AND)', () => {
     const out = applyListingsFilter(
       listings,
-      makeFilterState({ direction: ['guba', 'ismayilli'], extra: ['pool'] }),
+      makeFilterState({ village: ['qirmizi-qasaba', 'lahij'], extra: ['pool'] }),
     );
     expect(out.map((l) => l.id)).toEqual(['1', '3']);
   });
 
-  it('searches across title/region/address', () => {
-    expect(applyListingsFilter(listings, makeFilterState({ q: 'guba' })).map((l) => l.id)).toEqual([
-      '1',
-    ]);
+  it('searches across title/region/address/villageSlug', () => {
+    expect(
+      applyListingsFilter(listings, makeFilterState({ q: 'qirmizi' })).map((l) => l.id),
+    ).toEqual(['1']);
   });
 });
 
@@ -146,19 +159,19 @@ describe('toggleOption / withOption / isOptionSelected', () => {
 });
 
 describe('computeCompatibility', () => {
-  it('counts results assuming each option were selected', () => {
-    const compat = computeCompatibility(listings, makeFilterState(), 'direction', [
-      'guba',
-      'lerik',
-      'zagatala',
-      'ismayilli',
-      'others',
+  it('counts results assuming each village were selected', () => {
+    const compat = computeCompatibility(listings, makeFilterState(), 'village', [
+      'qirmizi-qasaba',
+      'hamarat',
+      'mamrux',
+      'lahij',
+      'unknown-slug',
     ]);
-    expect(compat['guba']).toEqual({ count: 1, compatible: true });
-    expect(compat['lerik']).toEqual({ count: 1, compatible: true });
-    expect(compat['zagatala']).toEqual({ count: 1, compatible: true });
-    expect(compat['ismayilli']).toEqual({ count: 1, compatible: true });
-    expect(compat['others']).toEqual({ count: 0, compatible: false });
+    expect(compat['qirmizi-qasaba']).toEqual({ count: 1, compatible: true });
+    expect(compat['hamarat']).toEqual({ count: 1, compatible: true });
+    expect(compat['mamrux']).toEqual({ count: 1, compatible: true });
+    expect(compat['lahij']).toEqual({ count: 1, compatible: true });
+    expect(compat['unknown-slug']).toEqual({ count: 0, compatible: false });
   });
 
   it('marks options as incompatible when adding them yields zero', () => {
@@ -196,7 +209,7 @@ describe('countActiveFilters', () => {
     expect(
       countActiveFilters(
         makeFilterState({
-          direction: ['guba', 'lerik'],
+          village: ['qirmizi-qasaba', 'hamarat'],
           extra: ['pool'],
           guests: 'lt5',
         }),

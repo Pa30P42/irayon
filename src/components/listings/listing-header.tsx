@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/badge';
+import { pickLocalized } from '@/lib/utils';
 import type { Listing, Locale } from '@/types';
 import { IconStarFilled } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
@@ -11,11 +12,10 @@ type ListingHeaderProps = {
 
 export function ListingHeader({ listing, locale }: ListingHeaderProps) {
   const tListings = useTranslations('listings');
-  const tRegions = useTranslations('regions');
   const tCategories = useTranslations('categories');
 
   const title = listing.title[locale];
-  const regionName = tRegions(listing.region);
+  const regionName = pickLocalized(listing.regionName, locale);
 
   return (
     <header className="space-y-4">

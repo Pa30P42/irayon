@@ -3,13 +3,11 @@ import {
   AMENITIES,
   BASIC_AMENITIES,
   CATEGORIES,
-  DIRECTIONS,
   EXTRA_AMENITIES,
   GUEST_RANGES,
   MEALS,
   PLACEMENTS,
   PLACE_TYPES,
-  REGIONS,
   SORT_OPTIONS,
 } from '@/lib/constants';
 import { z } from 'zod';
@@ -28,11 +26,16 @@ const csvArray = (input: unknown): string[] => {
 const csvEnum = <T extends readonly [string, ...string[]]>(values: T) =>
   z.preprocess(csvArray, z.array(z.enum(values as unknown as [string, ...string[]])).default([]));
 
+/** CSV of arbitrary slugs (no enum check — universe is data-driven). */
+const csvSlugs = z.preprocess(csvArray, z.array(z.string().min(1)).default([]));
+
 export const listingsQuerySchema = z.object({
   q: z.string().trim().max(200).optional().default(''),
   category: z.enum(CATEGORIES as readonly [string, ...string[]]).optional(),
-  region: z.enum(REGIONS as readonly [string, ...string[]]).optional(),
-  direction: csvEnum(DIRECTIONS as readonly [string, ...string[]]),
+  /** Region slugs (multi). Single-value URLs (?region=gabala) parse fine. */
+  region: csvSlugs,
+  /** Village slugs (multi). Validated against DB at the service layer. */
+  village: csvSlugs,
   type: csvEnum(PLACE_TYPES as readonly [string, ...string[]]),
   guests: z.enum(GUEST_RANGES as readonly [string, ...string[]]).optional(),
   placement: csvEnum(PLACEMENTS as readonly [string, ...string[]]),

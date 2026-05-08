@@ -38,7 +38,7 @@ const matchesSearch = (listing: Listing, q: string): boolean => {
     listing.title.az,
     listing.location.address,
     listing.region,
-    listing.direction,
+    listing.villageSlug ?? '',
   ]
     .join(' ')
     .toLowerCase();
@@ -47,7 +47,17 @@ const matchesSearch = (listing: Listing, q: string): boolean => {
 
 export function applyListingsFilter(listings: Listing[], filters: ListingsFilterState): Listing[] {
   return listings.filter((l) => {
-    if (filters.direction.length > 0 && !filters.direction.includes(l.direction)) return false;
+    // Location: OR-combine region and village. A listing matches if its region
+    // is in the region filter OR its village is in the village filter. Empty
+    // filters are skipped (no constraint).
+    const hasRegionFilter = filters.region.length > 0;
+    const hasVillageFilter = filters.village.length > 0;
+    if (hasRegionFilter || hasVillageFilter) {
+      const regionOk = hasRegionFilter && filters.region.includes(l.region);
+      const villageOk =
+        hasVillageFilter && l.villageSlug !== null && filters.village.includes(l.villageSlug);
+      if (!regionOk && !villageOk) return false;
+    }
     if (filters.type.length > 0 && !filters.type.includes(l.placeType)) return false;
     if (!matchesGuests(l, filters.guests)) return false;
     if (!matchesPlacement(l, filters.placement)) return false;
@@ -144,7 +154,8 @@ export function sortListings(listings: Listing[], sort: SortOption | null): List
 
 export function countActiveFilters(state: ListingsFilterState): number {
   let n = 0;
-  n += state.direction.length;
+  n += state.region.length;
+  n += state.village.length;
   n += state.type.length;
   n += state.guests ? 1 : 0;
   n += state.placement.length;

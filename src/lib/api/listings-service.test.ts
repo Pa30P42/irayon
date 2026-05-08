@@ -28,10 +28,10 @@ describe('listListingsFromMock', () => {
     expect(result.meta.total).toBeGreaterThan(5);
   });
 
-  it('filters by direction (CSV)', () => {
-    const query = listingsQuerySchema.parse({ direction: 'guba' });
+  it('filters by village (CSV)', () => {
+    const query = listingsQuerySchema.parse({ village: 'vandam' });
     const result = listListingsFromMock(query);
-    expect(result.data.every((l) => l.direction === 'guba')).toBe(true);
+    expect(result.data.every((l) => l.villageSlug === 'vandam')).toBe(true);
     expect(result.data.length).toBeGreaterThan(0);
   });
 
@@ -81,6 +81,7 @@ describe('listRegionsFromMock', () => {
 type ListingRow = Prisma.ListingGetPayload<{
   include: {
     region: true;
+    village: true;
     amenities: { include: { amenity: true } };
     images: { orderBy: { order: 'asc' } };
   };
@@ -98,10 +99,13 @@ const mkRow = (overrides: Partial<ListingRow> = {}): ListingRow =>
       slug: 'gabala',
       name: { az: 'Q', ru: 'G', en: 'Gabala' },
       coverImage: null,
+      featured: true,
+      sortOrder: 10,
       createdAt: new Date(),
       updatedAt: new Date(),
     },
-    direction: 'OTHERS',
+    villageId: null,
+    village: null,
     placeType: 'VILLA_COTTAGE',
     category: 'FOREST',
     price: 320,
@@ -159,7 +163,10 @@ describe('rowToDto', () => {
     expect(dto).toMatchObject({
       slug: 'db-villa',
       region: 'gabala',
-      direction: 'others',
+      regionName: { az: 'Q', ru: 'G', en: 'Gabala' },
+      villageId: null,
+      villageSlug: null,
+      villageName: null,
       placeType: 'villa-cottage',
       category: 'forest',
       meals: ['breakfast'],
@@ -169,6 +176,25 @@ describe('rowToDto', () => {
       phone: '+994500000000',
     });
     expect(dto.createdAt).toBe(new Date('2025-01-01T00:00:00.000Z').toISOString());
+  });
+
+  it('maps villageId/villageSlug/villageName when the listing has a village', () => {
+    const row = mkRow({
+      villageId: 'v1',
+      village: {
+        id: 'v1',
+        slug: 'vandam',
+        regionId: 'r1',
+        name: { az: 'Vəndam', ru: 'Вандам', en: 'Vandam' },
+        sortOrder: 10,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
+    const dto = rowToDto(row);
+    expect(dto.villageId).toBe('v1');
+    expect(dto.villageSlug).toBe('vandam');
+    expect(dto.villageName).toEqual({ az: 'Vəndam', ru: 'Вандам', en: 'Vandam' });
   });
 });
 
@@ -240,7 +266,7 @@ describe('getListingFromDb', () => {
 });
 
 describe('listRegionsFromDb', () => {
-  it('maps Prisma rows to RegionSummary with listing counts', async () => {
+  it('maps Prisma rows to RegionSummary with listing + village counts', async () => {
     const db = mockDeep<PrismaClient>();
     db.region.findMany.mockResolvedValueOnce([
       {
@@ -248,19 +274,25 @@ describe('listRegionsFromDb', () => {
         slug: 'gabala',
         name: { az: 'Q', ru: 'G', en: 'Gabala' },
         coverImage: null,
+        featured: true,
+        sortOrder: 10,
         createdAt: new Date(),
         updatedAt: new Date(),
-        _count: { listings: 3 },
+        _count: { listings: 3, villages: 8 },
       },
     ] as never);
 
     const result = await listRegionsFromDb(db);
     expect(result).toEqual([
       {
+        id: 'r1',
         slug: 'gabala',
         name: { az: 'Q', ru: 'G', en: 'Gabala' },
         coverImage: null,
+        featured: true,
+        sortOrder: 10,
         listingCount: 3,
+        villageCount: 8,
       },
     ]);
   });

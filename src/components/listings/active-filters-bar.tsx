@@ -1,10 +1,13 @@
 'use client';
 
+import { useRegionsWithVillages } from '@/hooks/use-public-regions';
+import { useLocale } from '@/hooks/use-locale';
 import { toggleOption } from '@/lib/listings-filter';
-import { cn } from '@/lib/utils';
+import { cn, pickLocalized } from '@/lib/utils';
 import type { FilterGroupName, ListingsFilterState } from '@/types';
 import { IconX } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 
 type ActiveFiltersBarProps = {
   state: ListingsFilterState;
@@ -17,12 +20,34 @@ type Chip = { group: FilterGroupName; option: string; label: string };
 export function ActiveFiltersBar({ state, onChange, onReset }: ActiveFiltersBarProps) {
   const t = useTranslations('filter');
   const tOptions = useTranslations('filter.options');
+  const { locale } = useLocale();
+  const { data: regions } = useRegionsWithVillages();
+
+  // Build region/village slug → localized label so chips show readable names
+  // instead of slugs. Falls back to the slug while regions are loading.
+  const { regionLabelBySlug, villageLabelBySlug } = useMemo(() => {
+    const regionMap = new Map<string, string>();
+    const villageMap = new Map<string, string>();
+    if (!regions) return { regionLabelBySlug: regionMap, villageLabelBySlug: villageMap };
+    for (const region of regions) {
+      regionMap.set(region.slug, pickLocalized(region.name, locale));
+      for (const v of region.villages) {
+        villageMap.set(v.slug, pickLocalized(v.name, locale));
+      }
+    }
+    return { regionLabelBySlug: regionMap, villageLabelBySlug: villageMap };
+  }, [regions, locale]);
 
   const chips: Chip[] = [
-    ...state.direction.map((o) => ({
-      group: 'direction' as const,
+    ...state.region.map((o) => ({
+      group: 'region' as const,
       option: o,
-      label: tOptions(`direction.${o}`),
+      label: regionLabelBySlug.get(o) ?? o,
+    })),
+    ...state.village.map((o) => ({
+      group: 'village' as const,
+      option: o,
+      label: villageLabelBySlug.get(o) ?? o,
     })),
     ...state.type.map((o) => ({
       group: 'type' as const,

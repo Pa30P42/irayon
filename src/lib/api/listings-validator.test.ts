@@ -8,7 +8,7 @@ describe('listingsQuerySchema', () => {
       q: '',
       page: 1,
       limit: 24,
-      direction: [],
+      village: [],
       type: [],
       placement: [],
       food: [],
@@ -29,9 +29,9 @@ describe('listingsQuerySchema', () => {
     expect(() => listingsQuerySchema.parse({ limit: '999' })).toThrow();
   });
 
-  it('accepts comma-separated direction values', () => {
-    const parsed = listingsQuerySchema.parse({ direction: 'guba,lerik' });
-    expect(parsed.direction).toEqual(['guba', 'lerik']);
+  it('accepts comma-separated village values (any slug; data-driven)', () => {
+    const parsed = listingsQuerySchema.parse({ village: 'vandam,nabran' });
+    expect(parsed.village).toEqual(['vandam', 'nabran']);
   });
 
   it('accepts repeated query params (URLSearchParams.getAll() shape)', () => {
@@ -39,8 +39,8 @@ describe('listingsQuerySchema', () => {
     expect(parsed.extra).toEqual(['pool', 'sauna']);
   });
 
-  it('rejects unknown enum values', () => {
-    expect(() => listingsQuerySchema.parse({ direction: 'narnia' })).toThrow();
+  it('rejects unknown enum values for fixed-universe filters', () => {
+    expect(() => listingsQuerySchema.parse({ type: 'narnia' })).toThrow();
   });
 
   it('coerces price bounds to integers and rejects negatives', () => {

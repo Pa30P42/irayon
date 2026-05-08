@@ -20,16 +20,6 @@ enum ListingCategory {
   @@map("listing_category")
 }
 
-enum Direction {
-  ISMAYILLI @map("ismayilli")
-  GUBA      @map("guba")
-  LERIK     @map("lerik")
-  ZAGATALA  @map("zagatala")
-  OTHERS    @map("others")
-
-  @@map("direction")
-}
-
 enum PlaceType {
   A_FRAME       @map("a-frame")
   VILLA_COTTAGE @map("villa-cottage")
@@ -61,11 +51,33 @@ model Region {
   /// Localized name: { az: string, ru: string, en: string }
   name       Json
   coverImage String?
+  /// Surfaced on homepage Regions grid when true.
+  featured   Boolean   @default(false)
+  sortOrder  Int       @default(0)
+  villages   Village[]
   listings   Listing[]
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
   @@map("regions")
+}
+
+model Village {
+  id        String    @id @default(cuid())
+  /// Slug unique per region (e.g. "laza" exists in both Gabala and Gusar).
+  slug      String
+  /// Localized name: { az, ru, en }
+  name      Json
+  regionId  String
+  region    Region    @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  listings  Listing[]
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([regionId, slug])
+  @@index([regionId])
+  @@map("villages")
 }
 
 model Amenity {
@@ -93,7 +105,8 @@ model Listing {
   description Json
   regionId    String
   region      Region          @relation(fields: [regionId], references: [id])
-  direction   Direction
+  villageId   String?
+  village     Village?        @relation(fields: [villageId], references: [id], onDelete: SetNull)
   placeType   PlaceType
   category    ListingCategory
   price       Int
@@ -116,7 +129,7 @@ model Listing {
 
   @@index([category])
   @@index([regionId])
-  @@index([direction])
+  @@index([villageId])
   @@index([placeType])
   @@index([price])
   @@index([rating])

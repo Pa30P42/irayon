@@ -1,25 +1,21 @@
 /**
- * Idempotent seed: upserts every region, amenity, and listing so it can be
- * re-run safely. Run with `pnpm prisma:seed` after `pnpm prisma migrate dev`.
+ * Idempotent seed: upserts every region, village, amenity, and listing so it
+ * can be re-run safely. Run with `pnpm prisma:seed` after `pnpm prisma migrate dev`.
  */
 import { PrismaClient, type Prisma } from '@prisma/client';
 import { mockListings } from '../src/data/mock-listings';
+import { REGION_SEED } from '../src/data/region-seed';
+import { VILLAGE_SEED } from '../src/data/village-seed';
 import azMessages from '../src/i18n/messages/az.json' with { type: 'json' };
 import enMessages from '../src/i18n/messages/en.json' with { type: 'json' };
 import ruMessages from '../src/i18n/messages/ru.json' with { type: 'json' };
 import { groupAmenities } from '../src/lib/amenity-groups';
-import { AMENITIES, REGIONS } from '../src/lib/constants';
-import type { Amenity, Region } from '../src/types';
+import { AMENITIES } from '../src/lib/constants';
+import type { Amenity } from '../src/types';
 
 const prisma = new PrismaClient();
 
 type LocalizedNames = { az: string; ru: string; en: string };
-
-const regionNameFor = (slug: Region): LocalizedNames => ({
-  az: (azMessages.regions as Record<string, string>)[slug] ?? slug,
-  ru: (ruMessages.regions as Record<string, string>)[slug] ?? slug,
-  en: (enMessages.regions as Record<string, string>)[slug] ?? slug,
-});
 
 const amenityNameFor = (slug: Amenity): LocalizedNames => ({
   az: (azMessages.amenity as Record<string, string>)[slug] ?? slug,
@@ -36,19 +32,59 @@ const amenityGroupFor = (amenity: Amenity): string => {
   return 'extras';
 };
 
-async function seedRegions(): Promise<Map<Region, string>> {
-  const idBySlug = new Map<Region, string>();
+async function seedRegions(): Promise<Map<string, string>> {
+  const idBySlug = new Map<string, string>();
 
-  for (const slug of REGIONS) {
+  for (const region of REGION_SEED) {
     const row = await prisma.region.upsert({
-      where: { slug },
-      create: { slug, name: regionNameFor(slug) as Prisma.InputJsonValue },
-      update: { name: regionNameFor(slug) as Prisma.InputJsonValue },
+      where: { slug: region.slug },
+      create: {
+        slug: region.slug,
+        name: region.name as unknown as Prisma.InputJsonValue,
+        featured: region.featured,
+        sortOrder: region.sortOrder,
+      },
+      update: {
+        name: region.name as unknown as Prisma.InputJsonValue,
+        featured: region.featured,
+        sortOrder: region.sortOrder,
+      },
     });
-    idBySlug.set(slug, row.id);
+    idBySlug.set(region.slug, row.id);
   }
 
   return idBySlug;
+}
+
+async function seedVillages(regionIds: Map<string, string>): Promise<Map<string, string>> {
+  // Key: `${regionSlug}:${villageSlug}` → village id.
+  const idByCompositeKey = new Map<string, string>();
+
+  for (const village of VILLAGE_SEED) {
+    const regionId = regionIds.get(village.regionSlug);
+    if (!regionId) {
+      throw new Error(
+        `Village "${village.slug}" references missing region "${village.regionSlug}"`,
+      );
+    }
+
+    const row = await prisma.village.upsert({
+      where: { regionId_slug: { regionId, slug: village.slug } },
+      create: {
+        slug: village.slug,
+        regionId,
+        name: village.name as unknown as Prisma.InputJsonValue,
+        sortOrder: village.sortOrder,
+      },
+      update: {
+        name: village.name as unknown as Prisma.InputJsonValue,
+        sortOrder: village.sortOrder,
+      },
+    });
+    idByCompositeKey.set(`${village.regionSlug}:${village.slug}`, row.id);
+  }
+
+  return idByCompositeKey;
 }
 
 async function seedAmenities(): Promise<Map<Amenity, string>> {
@@ -76,13 +112,25 @@ async function seedAmenities(): Promise<Map<Amenity, string>> {
 const toEnumValue = (s: string): string => s.toUpperCase().replace(/-/g, '_');
 
 async function seedListings(
-  regionIds: Map<Region, string>,
+  regionIds: Map<string, string>,
+  villageIds: Map<string, string>,
   amenityIds: Map<Amenity, string>,
 ): Promise<void> {
   for (const listing of mockListings) {
     const regionId = regionIds.get(listing.region);
     if (!regionId) {
       throw new Error(`Region "${listing.region}" not seeded for listing ${listing.slug}`);
+    }
+
+    let villageId: string | null = null;
+    if (listing.villageSlug) {
+      const key = `${listing.region}:${listing.villageSlug}`;
+      villageId = villageIds.get(key) ?? null;
+      if (!villageId) {
+        throw new Error(
+          `Village "${listing.villageSlug}" not seeded under region "${listing.region}" for listing ${listing.slug}`,
+        );
+      }
     }
 
     // Upsert listing fields, then replace its amenity + image relations atomically.
@@ -94,7 +142,7 @@ async function seedListings(
           title: listing.title as unknown as Prisma.InputJsonValue,
           description: listing.description as unknown as Prisma.InputJsonValue,
           regionId,
-          direction: toEnumValue(listing.direction) as Prisma.ListingCreateInput['direction'],
+          villageId,
           placeType: toEnumValue(listing.placeType) as Prisma.ListingCreateInput['placeType'],
           category: toEnumValue(listing.category) as Prisma.ListingCreateInput['category'],
           price: listing.price,
@@ -115,7 +163,7 @@ async function seedListings(
           title: listing.title as unknown as Prisma.InputJsonValue,
           description: listing.description as unknown as Prisma.InputJsonValue,
           regionId,
-          direction: toEnumValue(listing.direction) as Prisma.ListingUpdateInput['direction'],
+          villageId,
           placeType: toEnumValue(listing.placeType) as Prisma.ListingUpdateInput['placeType'],
           category: toEnumValue(listing.category) as Prisma.ListingUpdateInput['category'],
           price: listing.price,
@@ -166,8 +214,12 @@ async function seedListings(
 
 async function main(): Promise<void> {
   // eslint-disable-next-line no-console
-  console.log('Seeding regions…');
+  console.log(`Seeding ${REGION_SEED.length} regions…`);
   const regionIds = await seedRegions();
+
+  // eslint-disable-next-line no-console
+  console.log(`Seeding ${VILLAGE_SEED.length} villages…`);
+  const villageIds = await seedVillages(regionIds);
 
   // eslint-disable-next-line no-console
   console.log('Seeding amenities…');
@@ -175,7 +227,7 @@ async function main(): Promise<void> {
 
   // eslint-disable-next-line no-console
   console.log(`Seeding ${mockListings.length} listings…`);
-  await seedListings(regionIds, amenityIds);
+  await seedListings(regionIds, villageIds, amenityIds);
 
   // eslint-disable-next-line no-console
   console.log('Done.');

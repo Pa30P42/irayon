@@ -15,7 +15,7 @@ const toFormValues = (listing: Listing): Partial<CreateListingInput> => ({
   title: listing.title,
   description: listing.description,
   region: listing.region,
-  direction: listing.direction,
+  villageId: listing.villageId,
   placeType: listing.placeType,
   category: listing.category,
   price: listing.price,

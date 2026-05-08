@@ -1,4 +1,5 @@
 import enMessages from '@/i18n/messages/en.json';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, type RenderOptions, type RenderResult } from '@testing-library/react';
 import { NextIntlClientProvider, type AbstractIntlMessages } from 'next-intl';
 import { NuqsTestingAdapter, type UrlUpdateEvent } from 'nuqs/adapters/testing';
@@ -12,6 +13,15 @@ type ProvidersProps = {
   onUrlUpdate?: (event: UrlUpdateEvent) => void;
 };
 
+/** Fresh QueryClient per render — disables retries so failed queries fail fast in tests. */
+const makeTestQueryClient = (): QueryClient =>
+  new QueryClient({
+    defaultOptions: {
+      queries: { retry: false, gcTime: 0, staleTime: 0 },
+      mutations: { retry: false },
+    },
+  });
+
 export function Providers({
   children,
   locale = 'en',
@@ -19,12 +29,15 @@ export function Providers({
   searchParams,
   onUrlUpdate,
 }: ProvidersProps) {
+  const queryClient = makeTestQueryClient();
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
-      <NuqsTestingAdapter searchParams={searchParams} onUrlUpdate={onUrlUpdate}>
-        {children}
-      </NuqsTestingAdapter>
-    </NextIntlClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <NextIntlClientProvider locale={locale} messages={messages}>
+        <NuqsTestingAdapter searchParams={searchParams} onUrlUpdate={onUrlUpdate}>
+          {children}
+        </NuqsTestingAdapter>
+      </NextIntlClientProvider>
+    </QueryClientProvider>
   );
 }
 

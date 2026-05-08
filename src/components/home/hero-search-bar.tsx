@@ -37,7 +37,8 @@ export function HeroSearchBar() {
     const params = new URLSearchParams();
     if (location.trim()) params.set('q', location.trim());
     if (guests > 0) params.set('capacity', String(guests));
-    appendArray(params, 'direction', filters.direction);
+    appendArray(params, 'region', filters.region);
+    appendArray(params, 'village', filters.village);
     appendArray(params, 'type', filters.type);
     if (filters.guests) params.set('guests', filters.guests);
     appendArray(params, 'placement', filters.placement);

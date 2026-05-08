@@ -7,12 +7,7 @@ export function SiteLogo() {
       className="flex items-center gap-2 text-lg font-semibold text-[var(--color-primary)]"
       aria-label="IRayon home"
     >
-      <span
-        aria-hidden
-        className="inline-block h-7 w-7 rounded-md bg-[var(--color-primary)] text-center text-xs leading-7 font-bold text-white"
-      >
-        IR
-      </span>
+      <img src="/logo.svg" alt="" aria-hidden className="h-8 w-8" />
       IRayon
     </Link>
   );

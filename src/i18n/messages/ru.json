@@ -150,8 +150,11 @@
     "reset": "Сбросить",
     "resetAll": "Сбросить всё",
     "apply": "{count, plural, =0 {Нет вариантов} one {Показать # вариант} few {Показать # варианта} other {Показать # вариантов}}",
+    "loading": "Загрузка…",
+    "locationSearchPlaceholder": "Поиск деревни или региона",
+    "locationNoResults": "Ничего не найдено",
     "groups": {
-      "direction": "Направление",
+      "village": "Деревня",
       "type": "Тип места",
       "guests": "Количество гостей",
       "placement": "Тип размещения",
@@ -161,13 +164,6 @@
       "fun": "Развлечения"
     },
     "options": {
-      "direction": {
-        "ismayilli": "Исмаиллы",
-        "guba": "Губа",
-        "lerik": "Лерик",
-        "zagatala": "Загатала",
-        "others": "Другие"
-      },
       "type": {
         "a-frame": "A-frame",
         "villa-cottage": "Вилла и коттедж",
@@ -238,19 +234,6 @@
     "crib": "Детская кроватка",
     "kids": "Развлечения для детей",
     "ev-charger": "Зарядка электромобиля"
-  },
-  "regions": {
-    "gabala": "Габала",
-    "sheki": "Шеки",
-    "guba": "Губа",
-    "lankaran": "Ленкорань",
-    "gusar": "Гусар",
-    "gakh": "Гах",
-    "ismayilli": "Исмаиллы",
-    "goychay": "Гёйчай",
-    "absheron": "Апшерон",
-    "lerik": "Лерик",
-    "zagatala": "Загатала"
   },
   "footer": {
     "rights": "Все права защищены",

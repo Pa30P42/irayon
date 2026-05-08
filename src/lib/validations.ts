@@ -1,11 +1,12 @@
 import { z } from 'zod';
-import { AMENITIES, CATEGORIES, REGIONS } from './constants';
+import { AMENITIES, CATEGORIES } from './constants';
 
 export const localeSchema = z.enum(['az', 'ru', 'en']);
 
 export const listingCategorySchema = z.enum(CATEGORIES as readonly [string, ...string[]]);
 
-export const regionSchema = z.enum(REGIONS as readonly [string, ...string[]]);
+/** Region slugs are data-driven (admin-managed); validate as plain string. */
+export const regionSchema = z.string().min(1);
 
 export const amenitySchema = z.enum(AMENITIES as readonly [string, ...string[]]);
 

@@ -18,14 +18,13 @@ type ListingRowProps = {
 export function ListingRow({ listing, locale, priority = false }: ListingRowProps) {
   const t = useTranslations('listings');
   const tCommon = useTranslations('common');
-  const tRegions = useTranslations('regions');
   const tAmenity = useTranslations('amenity');
 
   const title = pickLocalized(listing.title, locale);
   const cover = listing.images[0];
   const badge = getListingBadge(listing);
   const topAmenities = pickTopAmenities(listing.amenities, 4);
-  const regionName = tRegions(listing.region);
+  const regionName = pickLocalized(listing.regionName, locale);
 
   return (
     <article className="group relative">

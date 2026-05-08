@@ -29,7 +29,6 @@ export const metadata: Metadata = {
     template: `%s — ${SITE.name}`,
   },
   description: SITE.description,
-  icons: { icon: '/favicon.ico' },
 };
 
 type LocaleLayoutProps = {

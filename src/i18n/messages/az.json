@@ -150,8 +150,11 @@
     "reset": "Sıfırla",
     "resetAll": "Hamısını sıfırla",
     "apply": "{count, plural, =0 {Variant yoxdur} one {# variantı göstər} other {# variantı göstər}}",
+    "loading": "Yüklənir…",
+    "locationSearchPlaceholder": "Kənd və ya region axtar",
+    "locationNoResults": "Uyğun nəticə yoxdur",
     "groups": {
-      "direction": "İstiqamət",
+      "village": "Kənd",
       "type": "Yer növü",
       "guests": "Qonaq sayı",
       "placement": "Yerləşmə növü",
@@ -161,13 +164,6 @@
       "fun": "Əyləncələr"
     },
     "options": {
-      "direction": {
-        "ismayilli": "İsmayıllı",
-        "guba": "Quba",
-        "lerik": "Lerik",
-        "zagatala": "Zaqatala",
-        "others": "Digərləri"
-      },
       "type": {
         "a-frame": "A-frame",
         "villa-cottage": "Villa və kottec",
@@ -238,19 +234,6 @@
     "crib": "Uşaq beşiyi",
     "kids": "Uşaqlar üçün əyləncə",
     "ev-charger": "Elektromobil zaryadı"
-  },
-  "regions": {
-    "gabala": "Qəbələ",
-    "sheki": "Şəki",
-    "guba": "Quba",
-    "lankaran": "Lənkəran",
-    "gusar": "Qusar",
-    "gakh": "Qax",
-    "ismayilli": "İsmayıllı",
-    "goychay": "Göyçay",
-    "absheron": "Abşeron",
-    "lerik": "Lerik",
-    "zagatala": "Zaqatala"
   },
   "footer": {
     "rights": "Bütün hüquqlar qorunur",

@@ -1,7 +1,6 @@
 import type {
   Activity,
   Amenity,
-  Direction,
   GuestRange,
   HomeCategory,
   ListingCategory,
@@ -9,7 +8,6 @@ import type {
   Meal,
   Placement,
   PlaceType,
-  Region,
   SortOption,
 } from '@/types';
 
@@ -25,20 +23,6 @@ export const CATEGORIES: readonly ListingCategory[] = [
   'river',
   'sea',
   'lake',
-] as const;
-
-export const REGIONS: readonly Region[] = [
-  'gabala',
-  'sheki',
-  'guba',
-  'lankaran',
-  'gusar',
-  'gakh',
-  'ismayilli',
-  'goychay',
-  'absheron',
-  'lerik',
-  'zagatala',
 ] as const;
 
 export const AMENITIES: readonly Amenity[] = [
@@ -84,22 +68,8 @@ export const HOME_CATEGORIES: readonly HomeCategory[] = [
 
 export const HOME_FEATURED_LIMIT = 8;
 
-export const FEATURED_REGIONS: readonly Region[] = [
-  'gabala',
-  'sheki',
-  'guba',
-  'gusar',
-  'lankaran',
-  'absheron',
-] as const;
-
-export const DIRECTIONS: readonly Direction[] = [
-  'ismayilli',
-  'guba',
-  'lerik',
-  'zagatala',
-  'others',
-] as const;
+/** Fallback count for the homepage Regions grid when no region is featured. */
+export const HOME_FEATURED_REGION_LIMIT = 6;
 
 export const PLACE_TYPES: readonly PlaceType[] = [
   'a-frame',
@@ -151,7 +121,8 @@ export const SORT_OPTIONS: readonly SortOption[] = [
  */
 export const emptyFilterState = (): ListingsFilterState => ({
   q: '',
-  direction: [],
+  region: [],
+  village: [],
   type: [],
   guests: null,
   placement: [],

@@ -12,7 +12,8 @@ type ListingDetailProps = {
 
 const EMPTY_FILTER_QUERY = {
   q: '',
-  direction: [],
+  region: [] as string[],
+  village: [],
   type: [],
   placement: [],
   food: [],
@@ -85,7 +86,7 @@ export default async function ListingDetailPage({ params }: ListingDetailProps) 
   // the current listing and still have 4 to display.
   const { data: regionListings } = await listListings({
     ...EMPTY_FILTER_QUERY,
-    region: listing.region,
+    region: [listing.region],
     limit: 5,
   });
   const similar = regionListings.filter((l) => l.id !== listing.id).slice(0, 4);
