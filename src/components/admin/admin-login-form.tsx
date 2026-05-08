@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { IconAlertCircle, IconLoader2 } from '@tabler/icons-react';
+import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useState, type FormEvent } from 'react';
 
@@ -39,7 +40,9 @@ export function AdminLoginForm({ next }: AdminLoginFormProps) {
         throw new Error(body?.error?.message || 'Sign-in failed');
       }
 
-      router.push(next || '/admin/listings');
+      // `typedRoutes: true` expects a literal Route; the `next` redirect target
+      // is dynamic (comes from a query string), so we cast to Route.
+      router.push((next || '/admin/listings') as Route);
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign-in failed');
