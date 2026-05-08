@@ -2,8 +2,8 @@
 // Region-grouped, searchable village picker. Replaces the flat village
 // checkbox group inside the filter modal — booking.com / hotels.com pattern.
 
-import { useRegionsWithVillages } from '@/hooks/use-public-regions';
 import { useLocale } from '@/hooks/use-locale';
+import { useRegionsWithVillages } from '@/hooks/use-public-regions';
 import { cn, pickLocalized } from '@/lib/utils';
 import type { ListingsFilterState, RegionWithVillages } from '@/types';
 import {
@@ -141,7 +141,7 @@ export function LocationFilterPicker({ state, onChange }: LocationFilterPickerPr
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t('locationSearchPlaceholder')}
-          className="flex-1 bg-transparent text-sm outline-none placeholder:text-foreground-muted"
+          className="placeholder:text-foreground-muted flex-1 bg-transparent text-sm outline-none"
           aria-label={t('locationSearchPlaceholder')}
         />
         {query ? (
@@ -175,10 +175,7 @@ export function LocationFilterPicker({ state, onChange }: LocationFilterPickerPr
             const matchingForThis = matchingVillagesByRegion.get(region.slug);
 
             return (
-              <li
-                key={region.slug}
-                className={cn(idx > 0 && 'border-border border-t')}
-              >
+              <li key={region.slug} className={cn(idx > 0 && 'border-border border-t')}>
                 <div className="flex items-stretch">
                   <label
                     className="hover:bg-accent flex flex-1 cursor-pointer items-center gap-3 px-3 py-2.5"
@@ -192,7 +189,11 @@ export function LocationFilterPicker({ state, onChange }: LocationFilterPickerPr
                       className="border-border accent-primary h-4 w-4 cursor-pointer"
                     />
                     <span className="flex flex-1 items-center gap-2 text-sm">
-                      <IconMapPin size={14} className="text-foreground-muted shrink-0" aria-hidden />
+                      <IconMapPin
+                        size={14}
+                        className="text-foreground-muted shrink-0"
+                        aria-hidden
+                      />
                       <span className={cn('font-medium', regionChecked && 'text-primary')}>
                         {regionLabel}
                       </span>
@@ -224,7 +225,7 @@ export function LocationFilterPicker({ state, onChange }: LocationFilterPickerPr
                 {expanded && villagesInRegion > 0 ? (
                   <div
                     className={cn(
-                      'flex flex-wrap gap-1.5 px-3 pb-3 pt-1',
+                      'flex flex-wrap gap-1.5 px-3 pt-1 pb-3',
                       regionChecked && 'opacity-60',
                     )}
                   >

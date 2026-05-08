@@ -80,7 +80,7 @@ export function AdminRegionsList() {
               key={r.id}
               className="border-border bg-background flex items-center gap-3 rounded-2xl border p-3 shadow-sm sm:p-4"
             >
-              <div className="bg-accent grid h-12 w-12 shrink-0 place-items-center rounded-md text-foreground-muted">
+              <div className="bg-accent text-foreground-muted grid h-12 w-12 shrink-0 place-items-center rounded-md">
                 <IconMap2 size={20} aria-hidden />
               </div>
               <div className="min-w-0 flex-1">
@@ -112,10 +112,7 @@ export function AdminRegionsList() {
               </div>
               <div className="flex items-center gap-1.5">
                 <Button asChild variant="ghost" size="sm" className="gap-1.5">
-                  <Link
-                    href={`/admin/regions/${r.id}/edit`}
-                    aria-label={`Edit ${r.name.en}`}
-                  >
+                  <Link href={`/admin/regions/${r.id}/edit`} aria-label={`Edit ${r.name.en}`}>
                     <IconPencil size={14} />
                     <span className="hidden sm:inline">Edit</span>
                   </Link>

@@ -11,7 +11,9 @@
     "currency": "AZN",
     "perNight": "night",
     "favorite": "Add to favorites",
-    "unfavorite": "Remove from favorites"
+    "unfavorite": "Remove from favorites",
+    "breadcrumb": "Breadcrumb",
+    "skipToContent": "Skip to content"
   },
   "nav": {
     "home": "Home",

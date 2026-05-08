@@ -5,8 +5,7 @@ export const AZ_CENTER: [number, number] = [40.5, 47.7];
 export const AZ_DEFAULT_ZOOM = 7;
 
 /** Carto Voyager raster tiles — free, no token, complements forest-green theme. */
-export const TILE_URL =
-  'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+export const TILE_URL = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 
 export const TILE_SUBDOMAINS = ['a', 'b', 'c', 'd'];
 

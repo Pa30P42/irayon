@@ -84,10 +84,7 @@ export function VillagesManager({ regionId }: VillagesManagerProps) {
                   />
                 </li>
               ) : (
-                <li
-                  key={v.id}
-                  className="flex items-center gap-3 py-3 text-sm"
-                >
+                <li key={v.id} className="flex items-center gap-3 py-3 text-sm">
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-medium">{v.name.en}</p>
                     <p className="text-foreground-muted truncate text-xs">
@@ -190,19 +187,11 @@ function CreateVillageRow({ regionId }: { regionId: string }) {
       </label>
       <label className="block text-xs font-medium">
         <span className="text-foreground-muted">Name (RU)</span>
-        <Input
-          value={nameRu}
-          onChange={(e) => setNameRu(e.target.value)}
-          placeholder="Вандам"
-        />
+        <Input value={nameRu} onChange={(e) => setNameRu(e.target.value)} placeholder="Вандам" />
       </label>
       <label className="block text-xs font-medium">
         <span className="text-foreground-muted">Name (AZ)</span>
-        <Input
-          value={nameAz}
-          onChange={(e) => setNameAz(e.target.value)}
-          placeholder="Vəndam"
-        />
+        <Input value={nameAz} onChange={(e) => setNameAz(e.target.value)} placeholder="Vəndam" />
       </label>
       <label className="block text-xs font-medium">
         <span className="text-foreground-muted">Order</span>
@@ -229,9 +218,7 @@ function CreateVillageRow({ regionId }: { regionId: string }) {
         )}
         Add
       </Button>
-      {error ? (
-        <p className="col-span-full text-xs text-rose-700">{error}</p>
-      ) : null}
+      {error ? <p className="col-span-full text-xs text-rose-700">{error}</p> : null}
     </form>
   );
 }
@@ -303,7 +290,11 @@ function EditVillageRow({
         disabled={!nameEn.trim() || update.isPending}
         className="gap-2"
       >
-        {update.isPending ? <IconLoader2 size={14} className="animate-spin" /> : <IconCheck size={14} />}
+        {update.isPending ? (
+          <IconLoader2 size={14} className="animate-spin" />
+        ) : (
+          <IconCheck size={14} />
+        )}
         Save
       </Button>
       <Button type="button" size="sm" variant="ghost" onClick={onDone} className="gap-1.5">

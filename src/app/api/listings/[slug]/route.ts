@@ -1,3 +1,6 @@
+// 5-minute edge cache: detail pages change rarely once published.
+export const revalidate = 300;
+
 import { apiNotFound, apiOk, apiServerError } from '@/lib/api/api-response';
 import { getListingBySlug } from '@/lib/api/listings-service';
 

@@ -59,10 +59,7 @@ function ListingsMapRowImpl({
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2">
               <h3 className="line-clamp-2 text-sm font-medium">{title}</h3>
-              <div
-                className="flex shrink-0 items-center gap-0.5 text-xs"
-                aria-label={t('rating')}
-              >
+              <div className="flex shrink-0 items-center gap-0.5 text-xs" aria-label={t('rating')}>
                 <IconStarFilled size={12} aria-hidden />
                 <span>{listing.rating.toFixed(1)}</span>
               </div>

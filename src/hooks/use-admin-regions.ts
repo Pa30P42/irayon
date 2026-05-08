@@ -1,10 +1,7 @@
 'use client';
 
 import type { ApiError } from '@/lib/api/api-response';
-import type {
-  RegionCreateInput,
-  RegionUpdateInput,
-} from '@/lib/api/regions-validator';
+import type { RegionCreateInput, RegionUpdateInput } from '@/lib/api/regions-validator';
 import type { RegionWithVillages } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 

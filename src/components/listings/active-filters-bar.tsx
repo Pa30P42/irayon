@@ -1,7 +1,7 @@
 'use client';
 
-import { useRegionsWithVillages } from '@/hooks/use-public-regions';
 import { useLocale } from '@/hooks/use-locale';
+import { useRegionsWithVillages } from '@/hooks/use-public-regions';
 import { toggleOption } from '@/lib/listings-filter';
 import { cn, pickLocalized } from '@/lib/utils';
 import type { FilterGroupName, ListingsFilterState } from '@/types';

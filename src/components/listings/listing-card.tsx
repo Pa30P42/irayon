@@ -37,7 +37,9 @@ export function ListingCard({ listing, locale, priority = false }: ListingCardPr
           {cover ? (
             <Image
               src={cover}
-              alt={title}
+              // Brief, location-anchored alt — enough for image search and
+              // screen readers without keyword-stuffing.
+              alt={`${title} — ${regionName}`}
               fill
               sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"

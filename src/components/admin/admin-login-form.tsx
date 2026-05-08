@@ -34,9 +34,9 @@ export function AdminLoginForm({ next }: AdminLoginFormProps) {
       });
 
       if (!res.ok) {
-        const body = (await res.json().catch(() => null)) as
-          | { error?: { message?: string } }
-          | null;
+        const body = (await res.json().catch(() => null)) as {
+          error?: { message?: string };
+        } | null;
         throw new Error(body?.error?.message || 'Sign-in failed');
       }
 

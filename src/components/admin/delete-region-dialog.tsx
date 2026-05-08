@@ -15,14 +15,12 @@ import { useEffect, useState } from 'react';
 type DeleteRegionDialogProps = {
   open: boolean;
   onOpenChange: (next: boolean) => void;
-  region:
-    | {
-        id: string;
-        title: string;
-        listingCount: number;
-        villageCount: number;
-      }
-    | null;
+  region: {
+    id: string;
+    title: string;
+    listingCount: number;
+    villageCount: number;
+  } | null;
   onDeleted?: () => void;
 };
 

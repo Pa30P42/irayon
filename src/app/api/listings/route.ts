@@ -1,3 +1,6 @@
+// 60s edge cache: catalog can lag a minute behind the admin without anyone noticing.
+export const revalidate = 60;
+
 import {
   apiBadRequest,
   apiPaginated,

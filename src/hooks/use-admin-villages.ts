@@ -1,10 +1,7 @@
 'use client';
 
 import type { ApiError } from '@/lib/api/api-response';
-import type {
-  VillageCreateInput,
-  VillageUpdateInput,
-} from '@/lib/api/villages-validator';
+import type { VillageCreateInput, VillageUpdateInput } from '@/lib/api/villages-validator';
 import type { Village } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 

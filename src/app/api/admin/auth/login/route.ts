@@ -1,6 +1,10 @@
-import { ADMIN_SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, signAdminSession } from '@/lib/admin-session';
-import { timingSafeEqual } from 'node:crypto';
+import {
+  ADMIN_SESSION_COOKIE,
+  SESSION_MAX_AGE_SECONDS,
+  signAdminSession,
+} from '@/lib/admin-session';
 import { NextResponse } from 'next/server';
+import { timingSafeEqual } from 'node:crypto';
 
 const constantTimeEqual = (a: string, b: string): boolean => {
   const ab = Buffer.from(a);
@@ -9,8 +13,7 @@ const constantTimeEqual = (a: string, b: string): boolean => {
   return timingSafeEqual(ab, bb);
 };
 
-const json = (status: number, body: unknown): NextResponse =>
-  NextResponse.json(body, { status });
+const json = (status: number, body: unknown): NextResponse => NextResponse.json(body, { status });
 
 export async function POST(request: Request): Promise<Response> {
   const expectedUser = process.env.ADMIN_LOGIN;

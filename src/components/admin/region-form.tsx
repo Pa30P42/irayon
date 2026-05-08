@@ -4,10 +4,7 @@
 import { Field, SectionCard } from '@/components/admin/form-controls';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  regionCreateSchema,
-  type RegionCreateInput,
-} from '@/lib/api/regions-validator';
+import { regionCreateSchema, type RegionCreateInput } from '@/lib/api/regions-validator';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconAlertCircle, IconCheck, IconLoader2 } from '@tabler/icons-react';
@@ -99,12 +96,7 @@ export function RegionForm({
           ))}
         </div>
         <div className={activeTab === 'en' ? '' : 'hidden'}>
-          <Field
-            label="Name (EN)"
-            required
-            htmlFor="name-en"
-            error={errors.name?.en?.message}
-          >
+          <Field label="Name (EN)" required htmlFor="name-en" error={errors.name?.en?.message}>
             <Input id="name-en" {...register('name.en')} placeholder="Gabala" />
           </Field>
         </div>

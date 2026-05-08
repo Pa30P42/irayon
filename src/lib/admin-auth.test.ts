@@ -23,9 +23,7 @@ describe('requireAdmin', () => {
   it('allows requests carrying a valid signed session cookie', async () => {
     const session = await signAdminSession();
     expect(session).not.toBeNull();
-    const result = await requireAdmin(
-      mkRequest(`${ADMIN_SESSION_COOKIE}=${session!.token}`),
-    );
+    const result = await requireAdmin(mkRequest(`${ADMIN_SESSION_COOKIE}=${session!.token}`));
     expect(result.ok).toBe(true);
   });
 
@@ -38,9 +36,7 @@ describe('requireAdmin', () => {
   it('rejects when the cookie value is tampered', async () => {
     const session = await signAdminSession();
     const tampered = session!.token.slice(0, -2) + 'aa';
-    const result = await requireAdmin(
-      mkRequest(`${ADMIN_SESSION_COOKIE}=${tampered}`),
-    );
+    const result = await requireAdmin(mkRequest(`${ADMIN_SESSION_COOKIE}=${tampered}`));
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.response.status).toBe(401);
   });
@@ -49,9 +45,7 @@ describe('requireAdmin', () => {
     // Re-sign with a clock 30 days in the past so the embedded expiry < now.
     const past = Date.now() - 30 * 24 * 60 * 60 * 1000;
     const session = await signAdminSession(past);
-    const result = await requireAdmin(
-      mkRequest(`${ADMIN_SESSION_COOKIE}=${session!.token}`),
-    );
+    const result = await requireAdmin(mkRequest(`${ADMIN_SESSION_COOKIE}=${session!.token}`));
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.response.status).toBe(401);
   });
@@ -59,9 +53,7 @@ describe('requireAdmin', () => {
   it('returns 503 when admin credentials are not configured', async () => {
     delete process.env.ADMIN_LOGIN;
     const session = await signAdminSession();
-    const result = await requireAdmin(
-      mkRequest(`${ADMIN_SESSION_COOKIE}=${session!.token}`),
-    );
+    const result = await requireAdmin(mkRequest(`${ADMIN_SESSION_COOKIE}=${session!.token}`));
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.response.status).toBe(503);
   });
