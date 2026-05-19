@@ -152,7 +152,6 @@ export function ImageUploader({
           type="file"
           accept="image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif"
           multiple
-          capture="environment"
           className="sr-only"
           onChange={onSelect}
           disabled={atLimit}
