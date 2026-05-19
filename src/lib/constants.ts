@@ -20,14 +20,25 @@ export const SITE = {
     process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
 } as const;
 
+const PRODUCTION_HOSTS = new Set(['irayon.az', 'www.irayon.az']);
+
 /**
- * `true` only on the real production domain (`irayon.az`). Used to gate SEO
- * surfaces (robots.txt, sitemap, page-level robots meta) so the temporary
- * Vercel preview can't be indexed and create duplicate-content issues when
- * the real domain is connected. Flip on by setting NEXT_PUBLIC_SITE_URL on
- * the production env only.
+ * `true` only on the real production domain. Used to gate SEO surfaces
+ * (robots.txt, sitemap, page-level robots meta) so the temporary Vercel
+ * preview can't be indexed and create duplicate-content issues when the
+ * real domain is connected. Flip on by setting NEXT_PUBLIC_SITE_URL on the
+ * production env only.
+ *
+ * Hostname-matched (not substring) so a lookalike like
+ * `https://irayon.az.attacker.example` cannot flip the gate.
  */
-export const IS_PRODUCTION_DOMAIN = SITE.url.includes('irayon.az');
+export const IS_PRODUCTION_DOMAIN = (() => {
+  try {
+    return PRODUCTION_HOSTS.has(new URL(SITE.url).hostname);
+  } catch {
+    return false;
+  }
+})();
 
 export const CATEGORIES: readonly ListingCategory[] = [
   'mountain',
