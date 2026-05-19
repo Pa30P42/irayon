@@ -33,7 +33,11 @@ const cleanForUrl = (value: unknown): unknown => {
 };
 
 export function useListingsFilter({ listings }: UseListingsFilterArgs): UseListingsFilterResult {
-  const [raw, setRaw] = useQueryStates(listingsFilterParsers, { history: 'push' });
+  // Filter changes use `replace` so typing in search or toggling chips doesn't
+  // pile up history entries — back should return to where the user came from,
+  // not undo individual toggles. The filter-modal open flag is what owns the
+  // single "back closes me" history entry (see [[use-filter-modal]]).
+  const [raw, setRaw] = useQueryStates(listingsFilterParsers, { history: 'replace' });
 
   const state = useMemo<ListingsFilterState>(
     () => ({
