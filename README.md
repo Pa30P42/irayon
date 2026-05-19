@@ -51,17 +51,14 @@ domains) is held in a `noindex/Disallow: /` state. SEO metadata, JSON-LD,
 hreflang, OG, and Twitter cards are still generated as normal; they're just
 flagged as off-limits to crawlers until the production domain is live.
 
-### Pre-launch (current state)
+### Production-domain gate
 
-- App is deployed at `irayon.vercel.app`.
-- `/robots.txt` returns `User-agent: * / Disallow: /`.
-- `/sitemap.xml` returns an empty document.
-- Every page emits `<meta name="robots" content="noindex,nofollow">` and the
-  middleware sets `X-Robots-Tag: noindex, nofollow, noarchive` on admin /
-  API responses.
-- All SEO code (`lib/seo.ts`, `lib/json-ld.ts`, `app/sitemap.ts`,
-  `app/robots.ts`, region landing pages, OG image routes) is fully
-  implemented and unit-tested — it just hibernates until the domain flips.
+`IS_PRODUCTION_DOMAIN` resolves `NEXT_PUBLIC_SITE_URL` to a hostname and only
+returns `true` for `irayon.az` or `www.irayon.az`. Substring lookalikes
+(`irayon.az.evil.example`) are rejected. Anything else stays in the
+`noindex / Disallow: /` hibernation state — sitemap is empty, page-level
+meta is `noindex,nofollow`, and the middleware adds `X-Robots-Tag:
+noindex, nofollow, noarchive` on admin / API responses.
 
 ### Going-live checklist
 
@@ -69,21 +66,27 @@ When `irayon.az` is connected:
 
 1. Vercel → Project Settings → Environment Variables:
    - **Production**: `NEXT_PUBLIC_SITE_URL = https://irayon.az`
-   - **Preview**: `NEXT_PUBLIC_SITE_URL = https://irayon.vercel.app` (or
-     leave unset; previews stay non-indexable)
+   - **Preview**: leave unset (previews stay non-indexable).
    - **Development**: leave unset; localhost is treated as non-production.
-2. Redeploy the production build.
-3. Verify:
+2. (Optional) add search-engine verification tokens in Vercel **Production**
+   only — the meta tag is omitted when the env var is empty:
+   - `GOOGLE_SITE_VERIFICATION` — from Google Search Console → Settings →
+     Ownership verification → HTML tag → the `content="…"` value.
+   - `YANDEX_VERIFICATION` — from Yandex Webmaster → Add site → Meta tag.
+3. Redeploy the production build.
+4. Verify:
    - `https://irayon.az/robots.txt` shows `Allow: /` plus the admin/api
      disallows and the sitemap line — **not** the blanket `Disallow: /`.
    - `https://irayon.az/sitemap.xml` returns the three child sitemaps
      (`?id=static`, `?id=listings`, `?id=regions`) with real URLs.
-   - View source on any public page → `<meta name="robots"
-content="index,follow">` (and the `googleBot` variant).
-4. Google Search Console:
-   - Add property `https://irayon.az`.
+   - `https://irayon.az/manifest.webmanifest` returns the PWA manifest.
+   - View source on the homepage → `<meta name="robots" content="index,follow">`
+     and the verification meta tag(s) when tokens are set.
+5. Google Search Console:
+   - Add property `https://irayon.az` (verification meta tag confirms it).
    - Submit `https://irayon.az/sitemap.xml`.
    - Request indexing for the homepage manually to seed the crawl.
+6. Yandex Webmaster: same flow, sitemap URL = `https://irayon.az/sitemap.xml`.
 
 ### Why this approach
 
