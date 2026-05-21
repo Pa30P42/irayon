@@ -22,7 +22,7 @@ export function HeroSearchBar() {
   const router = useRouter();
 
   const [location, setLocation] = useState('');
-  const [guests, setGuests] = useState<number>(2);
+  const [guests, setGuests] = useState<string>('2');
   const [filters, setFilters] = useState<ListingsFilterState>(() => emptyFilterState());
   const tFilter = useTranslations('filter');
   const activeCount = countActiveFilters(filters);
@@ -36,7 +36,8 @@ export function HeroSearchBar() {
   const onSearch = () => {
     const params = new URLSearchParams();
     if (location.trim()) params.set('q', location.trim());
-    if (guests > 0) params.set('capacity', String(guests));
+    const guestsNum = Number(guests);
+    if (Number.isFinite(guestsNum) && guestsNum > 0) params.set('capacity', String(guestsNum));
     appendArray(params, 'region', filters.region);
     appendArray(params, 'village', filters.village);
     appendArray(params, 'type', filters.type);
@@ -95,7 +96,12 @@ export function HeroSearchBar() {
           min={1}
           max={20}
           value={guests}
-          onChange={(e) => setGuests(Number(e.target.value) || 1)}
+          onChange={(e) => setGuests(e.target.value)}
+          onBlur={() => {
+            const n = Number(guests);
+            if (!Number.isFinite(n) || n < 1) setGuests('1');
+            else if (n > 20) setGuests('20');
+          }}
           className="border-none px-0 focus-visible:ring-0"
         />
       </label>

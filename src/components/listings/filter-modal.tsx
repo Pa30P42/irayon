@@ -63,7 +63,7 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="h-auto max-h-[90dvh] w-[calc(100%-1.5rem)] rounded-2xl sm:max-h-[90vh] sm:w-full">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription className="sr-only">{t('title')}</DialogDescription>

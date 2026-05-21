@@ -1,11 +1,12 @@
+import { IconRiver } from '@/components/icons/icon-river';
 import type { Listing, ListingCategory } from '@/types';
 import {
   IconBeach,
   IconBed,
   IconMountain,
+  IconRipple,
   IconTrees,
   IconUsers,
-  IconWaveSine,
   type Icon,
 } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
@@ -13,9 +14,9 @@ import { useTranslations } from 'next-intl';
 const CATEGORY_ICONS: Record<ListingCategory, Icon> = {
   mountain: IconMountain,
   forest: IconTrees,
-  river: IconWaveSine,
+  river: IconRiver,
   sea: IconBeach,
-  lake: IconWaveSine,
+  lake: IconRipple,
 };
 
 type ListingHighlightsProps = {

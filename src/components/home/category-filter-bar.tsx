@@ -1,6 +1,7 @@
 'use client';
 // Client component: reads/writes the ?category= URL state via nuqs.
 
+import { IconRiver } from '@/components/icons/icon-river';
 import { useCategoryFilter } from '@/hooks/use-category-filter';
 import { HOME_CATEGORIES } from '@/lib/constants';
 import { cn } from '@/lib/utils';
@@ -13,7 +14,6 @@ import {
   IconSnowflake,
   IconSwimming,
   IconTrees,
-  IconWaveSine,
   IconWorld,
   type Icon,
 } from '@tabler/icons-react';
@@ -23,7 +23,7 @@ const ICON_MAP: Record<HomeCategory, Icon> = {
   all: IconWorld,
   mountain: IconMountain,
   forest: IconTrees,
-  river: IconWaveSine,
+  river: IconRiver,
   sea: IconBeach,
   pool: IconSwimming,
   bbq: IconGrillFork,
