@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/lib/admin-auth';
 import {
   apiBadRequest,
+  apiBadRequestRaw,
   apiConflict,
   apiNotFound,
   apiOk,
@@ -38,7 +39,7 @@ export async function GET(request: Request, { params }: Context): Promise<Respon
     return apiOk(toDto(row));
   } catch (err) {
     console.error(`GET /api/admin/villages/${id} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Fetch failed');
+    return apiServerError('Fetch failed');
   }
 }
 
@@ -58,7 +59,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
   try {
     raw = await request.json();
   } catch {
-    return apiServerError('Invalid JSON body');
+    return apiBadRequestRaw('Invalid JSON body');
   }
 
   const parsed = villageUpdateSchema.safeParse(raw);
@@ -102,7 +103,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
         return apiConflict('A village with this slug already exists in the target region');
     }
     console.error(`PATCH /api/admin/villages/${id} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Update failed');
+    return apiServerError('Update failed');
   }
 }
 
@@ -140,6 +141,6 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
       return apiNotFound(`Village "${id}" not found`);
     }
     console.error(`DELETE /api/admin/villages/${id} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Delete failed');
+    return apiServerError('Delete failed');
   }
 }

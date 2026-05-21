@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/lib/admin-auth';
 import {
   apiBadRequest,
+  apiBadRequestRaw,
   apiConflict,
   apiNotFound,
   apiOk,
@@ -46,7 +47,7 @@ export async function GET(request: Request, { params }: Context): Promise<Respon
     return apiOk({ data });
   } catch (err) {
     console.error(`GET /api/admin/regions/${id}/villages failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Fetch failed');
+    return apiServerError('Fetch failed');
   }
 }
 
@@ -67,7 +68,7 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
   try {
     raw = await request.json();
   } catch {
-    return apiServerError('Invalid JSON body');
+    return apiBadRequestRaw('Invalid JSON body');
   }
 
   const parsed = villageCreateSchema.safeParse(raw);
@@ -78,7 +79,7 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
   if (!region) return apiNotFound(`Region "${regionId}" not found`);
 
   const baseSlug = slugify(input.name.en);
-  if (!baseSlug) return apiServerError('Could not derive a slug from the English name');
+  if (!baseSlug) return apiBadRequestRaw('Could not derive a slug from the English name');
 
   // Slug uniqueness scoped to this region only — composite unique index
   // mirrors the same check at the DB layer.
@@ -108,6 +109,6 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
       return apiConflict(`Village "${slug}" already exists in this region`);
     }
     console.error(`POST /api/admin/regions/${regionId}/villages failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Create failed');
+    return apiServerError('Create failed');
   }
 }

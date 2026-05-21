@@ -38,6 +38,13 @@ export const apiBadRequest = (error: ZodError) =>
   );
 
 /**
+ * 400 with a plain message — for non-field validation failures (e.g. malformed
+ * JSON body). Distinct from `apiBadRequest` which carries Zod field errors.
+ */
+export const apiBadRequestRaw = (message: string) =>
+  NextResponse.json<ApiError>({ error: { message } }, { status: 400 });
+
+/**
  * 409 with optional structured field info — used when a delete is blocked by
  * referential integrity (e.g. region has listings, village has listings).
  */

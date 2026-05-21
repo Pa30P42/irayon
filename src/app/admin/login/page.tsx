@@ -4,9 +4,17 @@ type PageProps = {
   searchParams: Promise<{ next?: string; error?: string }>;
 };
 
+/**
+ * Accept only same-origin, non-protocol-relative paths. `'/foo'` is fine;
+ * `'//evil.com'` and `'/\\evil.com'` are browser-protocol-relative tricks that
+ * `router.push` may resolve to an external host.
+ */
+const isSafeNext = (value: string): boolean =>
+  value.startsWith('/') && !value.startsWith('//') && !value.startsWith('/\\');
+
 export default async function AdminLoginPage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const next = typeof params.next === 'string' && params.next.startsWith('/') ? params.next : null;
+  const next = typeof params.next === 'string' && isSafeNext(params.next) ? params.next : null;
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-10">

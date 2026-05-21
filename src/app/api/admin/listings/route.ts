@@ -1,4 +1,11 @@
-import { apiBadRequest, apiNotFound, apiOk, apiServerError } from '@/lib/api/api-response';
+import { requireAdmin } from '@/lib/admin-auth';
+import {
+  apiBadRequest,
+  apiBadRequestRaw,
+  apiNotFound,
+  apiOk,
+  apiServerError,
+} from '@/lib/api/api-response';
 import { createListingSchema, type CreateListingInput } from '@/lib/api/listings-create-validator';
 import { prisma } from '@/lib/prisma';
 import { slugify, uniqueSlug } from '@/lib/slug';
@@ -14,11 +21,14 @@ const dtoToPrismaEnum = (value: string): string => value.toUpperCase().replace(/
  * listing's id + slug so the client can chain image uploads.
  */
 export async function POST(request: Request): Promise<Response> {
+  const auth = await requireAdmin(request);
+  if (!auth.ok) return auth.response;
+
   let raw: unknown;
   try {
     raw = await request.json();
   } catch {
-    return apiServerError('Invalid JSON body');
+    return apiBadRequestRaw('Invalid JSON body');
   }
 
   const parsed = createListingSchema.safeParse(raw);
@@ -105,6 +115,6 @@ export async function POST(request: Request): Promise<Response> {
     return apiOk(created, { status: 201 });
   } catch (err) {
     console.error('POST /api/admin/listings failed', err);
-    return apiServerError(err instanceof Error ? err.message : 'Create failed');
+    return apiServerError('Create failed');
   }
 }

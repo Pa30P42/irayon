@@ -30,6 +30,6 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
     return apiOk({ deleted: true, storage });
   } catch (err) {
     console.error(`DELETE /api/admin/listings/${id}/images/${imageId} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Delete failed');
+    return apiServerError('Delete failed');
   }
 }

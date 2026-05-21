@@ -1,5 +1,5 @@
 import { requireAdmin } from '@/lib/admin-auth';
-import { apiBadRequest, apiOk, apiServerError } from '@/lib/api/api-response';
+import { apiBadRequest, apiBadRequestRaw, apiOk, apiServerError } from '@/lib/api/api-response';
 import { listRegionsWithVillages } from '@/lib/api/listings-service';
 import { regionCreateSchema } from '@/lib/api/regions-validator';
 import { prisma } from '@/lib/prisma';
@@ -21,7 +21,7 @@ export async function GET(request: Request): Promise<Response> {
     return apiOk({ data });
   } catch (err) {
     console.error('GET /api/admin/regions failed', err);
-    return apiServerError(err instanceof Error ? err.message : 'Fetch failed');
+    return apiServerError('Fetch failed');
   }
 }
 
@@ -39,7 +39,7 @@ export async function POST(request: Request): Promise<Response> {
   try {
     raw = await request.json();
   } catch {
-    return apiServerError('Invalid JSON body');
+    return apiBadRequestRaw('Invalid JSON body');
   }
 
   const parsed = regionCreateSchema.safeParse(raw);
@@ -47,7 +47,7 @@ export async function POST(request: Request): Promise<Response> {
   const input = parsed.data;
 
   const baseSlug = slugify(input.name.en);
-  if (!baseSlug) return apiServerError('Could not derive a slug from the English name');
+  if (!baseSlug) return apiBadRequestRaw('Could not derive a slug from the English name');
 
   const existing = await prisma.region.findMany({
     where: { slug: { startsWith: baseSlug } },
@@ -73,6 +73,6 @@ export async function POST(request: Request): Promise<Response> {
     return apiOk(created, { status: 201 });
   } catch (err) {
     console.error('POST /api/admin/regions failed', err);
-    return apiServerError(err instanceof Error ? err.message : 'Create failed');
+    return apiServerError('Create failed');
   }
 }

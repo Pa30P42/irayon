@@ -24,6 +24,6 @@ export async function GET(_request: Request, { params }: Context): Promise<Respo
     return apiOk({ data });
   } catch (err) {
     console.error(`GET /api/regions/${slug}/villages failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Fetch failed');
+    return apiServerError('Fetch failed');
   }
 }

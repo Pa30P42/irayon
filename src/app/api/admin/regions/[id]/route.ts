@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/lib/admin-auth';
 import {
   apiBadRequest,
+  apiBadRequestRaw,
   apiConflict,
   apiNotFound,
   apiOk,
@@ -60,7 +61,7 @@ export async function GET(request: Request, { params }: Context): Promise<Respon
     return apiOk(toDto(row));
   } catch (err) {
     console.error(`GET /api/admin/regions/${id} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Fetch failed');
+    return apiServerError('Fetch failed');
   }
 }
 
@@ -79,7 +80,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
   try {
     raw = await request.json();
   } catch {
-    return apiServerError('Invalid JSON body');
+    return apiBadRequestRaw('Invalid JSON body');
   }
 
   const parsed = regionUpdateSchema.safeParse(raw);
@@ -111,7 +112,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
       return apiNotFound(`Region "${id}" not found`);
     }
     console.error(`PATCH /api/admin/regions/${id} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Update failed');
+    return apiServerError('Update failed');
   }
 }
 
@@ -149,6 +150,6 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
       return apiNotFound(`Region "${id}" not found`);
     }
     console.error(`DELETE /api/admin/regions/${id} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Delete failed');
+    return apiServerError('Delete failed');
   }
 }

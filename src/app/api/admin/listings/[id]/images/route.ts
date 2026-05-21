@@ -1,5 +1,11 @@
 import { requireAdmin } from '@/lib/admin-auth';
-import { apiBadRequest, apiNotFound, apiOk, apiServerError } from '@/lib/api/api-response';
+import {
+  apiBadRequest,
+  apiBadRequestRaw,
+  apiNotFound,
+  apiOk,
+  apiServerError,
+} from '@/lib/api/api-response';
 import { prisma } from '@/lib/prisma';
 import {
   ALLOWED_IMAGE_MIME_TYPES,
@@ -36,7 +42,7 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
   try {
     form = await request.formData();
   } catch {
-    return apiServerError('Could not parse multipart body');
+    return apiBadRequestRaw('Could not parse multipart body');
   }
 
   const files = form.getAll('files');
@@ -101,6 +107,6 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
     return apiOk({ data: created }, { status: 201 });
   } catch (err) {
     console.error(`POST /api/admin/listings/${id}/images failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Upload failed');
+    return apiServerError('Upload failed');
   }
 }
