@@ -1,5 +1,5 @@
 import type { CreateListingInput } from '@/lib/api/listings-create-validator';
-import type { Activity, Amenity, ListingCategory, Meal, PlaceType } from '@/types';
+import type { Activity, Amenity, Listing, ListingCategory, Meal, PlaceType } from '@/types';
 
 /**
  * Display labels and form defaults for the listing form. Pulled out so the
@@ -75,3 +75,27 @@ export const ACTIVITY_LABEL: Record<Activity, string> = {
   horse: 'Horseback riding',
   fishing: 'Fishing',
 };
+
+/**
+ * Project a `Listing` DTO into a `CreateListingInput` shape so the edit form
+ * can seed itself from the public listing payload. Shared between the new
+ * and edit clients so the mapping lives in one place.
+ */
+export const listingToFormValues = (listing: Listing): Partial<CreateListingInput> => ({
+  title: listing.title,
+  description: listing.description,
+  region: listing.region,
+  villageId: listing.villageId,
+  placeType: listing.placeType,
+  categories: listing.categories,
+  price: listing.price,
+  capacity: listing.capacity,
+  bedrooms: listing.bedrooms,
+  lat: listing.location.lat,
+  lng: listing.location.lng,
+  address: listing.location.address,
+  phone: listing.phone || '+994',
+  amenities: listing.amenities,
+  meals: listing.meals,
+  activities: listing.activities,
+});

@@ -41,7 +41,7 @@ export function formatPhoneNumber(phone: string): string {
 export function pickLocalized<T extends Record<string, string>>(
   text: T,
   locale: keyof T,
-  fallback: keyof T = 'en' as keyof T,
+  fallback: keyof T = 'en',
 ): string {
   return text[locale] ?? text[fallback] ?? '';
 }

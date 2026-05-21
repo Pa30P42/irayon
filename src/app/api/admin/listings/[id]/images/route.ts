@@ -1,4 +1,5 @@
 import { requireAdmin } from '@/lib/admin-auth';
+import { recordAdminLog } from '@/lib/admin-log';
 import {
   apiBadRequest,
   apiBadRequestRaw,
@@ -104,6 +105,11 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
       created.push(row);
     }
 
+    await recordAdminLog({
+      action: 'listing.images.upload',
+      target: id,
+      metadata: { count: created.length },
+    });
     return apiOk({ data: created }, { status: 201 });
   } catch (err) {
     console.error(`POST /api/admin/listings/${id}/images failed`, err);

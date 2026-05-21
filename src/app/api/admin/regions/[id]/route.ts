@@ -1,4 +1,5 @@
 import { requireAdmin } from '@/lib/admin-auth';
+import { recordAdminLog } from '@/lib/admin-log';
 import {
   apiBadRequest,
   apiBadRequestRaw,
@@ -107,6 +108,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
       include: { villages: true, _count: { select: { listings: true, villages: true } } },
     });
     if (!row) return apiNotFound(`Region "${id}" not found`);
+    await recordAdminLog({ action: 'region.update', target: id });
     return apiOk(toDto(row));
   } catch (err) {
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2025') {
@@ -145,6 +147,7 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
     }
 
     await prisma.region.delete({ where: { id } });
+    await recordAdminLog({ action: 'region.delete', target: id });
     return apiOk({ deleted: true });
   } catch (err) {
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2025') {

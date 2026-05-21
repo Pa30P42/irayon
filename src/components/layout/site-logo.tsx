@@ -1,4 +1,5 @@
 import { Link } from '@/i18n/navigation';
+import Image from 'next/image';
 
 export function SiteLogo() {
   return (
@@ -7,7 +8,7 @@ export function SiteLogo() {
       className="flex items-center gap-2 text-lg font-semibold text-[var(--color-primary)]"
       aria-label="iRayon home"
     >
-      <img src="/logo.svg" alt="" aria-hidden className="h-8 w-8" />
+      <Image src="/logo.svg" alt="" aria-hidden width={32} height={32} priority />
       iRayon
     </Link>
   );

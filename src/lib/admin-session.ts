@@ -8,7 +8,17 @@
  * that powers `middleware.ts`.
  */
 
-export const ADMIN_SESSION_COOKIE = 'irayon_admin_session';
+/**
+ * `__Host-` prefix in production gives the strongest binding the platform
+ * offers: cookie is treated as committed to the exact origin, must be Secure,
+ * must have Path=/, must not carry a Domain attribute. Browsers reject any
+ * mutation that violates those — which means a subdomain can't overwrite it
+ * and a downgrade attack can't strip the Secure flag. In dev (http://) we
+ * keep the plain name so the browser still accepts the cookie.
+ */
+export const ADMIN_SESSION_COOKIE =
+  process.env.NODE_ENV === 'production' ? '__Host-irayon_admin_session' : 'irayon_admin_session';
+
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 const encoder = new TextEncoder();

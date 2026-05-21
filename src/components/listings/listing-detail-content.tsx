@@ -4,7 +4,6 @@ import { ListingAmenities } from './listing-amenities';
 import { ListingDescription } from './listing-description';
 import { ListingHeader } from './listing-header';
 import { ListingHighlights } from './listing-highlights';
-import { ListingHost } from './listing-host';
 import { ListingLocation } from './listing-location';
 import { PhotoGallery } from './photo-gallery';
 import { SimilarListings } from './similar-listings';
@@ -23,7 +22,6 @@ export function ListingDetailContent({ listing, similar, locale }: ListingDetail
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_380px]">
         <div className="space-y-8">
           <ListingHeader listing={listing} locale={locale} />
-          <ListingHost listing={listing} />
           <ListingHighlights listing={listing} />
           <ListingDescription description={listing.description[locale]} />
           <ListingAmenities listing={listing} />

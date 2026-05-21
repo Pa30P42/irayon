@@ -1,4 +1,5 @@
 import { requireAdmin } from '@/lib/admin-auth';
+import { recordAdminLog } from '@/lib/admin-log';
 import {
   apiBadRequest,
   apiBadRequestRaw,
@@ -108,6 +109,11 @@ export async function POST(request: Request): Promise<Response> {
       select: { id: true, slug: true },
     });
 
+    await recordAdminLog({
+      action: 'listing.create',
+      target: created.id,
+      metadata: { slug: created.slug },
+    });
     return apiOk(created, { status: 201 });
   } catch (err) {
     console.error('POST /api/admin/listings failed', err);

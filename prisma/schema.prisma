@@ -162,3 +162,26 @@ model Image {
   @@index([listingId, order])
   @@map("images")
 }
+
+/// Audit trail for state-changing admin actions. Read-only after insert;
+/// queried via a forthcoming admin UI to investigate "who changed what".
+/// `adminId` stays nullable through MVP1's single-admin model — once a User
+/// table lands in MVP2 the column will carry the FK.
+model AdminLog {
+  id        String   @id @default(cuid())
+  /// Stable verb describing the change: `listing.create`, `listing.update`,
+  /// `listing.delete`, `region.create`, `village.delete`, …
+  action    String
+  /// Subject of the action — typically the affected row's id (cuid). Free
+  /// text so it can carry a path like `listing/abc/image/xyz` when needed.
+  target    String?
+  /// Per-call detail blob. Use sparingly — never put PII or secrets here.
+  metadata  Json?
+  /// FK to a future User table. Nullable for now so MVP1 inserts don't fail.
+  adminId   String?
+  createdAt DateTime @default(now())
+
+  @@index([action, createdAt])
+  @@index([target])
+  @@map("admin_logs")
+}

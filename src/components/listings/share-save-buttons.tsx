@@ -1,10 +1,9 @@
 'use client';
-// Client component: holds local "saved" toggle and triggers Web Share API.
+// Client component: triggers Web Share API with clipboard fallback.
 
 import { Button } from '@/components/ui/button';
-import { IconHeart, IconHeartFilled, IconShare2 } from '@tabler/icons-react';
+import { IconShare2 } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
 
 type ShareSaveButtonsProps = {
   shareTitle: string;
@@ -13,7 +12,6 @@ type ShareSaveButtonsProps = {
 
 export function ShareSaveButtons({ shareTitle, shareText }: ShareSaveButtonsProps) {
   const t = useTranslations('detail');
-  const [saved, setSaved] = useState(false);
 
   const onShare = async () => {
     if (typeof navigator === 'undefined' || typeof window === 'undefined') return;
@@ -34,21 +32,9 @@ export function ShareSaveButtons({ shareTitle, shareText }: ShareSaveButtonsProp
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <Button variant="ghost" size="sm" onClick={onShare} className="gap-1.5">
-        <IconShare2 size={16} />
-        {t('share')}
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setSaved((s) => !s)}
-        aria-pressed={saved}
-        className="gap-1.5"
-      >
-        {saved ? <IconHeartFilled size={16} className="text-rose-500" /> : <IconHeart size={16} />}
-        {saved ? t('saved') : t('save')}
-      </Button>
-    </div>
+    <Button variant="ghost" size="sm" onClick={onShare} className="gap-1.5">
+      <IconShare2 size={16} />
+      {t('share')}
+    </Button>
   );
 }

@@ -1,4 +1,5 @@
 import { requireAdmin } from '@/lib/admin-auth';
+import { recordAdminLog } from '@/lib/admin-log';
 import { apiBadRequest, apiBadRequestRaw, apiOk, apiServerError } from '@/lib/api/api-response';
 import { listRegionsWithVillages } from '@/lib/api/listings-service';
 import { regionCreateSchema } from '@/lib/api/regions-validator';
@@ -69,6 +70,11 @@ export async function POST(request: Request): Promise<Response> {
         sortOrder: input.sortOrder,
       },
       select: { id: true, slug: true },
+    });
+    await recordAdminLog({
+      action: 'region.create',
+      target: created.id,
+      metadata: { slug: created.slug },
     });
     return apiOk(created, { status: 201 });
   } catch (err) {

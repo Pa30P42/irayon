@@ -1,4 +1,5 @@
 import { requireAdmin } from '@/lib/admin-auth';
+import { recordAdminLog } from '@/lib/admin-log';
 import {
   apiBadRequest,
   apiBadRequestRaw,
@@ -60,6 +61,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
   try {
     const updated = await updateListing(id, parsed.data);
     if (!updated) return apiNotFound(`Listing "${id}" not found`);
+    await recordAdminLog({ action: 'listing.update', target: id });
     return apiOk(updated);
   } catch (err) {
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2025') {
@@ -84,6 +86,11 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
 
   try {
     const result = await deleteListing(id);
+    await recordAdminLog({
+      action: 'listing.delete',
+      target: id,
+      metadata: { storageRemoved: result.storageRemoved, storageFailed: result.storageFailed },
+    });
     return apiOk(result);
   } catch (err) {
     // Prisma raises P2025 when the row to delete doesn't exist.

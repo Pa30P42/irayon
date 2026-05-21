@@ -1,4 +1,5 @@
 import { requireAdmin } from '@/lib/admin-auth';
+import { recordAdminLog } from '@/lib/admin-log';
 import {
   apiBadRequest,
   apiBadRequestRaw,
@@ -103,6 +104,11 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
         sortOrder: input.sortOrder,
       },
       select: { id: true, slug: true, regionId: true },
+    });
+    await recordAdminLog({
+      action: 'village.create',
+      target: created.id,
+      metadata: { regionId: created.regionId, slug: created.slug },
     });
     return apiOk(created, { status: 201 });
   } catch (err) {

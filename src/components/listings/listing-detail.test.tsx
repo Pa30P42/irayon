@@ -64,11 +64,6 @@ describe('ListingDetailContent', () => {
     expect(screen.getByText('4.9')).toBeInTheDocument();
   });
 
-  it('renders the host section with member-since year derived from createdAt', () => {
-    renderWithProviders(<ListingDetailContent listing={listing} similar={similar} locale="en" />);
-    expect(screen.getByText(/Member since 2024/)).toBeInTheDocument();
-  });
-
   it('renders amenity groups (essentials, outdoor, kitchen)', () => {
     renderWithProviders(<ListingDetailContent listing={listing} similar={similar} locale="en" />);
     // Group headings — match the full localized labels so the "Kitchen" amenity
