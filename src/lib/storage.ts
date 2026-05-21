@@ -13,6 +13,59 @@ export type AllowedImageMime = (typeof ALLOWED_IMAGE_MIME_TYPES)[number];
 
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB; mirrors the bucket's limit.
 
+/**
+ * Sniff the first bytes of an upload to confirm it's actually the image format
+ * the client claims. The client-supplied `Content-Type` is trusted nowhere
+ * else; without this check a `.html` or `.svg` file could be uploaded as
+ * `image/jpeg` and served by the bucket with that forged type.
+ *
+ * Returns `true` if `bytes` look like the declared `mime`.
+ */
+export function sniffImageMatchesMime(bytes: Uint8Array, mime: AllowedImageMime): boolean {
+  if (bytes.length < 12) return false;
+  const b = bytes;
+  switch (mime) {
+    // SOI marker.
+    case 'image/jpeg':
+      return b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff;
+    // \x89 P N G \r \n \x1a \n
+    case 'image/png':
+      return (
+        b[0] === 0x89 &&
+        b[1] === 0x50 &&
+        b[2] === 0x4e &&
+        b[3] === 0x47 &&
+        b[4] === 0x0d &&
+        b[5] === 0x0a &&
+        b[6] === 0x1a &&
+        b[7] === 0x0a
+      );
+    // RIFF....WEBP
+    case 'image/webp':
+      return (
+        b[0] === 0x52 &&
+        b[1] === 0x49 &&
+        b[2] === 0x46 &&
+        b[3] === 0x46 &&
+        b[8] === 0x57 &&
+        b[9] === 0x45 &&
+        b[10] === 0x42 &&
+        b[11] === 0x50
+      );
+    // ISO BMFF container with `ftyp` brand at offset 4-7, then a brand box
+    // containing `avif` or `avis` (image sequence) somewhere in the first 32
+    // bytes. Lighter check: bytes 4-7 == 'ftyp' AND bytes 8-11 in known AVIF
+    // brand set.
+    case 'image/avif': {
+      const ftyp =
+        b[4] === 0x66 && b[5] === 0x74 && b[6] === 0x79 && b[7] === 0x70;
+      if (!ftyp) return false;
+      const brand = String.fromCharCode(b[8]!, b[9]!, b[10]!, b[11]!);
+      return brand === 'avif' || brand === 'avis' || brand === 'mif1' || brand === 'msf1';
+    }
+  }
+}
+
 const EXTENSION_BY_MIME: Record<AllowedImageMime, string> = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
@@ -70,8 +123,16 @@ export async function uploadListingImage(input: UploadInput): Promise<UploadResu
     throw new Error(`File exceeds ${MAX_IMAGE_BYTES} bytes`);
   }
 
-  const objectKey = buildImageObjectKey(listingId, file.type);
   const buffer = Buffer.from(await file.arrayBuffer());
+
+  // Reject if the actual bytes don't match the declared MIME — defends against
+  // an HTML/SVG payload uploaded as `image/jpeg` and then served by the bucket
+  // with that forged Content-Type.
+  if (!sniffImageMatchesMime(buffer, file.type)) {
+    throw new Error(`File bytes do not match declared MIME type "${file.type}"`);
+  }
+
+  const objectKey = buildImageObjectKey(listingId, file.type);
 
   const { error } = await getSupabaseAdmin()
     .storage.from(STORAGE_BUCKET)

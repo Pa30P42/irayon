@@ -7,9 +7,10 @@ import {
   apiOk,
   apiServerError,
 } from '@/lib/api/api-response';
+import { parseLocalized } from '@/lib/api/localized-text';
 import { villageUpdateSchema } from '@/lib/api/villages-validator';
 import { prisma } from '@/lib/prisma';
-import type { LocalizedText, Village } from '@/types';
+import type { Village } from '@/types';
 import type { Prisma } from '@prisma/client';
 
 type Context = { params: Promise<{ id: string }> };
@@ -21,7 +22,7 @@ const toDto = (
   slug: row.slug,
   regionId: row.regionId,
   regionSlug: row.region.slug,
-  name: row.name as unknown as LocalizedText,
+  name: parseLocalized(row.name),
   sortOrder: row.sortOrder,
 });
 

@@ -7,10 +7,11 @@ import {
   apiOk,
   apiServerError,
 } from '@/lib/api/api-response';
+import { parseLocalized } from '@/lib/api/localized-text';
 import { villageCreateSchema } from '@/lib/api/villages-validator';
 import { prisma } from '@/lib/prisma';
 import { slugify, uniqueSlug } from '@/lib/slug';
-import type { LocalizedText, Village } from '@/types';
+import type { Village } from '@/types';
 import type { Prisma } from '@prisma/client';
 
 type Context = { params: Promise<{ id: string }> };
@@ -41,7 +42,7 @@ export async function GET(request: Request, { params }: Context): Promise<Respon
       slug: v.slug,
       regionId: v.regionId,
       regionSlug: region.slug,
-      name: v.name as unknown as LocalizedText,
+      name: parseLocalized(v.name),
       sortOrder: v.sortOrder,
     }));
     return apiOk({ data });

@@ -1,0 +1,101 @@
+import { mockListings } from '@/data/mock-listings';
+import { applyListingsFilter, sortListings } from '@/lib/listings-filter';
+import type {
+  Activity,
+  Amenity,
+  Listing,
+  ListingsFilterState,
+  Meal,
+  PlaceType,
+  RegionSummary,
+  RegionWithVillages,
+  SortOption,
+} from '@/types';
+import type { ListingsQuery } from './listings-validator';
+
+/**
+ * Mock implementations of the listings service. Used when DATABASE_URL is
+ * empty so the dev environment runs without a Postgres connection.
+ */
+
+export type ListListingsResult = {
+  data: Listing[];
+  meta: { total: number; page: number; limit: number; hasMore: boolean };
+};
+
+function queryToFilterState(query: ListingsQuery): ListingsFilterState {
+  return {
+    q: query.q ?? '',
+    region: query.region,
+    village: query.village,
+    type: query.type as PlaceType[],
+    guests: query.guests ? (query.guests as ListingsFilterState['guests']) : null,
+    placement: query.placement as ListingsFilterState['placement'],
+    food: query.food as Meal[],
+    extra: query.extra as Amenity[],
+    basic: query.basic as Amenity[],
+    fun: query.fun as Activity[],
+  };
+}
+
+export function listListingsFromMock(query: ListingsQuery): ListListingsResult {
+  const filterState = queryToFilterState(query);
+  let results = applyListingsFilter(mockListings, filterState);
+
+  if (query.category.length > 0) {
+    const wanted = new Set(query.category);
+    results = results.filter((l) => l.categories.some((c) => wanted.has(c)));
+  }
+  if (typeof query.price_min === 'number') {
+    results = results.filter((l) => l.price >= query.price_min!);
+  }
+  if (typeof query.price_max === 'number') {
+    results = results.filter((l) => l.price <= query.price_max!);
+  }
+  if (typeof query.capacity === 'number') {
+    results = results.filter((l) => l.capacity >= query.capacity!);
+  }
+  if (query.amenities.length > 0) {
+    results = results.filter((l) =>
+      (query.amenities as Amenity[]).every((a) => l.amenities.includes(a)),
+    );
+  }
+
+  const total = results.length;
+  const sorted = sortListings(results, (query.sort as SortOption | undefined) ?? null);
+  const start = (query.page - 1) * query.limit;
+  const data = sorted.slice(start, start + query.limit);
+  return {
+    data,
+    meta: {
+      total,
+      page: query.page,
+      limit: query.limit,
+      hasMore: start + data.length < total,
+    },
+  };
+}
+
+export function getListingFromMock(slug: string): Listing | null {
+  return mockListings.find((l) => l.slug === slug) ?? null;
+}
+
+export function listRegionsFromMock(): RegionSummary[] {
+  const counts = new Map<string, number>();
+  for (const l of mockListings) counts.set(l.region, (counts.get(l.region) ?? 0) + 1);
+
+  return Array.from(counts.entries()).map(([slug, listingCount], idx) => ({
+    id: `mock_${slug}`,
+    slug,
+    name: { az: slug, ru: slug, en: slug },
+    coverImage: null,
+    featured: idx < 6,
+    sortOrder: (idx + 1) * 10,
+    listingCount,
+    villageCount: 0,
+  }));
+}
+
+export function listRegionsWithVillagesFromMock(): RegionWithVillages[] {
+  return listRegionsFromMock().map((r) => ({ ...r, villages: [] }));
+}

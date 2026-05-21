@@ -7,11 +7,11 @@ import {
   apiServerError,
 } from '@/lib/api/api-response';
 import { createListingSchema, type CreateListingInput } from '@/lib/api/listings-create-validator';
+import { toActivity, toCategory, toMeal, toPlaceType } from '@/lib/api/prisma-enums';
 import { prisma } from '@/lib/prisma';
 import { slugify, uniqueSlug } from '@/lib/slug';
+import type { Activity, ListingCategory, Meal, PlaceType } from '@/types';
 import type { Prisma } from '@prisma/client';
-
-const dtoToPrismaEnum = (value: string): string => value.toUpperCase().replace(/-/g, '_');
 
 /**
  * POST /api/admin/listings
@@ -89,10 +89,8 @@ export async function POST(request: Request): Promise<Response> {
         } as Prisma.InputJsonValue,
         regionId: region.id,
         villageId,
-        placeType: dtoToPrismaEnum(input.placeType) as Prisma.ListingCreateInput['placeType'],
-        categories: {
-          set: input.categories.map(dtoToPrismaEnum) as never,
-        } as Prisma.ListingCreateInput['categories'],
+        placeType: toPlaceType(input.placeType as PlaceType),
+        categories: { set: (input.categories as ListingCategory[]).map(toCategory) },
         price: input.price,
         capacity: input.capacity,
         bedrooms: input.bedrooms,
@@ -100,10 +98,8 @@ export async function POST(request: Request): Promise<Response> {
         lng: input.lng,
         address: input.address,
         phone: input.phone,
-        meals: input.meals.map(dtoToPrismaEnum) as Prisma.ListingCreateInput['meals'],
-        activities: input.activities.map(
-          dtoToPrismaEnum,
-        ) as Prisma.ListingCreateInput['activities'],
+        meals: (input.meals as Meal[]).map(toMeal),
+        activities: (input.activities as Activity[]).map(toActivity),
         amenities:
           amenityRows.length > 0
             ? { create: amenityRows.map((a) => ({ amenityId: a.id })) }
