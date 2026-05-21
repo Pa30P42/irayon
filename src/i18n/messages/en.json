@@ -70,6 +70,7 @@
     "subtitle": "Pick the perfect place for your retreat",
     "noResults": "No villas match your filters",
     "foundCount": "{count, plural, =0 {No villas found} one {# villa found} other {# villas found}}",
+    "loadingResults": "Loading…",
     "guests": "guests",
     "bedrooms": "bedrooms",
     "bookNow": "Book now",

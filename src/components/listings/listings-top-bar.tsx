@@ -5,7 +5,7 @@ import { Select } from '@/components/ui/select';
 import { useDebounce } from '@/hooks/use-debounce';
 import { SORT_OPTIONS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import type { Listing, ListingsFilterState, ListingsView, SortOption } from '@/types';
+import type { ListingsFilterState, ListingsView, SortOption } from '@/types';
 import { IconLayoutGrid, IconLayoutList, IconMap2, IconSearch } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
@@ -13,7 +13,6 @@ import { FilterModal } from './filter-modal';
 
 type ListingsTopBarProps = {
   state: ListingsFilterState;
-  listings: Listing[];
   sort: SortOption | null;
   view: ListingsView;
   onSearch: (q: string) => void;
@@ -24,7 +23,6 @@ type ListingsTopBarProps = {
 
 export function ListingsTopBar({
   state,
-  listings,
   sort,
   view,
   onSearch,
@@ -68,7 +66,7 @@ export function ListingsTopBar({
         />
       </label>
 
-      <FilterModal state={state} listings={listings} onApply={onApplyFilters} />
+      <FilterModal state={state} onApply={onApplyFilters} />
 
       <Select
         aria-label={tSort('label')}

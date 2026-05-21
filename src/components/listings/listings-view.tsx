@@ -1,10 +1,14 @@
 'use client';
-// Client component: wires URL filters to listings + grid + top bar.
+// Client component: wires URL filters to a server-fetched listings query
+// (TanStack-cached, refetches when the URL filter slice changes).
 
 import { useListingsFilter } from '@/hooks/use-listings-filter';
+import { useListings } from '@/hooks/use-listings';
+import type { Paginated } from '@/lib/api/api-response';
+import { queryFromFilterState } from '@/lib/api/listings-query-from-state';
 import type { Listing, Locale } from '@/types';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ActiveFiltersBar } from './active-filters-bar';
 import { ListingGrid } from './listing-grid';
 import { ListingsTopBar } from './listings-top-bar';
@@ -13,13 +17,24 @@ import { NoResults } from './no-results';
 
 type ListingsViewProps = {
   initialListings: Listing[];
+  initialMeta: Paginated<Listing>['meta'];
   locale: Locale;
 };
 
-export function ListingsView({ initialListings, locale }: ListingsViewProps) {
+export function ListingsView({ initialListings, initialMeta, locale }: ListingsViewProps) {
   const t = useTranslations('listings');
-  const { state, sort, view, setState, commit, reset, setSort, setView, filtered } =
-    useListingsFilter({ listings: initialListings });
+  const { state, sort, view, setState, commit, reset, setSort, setView } = useListingsFilter();
+
+  // Server already filtered/sorted by the URL on first render. The same query
+  // input gets rebuilt here so the SSR payload populates the TanStack cache
+  // for that key; any subsequent URL change (filter toggle, sort flip) re-derives
+  // the query, swaps the cache key, and TanStack fetches the new page.
+  const query = useMemo(() => queryFromFilterState(state, sort, { limit: 100 }), [state, sort]);
+
+  const { data, isFetching } = useListings(query, {
+    initialData: { data: initialListings, meta: initialMeta },
+  });
+  const listings = data?.data ?? initialListings;
 
   const onSearch = useCallback((q: string) => setState({ q: q || '' }), [setState]);
 
@@ -50,7 +65,6 @@ export function ListingsView({ initialListings, locale }: ListingsViewProps) {
     <>
       <ListingsTopBar
         state={state}
-        listings={initialListings}
         sort={sort}
         view={view}
         onSearch={onSearch}
@@ -62,16 +76,18 @@ export function ListingsView({ initialListings, locale }: ListingsViewProps) {
       <ActiveFiltersBar state={state} onChange={commit} onReset={reset} />
 
       <div ref={resultsRef} className="scroll-mt-20">
-        <p className="text-foreground-muted py-3 text-sm">
-          {t('foundCount', { count: filtered.length })}
+        <p className="text-foreground-muted py-3 text-sm" aria-live="polite">
+          {isFetching && listings.length === 0
+            ? t('loadingResults')
+            : t('foundCount', { count: listings.length })}
         </p>
 
-        {filtered.length === 0 ? (
+        {listings.length === 0 ? (
           <NoResults onReset={reset} />
         ) : view === 'map' ? (
-          <ListingsMapView listings={filtered} locale={locale} />
+          <ListingsMapView listings={listings} locale={locale} />
         ) : (
-          <ListingGrid listings={filtered} locale={locale} view={view} />
+          <ListingGrid listings={listings} locale={locale} view={view} />
         )}
       </div>
     </>
