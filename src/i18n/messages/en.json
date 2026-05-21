@@ -263,5 +263,304 @@
     "az": "Azerbaijani",
     "ru": "Russian",
     "en": "English"
+  },
+  "admin": {
+    "appName": "iRayon · Admin",
+    "localeSwitcher": { "label": "Admin language" },
+    "nav": {
+      "listings": "Listings",
+      "regions": "Regions",
+      "new": "New",
+      "signOut": "Sign out"
+    },
+    "login": {
+      "eyebrow": "iRayon · Admin",
+      "title": "Sign in",
+      "subtitle": "Use your administrator credentials to continue.",
+      "username": "Username",
+      "password": "Password",
+      "submit": "Sign in",
+      "submitting": "Signing in…"
+    },
+    "error": {
+      "title": "Admin error",
+      "tryAgain": "Try again"
+    },
+    "common": {
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleting": "Deleting…",
+      "refresh": "Refresh",
+      "retry": "Retry",
+      "loading": "Loading…",
+      "view": "View",
+      "add": "Add",
+      "remove": "Remove",
+      "new": "New",
+      "unknownError": "Unknown error",
+      "saveFailed": "Save failed",
+      "deleteFailed": "Delete failed",
+      "updateFailed": "Update failed",
+      "createFailed": "Create failed",
+      "loadFailed": "Failed to load"
+    },
+    "listings": {
+      "title": "Listings",
+      "totalCount": "{count} total",
+      "loadingCount": "Loading…",
+      "new": "New",
+      "newListing": "New listing",
+      "edit": "Edit",
+      "delete": "Delete",
+      "view": "View",
+      "refresh": "Refresh",
+      "editAria": "Edit {title}",
+      "deleteAria": "Delete {title}",
+      "perNight": "/ night",
+      "photoCount": "{count, plural, =0 {0 photos} one {# photo} other {# photos}}",
+      "emptyTitle": "No listings yet",
+      "emptyDescription": "Create your first villa listing.",
+      "emptyAction": "New listing",
+      "loadFailed": "Couldn't load listings",
+      "newPage": {
+        "title": "New listing",
+        "description": "Photos first — they're the most important field. Everything below is one screen, scroll to fill it out, then tap <strong>Create listing</strong>."
+      },
+      "editPage": {
+        "title": "Edit listing",
+        "description": "Update fields and tap <strong>Save changes</strong>. Removing or adding photos applies immediately; everything else is saved together."
+      }
+    },
+    "regions": {
+      "title": "Regions",
+      "totalCount": "{count} total",
+      "loadingCount": "Loading…",
+      "new": "New region",
+      "featured": "Featured",
+      "featuredTitle": "Featured on homepage",
+      "refresh": "Refresh",
+      "edit": "Edit",
+      "delete": "Delete",
+      "editAria": "Edit {title}",
+      "deleteAria": "Delete {title}",
+      "listingsCount": "{count, plural, =0 {0 listings} one {# listing} other {# listings}}",
+      "villagesCount": "{count, plural, =0 {0 villages} one {# village} other {# villages}}",
+      "order": "order {value}",
+      "emptyTitle": "No regions yet",
+      "emptyDescription": "Add the first region to get started.",
+      "emptyAction": "New region",
+      "loadFailed": "Couldn't load regions",
+      "breadcrumbRoot": "Regions",
+      "breadcrumbNew": "New",
+      "breadcrumbEdit": "Edit",
+      "newPage": { "title": "New region" },
+      "editPage": {
+        "title": "Edit region",
+        "notFound": "Region not found"
+      }
+    },
+    "villages": {
+      "title": "Villages",
+      "description": "Sub-locations within this region. Used by listing filters and the listing form.",
+      "count": "{count, plural, =0 {0 villages} one {# village} other {# villages}}",
+      "loading": "Loading…",
+      "loadFailed": "Couldn't load villages",
+      "empty": "No villages yet. Add the first one above.",
+      "nameEn": "Name (EN) *",
+      "nameRu": "Name (RU)",
+      "nameAz": "Name (AZ)",
+      "order": "Order",
+      "add": "Add",
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "delete": "Delete",
+      "editAria": "Edit {title}",
+      "deleteAria": "Delete {title}",
+      "namePlaceholderEn": "Vandam",
+      "namePlaceholderRu": "Вандам",
+      "namePlaceholderAz": "Vəndam"
+    },
+    "dialogs": {
+      "cantBeUndone": "This can't be undone.",
+      "youreAboutToDelete": "You're about to delete",
+      "deleteListing": {
+        "title": "Delete listing?",
+        "andPhotos": "{count, plural, =0 {} one {and # photo} other {and # photos}}",
+        "confirm": "Delete listing",
+        "deleting": "Deleting…"
+      },
+      "deleteRegion": {
+        "title": "Delete region?",
+        "blocked": "This region has {listings, plural, =0 {0 listings} one {# listing} other {# listings}} and {villages, plural, =0 {0 villages} one {# village} other {# villages}}. Reassign or delete those first.",
+        "confirm": "Delete region",
+        "deleting": "Deleting…"
+      },
+      "deleteVillage": {
+        "title": "Delete village?",
+        "confirm": "Delete village",
+        "deleting": "Deleting…"
+      }
+    },
+    "listingForm": {
+      "sections": {
+        "photosTitle": "Photos",
+        "photosDescription": "Tap to add photos from your phone. We'll compress them automatically without losing quality.",
+        "basicInfoTitle": "Basic info",
+        "basicInfoDescription": "Title and description in each language.",
+        "locationTitle": "Location",
+        "capacityTitle": "Capacity & price",
+        "categoriesTitle": "Categories",
+        "categoriesDescription": "Pick every category this place fits. A forest cabin near a river can be both.",
+        "amenitiesTitle": "Amenities",
+        "amenitiesDescription": "Tap each amenity that this place offers.",
+        "mealsActivitiesTitle": "Meals & activities"
+      },
+      "fields": {
+        "titleEn": "Title (English)",
+        "titleRu": "Название (Русский)",
+        "titleAz": "Başlıq (Azərbaycanca)",
+        "titleEnHint": "Used for the URL slug.",
+        "titleEnPlaceholder": "e.g. Gabala Pine Retreat",
+        "titleFallbackPlaceholder": "Optional — falls back to English",
+        "descEn": "Description (English)",
+        "descRu": "Описание (Русский)",
+        "descAz": "Təsvir (Azərbaycanca)",
+        "descPlaceholder": "What guests can expect...",
+        "phone": "Phone",
+        "phoneHint": "Shown on the Call button.",
+        "phonePlaceholder": "+994 50 123 45 67",
+        "region": "Region",
+        "village": "Village",
+        "villageHint": "Optional sub-location. Cascades from the selected region.",
+        "villageNone": "— No village —",
+        "placeType": "Place type",
+        "address": "Address",
+        "addressPlaceholder": "e.g. Vandam, Gabala",
+        "lat": "Latitude",
+        "lng": "Longitude",
+        "useCurrentLocation": "Use my current location",
+        "guests": "Guests",
+        "bedrooms": "Bedrooms",
+        "price": "Price / night (AZN)",
+        "meals": "Meals",
+        "activities": "Activities"
+      },
+      "actionBar": {
+        "newListingFallback": "New listing",
+        "photoCount": "{count, plural, =0 {0 photos} one {# photo} other {# photos}}",
+        "uploading": "Uploading photos…",
+        "saving": "Saving…",
+        "creating": "Creating…",
+        "saveChanges": "Save changes",
+        "createListing": "Create listing"
+      },
+      "statusBanner": {
+        "errorCreateTitle": "Couldn't create the listing",
+        "errorUpdateTitle": "Couldn't update the listing",
+        "successCreateTitle": "Listing created",
+        "successUpdateTitle": "Listing updated",
+        "slugPrefix": "Slug:",
+        "changesSaved": "Changes saved.",
+        "resetMessage": "Form is reset — you can create another."
+      }
+    },
+    "regionForm": {
+      "sections": {
+        "nameTitle": "Name",
+        "nameDescription": "Localized region name. English is required and used as the canonical fallback.",
+        "displayTitle": "Display",
+        "displayDescription": "Controls homepage placement and ordering."
+      },
+      "fields": {
+        "nameEn": "Name (EN)",
+        "nameRu": "Name (RU)",
+        "nameAz": "Name (AZ)",
+        "nameEnPlaceholder": "Gabala",
+        "nameRuPlaceholder": "Габала",
+        "nameAzPlaceholder": "Qəbələ",
+        "slug": "Slug",
+        "slugHint": "Immutable — used in public URLs and bookmarked filters.",
+        "coverImage": "Cover image URL",
+        "coverImageHint": "Optional. Shown in the homepage Regions grid.",
+        "coverImagePlaceholder": "https://example.com/gabala.jpg",
+        "sortOrder": "Sort order",
+        "sortOrderHint": "Lower numbers appear first. Defaults to 0.",
+        "featured": "Featured on homepage",
+        "featuredHint": "Featured regions appear in the homepage Regions grid."
+      },
+      "createSubmit": "Create region",
+      "editSubmit": "Save changes",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "localeTablistLabel": "Locale"
+    },
+    "imageUploader": {
+      "addPhotos": "Tap to add photos or drop them here",
+      "atLimit": "Maximum reached",
+      "formats": "JPEG · PNG · WebP · HEIC · max {size} each (auto-compressed)",
+      "photoCount": "{count} / {max} photos",
+      "cover": "Cover",
+      "addMore": "Add more",
+      "recommended": "The first photo becomes the cover. 3+ photos recommended for guests to picture the place.",
+      "removePhoto": "Remove photo {index}",
+      "photoAlt": "Photo {index}"
+    },
+    "existingImages": {
+      "current": "Current photos",
+      "remove": "Remove",
+      "removeFailed": "Could not delete photo",
+      "cover": "Cover",
+      "photoAlt": "Photo {index}"
+    },
+    "labels": {
+      "placeType": {
+        "a-frame": "A-frame",
+        "villa-cottage": "Villa / cottage",
+        "hotel": "Hotel",
+        "modular": "Modular home",
+        "village-room": "Village room"
+      },
+      "category": {
+        "mountain": "Mountain",
+        "forest": "Forest",
+        "river": "River",
+        "sea": "Sea",
+        "lake": "Lake"
+      },
+      "amenity": {
+        "wifi": "Wi-Fi",
+        "parking": "Parking",
+        "pool": "Pool",
+        "sauna": "Sauna",
+        "jacuzzi": "Jacuzzi",
+        "fireplace": "Fireplace",
+        "kitchen": "Kitchen",
+        "bbq": "BBQ",
+        "pets": "Pets allowed",
+        "heating": "Heating",
+        "ac": "Air conditioning",
+        "tv": "TV",
+        "washer": "Washing machine",
+        "iron": "Iron",
+        "hairdryer": "Hairdryer",
+        "crib": "Baby crib",
+        "kids": "Kids' entertainment",
+        "ev-charger": "EV charger"
+      },
+      "meal": {
+        "breakfast": "Breakfast included",
+        "on-request": "Meals on request"
+      },
+      "activity": {
+        "quad": "Quad bike",
+        "horse": "Horseback riding",
+        "fishing": "Fishing"
+      }
+    }
   }
 }

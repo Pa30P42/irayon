@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { useUpdateVillage } from '@/hooks/use-admin-villages';
 import type { Village } from '@/types';
 import { IconCheck, IconLoader2, IconX } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 type Props = {
@@ -14,6 +15,8 @@ type Props = {
 };
 
 export function EditVillageRow({ village, regionId, onDone }: Props) {
+  const t = useTranslations('admin.villages');
+  const tCommon = useTranslations('admin.common');
   const update = useUpdateVillage(regionId);
   const [nameEn, setNameEn] = useState(village.name.en);
   const [nameRu, setNameRu] = useState(village.name.ru);
@@ -35,7 +38,7 @@ export function EditVillageRow({ village, regionId, onDone }: Props) {
       });
       onDone();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Update failed');
+      setError(err instanceof Error ? err.message : tCommon('updateFailed'));
     }
   };
 
@@ -45,19 +48,19 @@ export function EditVillageRow({ village, regionId, onDone }: Props) {
       className="border-primary/30 bg-primary/5 grid gap-2 rounded-lg border p-3 sm:grid-cols-[1fr_1fr_1fr_auto_auto_auto] sm:items-end"
     >
       <label className="block text-xs font-medium">
-        <span className="text-foreground-muted">Name (EN) *</span>
+        <span className="text-foreground-muted">{t('nameEn')}</span>
         <Input value={nameEn} onChange={(e) => setNameEn(e.target.value)} required />
       </label>
       <label className="block text-xs font-medium">
-        <span className="text-foreground-muted">Name (RU)</span>
+        <span className="text-foreground-muted">{t('nameRu')}</span>
         <Input value={nameRu} onChange={(e) => setNameRu(e.target.value)} />
       </label>
       <label className="block text-xs font-medium">
-        <span className="text-foreground-muted">Name (AZ)</span>
+        <span className="text-foreground-muted">{t('nameAz')}</span>
         <Input value={nameAz} onChange={(e) => setNameAz(e.target.value)} />
       </label>
       <label className="block text-xs font-medium">
-        <span className="text-foreground-muted">Order</span>
+        <span className="text-foreground-muted">{t('order')}</span>
         <Input
           type="number"
           inputMode="numeric"
@@ -77,11 +80,11 @@ export function EditVillageRow({ village, regionId, onDone }: Props) {
         ) : (
           <IconCheck size={14} />
         )}
-        Save
+        {t('save')}
       </Button>
       <Button type="button" size="sm" variant="ghost" onClick={onDone} className="gap-1.5">
         <IconX size={14} />
-        Cancel
+        {t('cancel')}
       </Button>
       {error ? <p className="col-span-full text-xs text-rose-700">{error}</p> : null}
     </form>

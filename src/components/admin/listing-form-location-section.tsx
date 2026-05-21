@@ -1,6 +1,5 @@
 'use client';
 
-import { PLACE_TYPE_LABEL } from '@/components/admin/listing-form-labels';
 import { Button } from '@/components/ui/button';
 import { ChipGroup } from '@/components/ui/chip-group';
 import { Field } from '@/components/ui/form-field';
@@ -14,10 +13,14 @@ import type { CreateListingInput } from '@/lib/api/listings-create-validator';
 import { PLACE_TYPES } from '@/lib/constants';
 import type { PlaceType } from '@/types';
 import { IconCurrentLocation } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 
 export function ListingFormLocationSection() {
+  const tSections = useTranslations('admin.listingForm.sections');
+  const tFields = useTranslations('admin.listingForm.fields');
+  const tPlaceType = useTranslations('admin.labels.placeType');
   const {
     control,
     register,
@@ -50,8 +53,8 @@ export function ListingFormLocationSection() {
   });
 
   return (
-    <SectionCard title="Location">
-      <Field label="Region" required htmlFor="region" error={errors.region?.message}>
+    <SectionCard title={tSections('locationTitle')}>
+      <Field label={tFields('region')} required htmlFor="region" error={errors.region?.message}>
         <Select id="region" {...register('region')}>
           {regions
             ? regions.map((r) => (
@@ -65,10 +68,10 @@ export function ListingFormLocationSection() {
       </Field>
 
       <Field
-        label="Village"
+        label={tFields('village')}
         htmlFor="village"
         error={errors.villageId?.message}
-        hint="Optional sub-location. Cascades from the selected region."
+        hint={tFields('villageHint')}
       >
         <Controller
           control={control}
@@ -79,7 +82,7 @@ export function ListingFormLocationSection() {
               value={field.value ?? ''}
               onChange={(e) => field.onChange(e.target.value || null)}
             >
-              <option value="">— No village —</option>
+              <option value="">{tFields('villageNone')}</option>
               {villages?.map((v) => (
                 <option key={v.id} value={v.id}>
                   {v.name.en}
@@ -91,31 +94,40 @@ export function ListingFormLocationSection() {
         />
       </Field>
 
-      <Field label="Place type" required error={errors.placeType?.message}>
+      <Field label={tFields('placeType')} required error={errors.placeType?.message}>
         <Controller
           control={control}
           name="placeType"
           render={({ field }) => (
             <ChipGroup
-              ariaLabel="Place type"
+              ariaLabel={tFields('placeType')}
               single
               selected={[field.value as PlaceType]}
               onChange={(next) => field.onChange(next[0])}
               options={PLACE_TYPES.map((p) => ({
                 value: p as PlaceType,
-                label: PLACE_TYPE_LABEL[p as PlaceType],
+                label: tPlaceType(p as PlaceType),
               }))}
             />
           )}
         />
       </Field>
 
-      <Field label="Address" required error={errors.address?.message} htmlFor="address">
-        <Input id="address" {...register('address')} placeholder="e.g. Vandam, Gabala" />
+      <Field
+        label={tFields('address')}
+        required
+        error={errors.address?.message}
+        htmlFor="address"
+      >
+        <Input
+          id="address"
+          {...register('address')}
+          placeholder={tFields('addressPlaceholder')}
+        />
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="Latitude" required error={errors.lat?.message} htmlFor="lat">
+        <Field label={tFields('lat')} required error={errors.lat?.message} htmlFor="lat">
           <Input
             id="lat"
             type="number"
@@ -124,7 +136,7 @@ export function ListingFormLocationSection() {
             {...register('lat', { valueAsNumber: true })}
           />
         </Field>
-        <Field label="Longitude" required error={errors.lng?.message} htmlFor="lng">
+        <Field label={tFields('lng')} required error={errors.lng?.message} htmlFor="lng">
           <Input
             id="lng"
             type="number"
@@ -136,7 +148,7 @@ export function ListingFormLocationSection() {
       </div>
       <Button type="button" variant="outline" size="sm" onClick={onUseLocation} className="gap-2">
         <IconCurrentLocation size={16} />
-        Use my current location
+        {tFields('useCurrentLocation')}
       </Button>
     </SectionCard>
   );

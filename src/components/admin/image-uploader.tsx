@@ -8,6 +8,7 @@ import { useImageUploader } from '@/hooks/use-image-uploader';
 import { formatBytes, MAX_UPLOAD_BYTES } from '@/lib/image-compression';
 import { cn } from '@/lib/utils';
 import { IconCamera, IconLoader2, IconPhoto, IconPlus, IconX } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 type ImageUploaderProps = {
   /** Called whenever the set of ready files changes (in display order). */
@@ -16,6 +17,7 @@ type ImageUploaderProps = {
 };
 
 export function ImageUploader({ onReadyFilesChange, maxFiles }: ImageUploaderProps) {
+  const t = useTranslations('admin.imageUploader');
   const {
     inputId,
     inputRef,
@@ -60,13 +62,13 @@ export function ImageUploader({ onReadyFilesChange, maxFiles }: ImageUploaderPro
           <IconCamera size={24} className="text-primary" aria-hidden />
         </div>
         <div className="text-sm font-medium">
-          {atLimit ? 'Maximum reached' : 'Tap to add photos or drop them here'}
+          {atLimit ? t('atLimit') : t('addPhotos')}
         </div>
         <div className="text-foreground-muted text-xs">
-          JPEG · PNG · WebP · HEIC · max {formatBytes(MAX_UPLOAD_BYTES)} each (auto-compressed)
+          {t('formats', { size: formatBytes(MAX_UPLOAD_BYTES) })}
         </div>
         <div className="text-foreground-muted text-xs tabular-nums">
-          {items.length} / {effectiveMaxFiles} photos
+          {t('photoCount', { count: items.length, max: effectiveMaxFiles })}
         </div>
       </label>
 
@@ -81,12 +83,12 @@ export function ImageUploader({ onReadyFilesChange, maxFiles }: ImageUploaderPro
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={img.previewUrl}
-                  alt={`Photo ${idx + 1}`}
+                  alt={t('photoAlt', { index: idx + 1 })}
                   className="h-full w-full object-cover"
                 />
                 {idx === 0 && (
                   <span className="bg-primary absolute top-2 left-2 rounded-full px-2 py-0.5 text-xs font-medium text-white">
-                    Cover
+                    {t('cover')}
                   </span>
                 )}
                 {img.status === 'compressing' && (
@@ -102,7 +104,7 @@ export function ImageUploader({ onReadyFilesChange, maxFiles }: ImageUploaderPro
                 <button
                   type="button"
                   onClick={() => onRemove(img.id)}
-                  aria-label={`Remove photo ${idx + 1}`}
+                  aria-label={t('removePhoto', { index: idx + 1 })}
                   className="text-foreground absolute top-2 right-2 grid h-7 w-7 place-items-center rounded-full bg-white/90 hover:bg-white"
                 >
                   <IconX size={14} />
@@ -130,7 +132,7 @@ export function ImageUploader({ onReadyFilesChange, maxFiles }: ImageUploaderPro
                 className="flex h-full min-h-[140px] w-full flex-col items-center justify-center gap-1"
               >
                 <IconPlus size={20} />
-                <span className="text-xs">Add more</span>
+                <span className="text-xs">{t('addMore')}</span>
               </Button>
             </li>
           )}
@@ -140,10 +142,7 @@ export function ImageUploader({ onReadyFilesChange, maxFiles }: ImageUploaderPro
       {items.length === 0 && (
         <p className="text-foreground-muted flex items-start gap-2 text-xs">
           <IconPhoto size={14} className="mt-0.5 shrink-0" aria-hidden />
-          <span>
-            The first photo becomes the cover. 3+ photos recommended for guests to picture the
-            place.
-          </span>
+          <span>{t('recommended')}</span>
         </p>
       )}
     </div>

@@ -5,9 +5,12 @@ import { Input } from '@/components/ui/input';
 import { SectionCard } from '@/components/ui/section-card';
 import { Stepper } from '@/components/ui/stepper';
 import type { CreateListingInput } from '@/lib/api/listings-create-validator';
+import { useTranslations } from 'next-intl';
 import { Controller, useFormContext } from 'react-hook-form';
 
 export function ListingFormCapacitySection() {
+  const tSections = useTranslations('admin.listingForm.sections');
+  const tFields = useTranslations('admin.listingForm.fields');
   const {
     control,
     register,
@@ -15,15 +18,15 @@ export function ListingFormCapacitySection() {
   } = useFormContext<CreateListingInput>();
 
   return (
-    <SectionCard title="Capacity & price">
+    <SectionCard title={tSections('capacityTitle')}>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Field label="Guests" required error={errors.capacity?.message}>
+        <Field label={tFields('guests')} required error={errors.capacity?.message}>
           <Controller
             control={control}
             name="capacity"
             render={({ field }) => (
               <Stepper
-                ariaLabel="Guests"
+                ariaLabel={tFields('guests')}
                 min={1}
                 max={50}
                 value={field.value}
@@ -32,13 +35,13 @@ export function ListingFormCapacitySection() {
             )}
           />
         </Field>
-        <Field label="Bedrooms" required error={errors.bedrooms?.message}>
+        <Field label={tFields('bedrooms')} required error={errors.bedrooms?.message}>
           <Controller
             control={control}
             name="bedrooms"
             render={({ field }) => (
               <Stepper
-                ariaLabel="Bedrooms"
+                ariaLabel={tFields('bedrooms')}
                 min={0}
                 max={20}
                 value={field.value}
@@ -47,7 +50,12 @@ export function ListingFormCapacitySection() {
             )}
           />
         </Field>
-        <Field label="Price / night (AZN)" required error={errors.price?.message} htmlFor="price">
+        <Field
+          label={tFields('price')}
+          required
+          error={errors.price?.message}
+          htmlFor="price"
+        >
           <Input
             id="price"
             type="number"

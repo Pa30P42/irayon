@@ -15,6 +15,7 @@ import {
   IconStarFilled,
   IconTrash,
 } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useState } from 'react';
 import { DeleteRegionDialog } from './delete-region-dialog';
@@ -27,6 +28,8 @@ type DialogState = {
 } | null;
 
 export function AdminRegionsList() {
+  const t = useTranslations('admin.regions');
+  const tCommon = useTranslations('admin.common');
   const { data, isLoading, isError, error, refetch, isFetching } = useAdminRegions();
   const [toDelete, setToDelete] = useState<DialogState>(null);
 
@@ -37,10 +40,10 @@ export function AdminRegionsList() {
       <header className="mb-5 flex items-end justify-between gap-3">
         <div>
           <Heading as="h1" level="page">
-            Regions
+            {t('title')}
           </Heading>
           <p className="text-foreground-muted mt-1 text-sm">
-            {data ? `${regions.length} total` : 'Loading…'}
+            {data ? t('totalCount', { count: regions.length }) : t('loadingCount')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -50,7 +53,7 @@ export function AdminRegionsList() {
             size="sm"
             onClick={() => refetch()}
             disabled={isFetching}
-            aria-label="Refresh"
+            aria-label={t('refresh')}
             className="gap-1.5"
           >
             {isFetching ? (
@@ -58,12 +61,12 @@ export function AdminRegionsList() {
             ) : (
               <IconRefresh size={16} />
             )}
-            <span className="hidden sm:inline">Refresh</span>
+            <span className="hidden sm:inline">{t('refresh')}</span>
           </Button>
           <Button asChild size="sm" className="gap-2">
             <Link href="/admin/regions/new">
               <IconPlus size={16} />
-              <span>New region</span>
+              <span>{t('new')}</span>
             </Link>
           </Button>
         </div>
@@ -73,7 +76,7 @@ export function AdminRegionsList() {
         <Skeleton />
       ) : isError ? (
         <ErrorState
-          message={error instanceof Error ? error.message : 'Failed to load'}
+          message={error instanceof Error ? error.message : tCommon('loadFailed')}
           onRetry={() => refetch()}
         />
       ) : regions.length === 0 ? (
@@ -94,32 +97,31 @@ export function AdminRegionsList() {
                   {r.featured ? (
                     <span
                       className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800"
-                      title="Featured on homepage"
+                      title={t('featuredTitle')}
                     >
                       <IconStarFilled size={11} />
-                      Featured
+                      {t('featured')}
                     </span>
                   ) : null}
                 </h2>
                 <p className="text-foreground-muted mt-0.5 text-xs sm:text-sm">
                   <code className="text-[11px]">{r.slug}</code>
                   {' · '}
-                  <span>
-                    {r.listingCount} listing{r.listingCount === 1 ? '' : 's'}
-                  </span>
+                  <span>{t('listingsCount', { count: r.listingCount })}</span>
                   {' · '}
-                  <span>
-                    {r.villageCount} village{r.villageCount === 1 ? '' : 's'}
-                  </span>
+                  <span>{t('villagesCount', { count: r.villageCount })}</span>
                   {' · '}
-                  <span>order {r.sortOrder}</span>
+                  <span>{t('order', { value: r.sortOrder })}</span>
                 </p>
               </div>
               <div className="flex items-center gap-1.5">
                 <Button asChild variant="ghost" size="sm" className="gap-1.5">
-                  <Link href={`/admin/regions/${r.id}/edit`} aria-label={`Edit ${r.name.en}`}>
+                  <Link
+                    href={`/admin/regions/${r.id}/edit`}
+                    aria-label={t('editAria', { title: r.name.en })}
+                  >
                     <IconPencil size={14} />
-                    <span className="hidden sm:inline">Edit</span>
+                    <span className="hidden sm:inline">{t('edit')}</span>
                   </Link>
                 </Button>
                 <Button
@@ -135,10 +137,10 @@ export function AdminRegionsList() {
                     })
                   }
                   className="gap-1.5"
-                  aria-label={`Delete ${r.name.en}`}
+                  aria-label={t('deleteAria', { title: r.name.en })}
                 >
                   <IconTrash size={14} />
-                  <span className="hidden sm:inline">Delete</span>
+                  <span className="hidden sm:inline">{t('delete')}</span>
                 </Button>
               </div>
             </li>
@@ -177,16 +179,17 @@ function Skeleton() {
 }
 
 function EmptyState() {
+  const t = useTranslations('admin.regions');
   return (
     <UiEmptyState
       icon={<IconMap2 size={22} className="text-primary" aria-hidden />}
-      title="No regions yet"
-      description="Add the first region to get started."
+      title={t('emptyTitle')}
+      description={t('emptyDescription')}
       action={
         <Button asChild className="gap-2">
           <Link href="/admin/regions/new">
             <IconPlus size={16} />
-            New region
+            {t('emptyAction')}
           </Link>
         </Button>
       }
@@ -195,15 +198,17 @@ function EmptyState() {
 }
 
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  const t = useTranslations('admin.regions');
+  const tCommon = useTranslations('admin.common');
   return (
     <Alert variant="error" size="lg">
       <IconAlertCircle size={18} className="mt-0.5 shrink-0" />
       <div className="flex-1">
-        <p className="font-medium">Couldn&apos;t load regions</p>
+        <p className="font-medium">{t('loadFailed')}</p>
         <p className="text-xs">{message}</p>
       </div>
       <Button type="button" size="sm" variant="outline" onClick={onRetry}>
-        Retry
+        {tCommon('retry')}
       </Button>
     </Alert>
   );

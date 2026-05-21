@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { SectionCard } from '@/components/ui/section-card';
 import { Textarea } from '@/components/ui/textarea';
 import type { CreateListingInput } from '@/lib/api/listings-create-validator';
+import { useTranslations } from 'next-intl';
 import { useFormContext } from 'react-hook-form';
 
 type Props = {
@@ -15,32 +16,37 @@ type Props = {
 };
 
 export function ListingFormBasicInfoSection({ activeLocaleTab, onLocaleTabChange }: Props) {
+  const tSections = useTranslations('admin.listingForm.sections');
+  const tFields = useTranslations('admin.listingForm.fields');
   const {
     register,
     formState: { errors },
   } = useFormContext<CreateListingInput>();
 
   return (
-    <SectionCard title="Basic info" description="Title and description in each language.">
+    <SectionCard
+      title={tSections('basicInfoTitle')}
+      description={tSections('basicInfoDescription')}
+    >
       <ListingFormLocaleTabs active={activeLocaleTab} onChange={onLocaleTabChange} />
 
       {activeLocaleTab === 'en' && (
         <>
           <Field
-            label="Title (English)"
+            label={tFields('titleEn')}
             required
             error={errors.title?.en?.message}
             htmlFor="title-en"
-            hint="Used for the URL slug."
+            hint={tFields('titleEnHint')}
           >
             <Input
               id="title-en"
               {...register('title.en')}
-              placeholder="e.g. Gabala Pine Retreat"
+              placeholder={tFields('titleEnPlaceholder')}
             />
           </Field>
           <Field
-            label="Description (English)"
+            label={tFields('descEn')}
             required
             error={errors.description?.en?.message}
             htmlFor="desc-en"
@@ -49,7 +55,7 @@ export function ListingFormBasicInfoSection({ activeLocaleTab, onLocaleTabChange
               id="desc-en"
               {...register('description.en')}
               rows={5}
-              placeholder="What guests can expect..."
+              placeholder={tFields('descPlaceholder')}
             />
           </Field>
         </>
@@ -57,14 +63,14 @@ export function ListingFormBasicInfoSection({ activeLocaleTab, onLocaleTabChange
 
       {activeLocaleTab === 'ru' && (
         <>
-          <Field label="Название (Русский)" htmlFor="title-ru">
+          <Field label={tFields('titleRu')} htmlFor="title-ru">
             <Input
               id="title-ru"
               {...register('title.ru')}
-              placeholder="Optional — falls back to English"
+              placeholder={tFields('titleFallbackPlaceholder')}
             />
           </Field>
-          <Field label="Описание (Русский)" htmlFor="desc-ru">
+          <Field label={tFields('descRu')} htmlFor="desc-ru">
             <Textarea id="desc-ru" {...register('description.ru')} rows={5} />
           </Field>
         </>
@@ -72,32 +78,32 @@ export function ListingFormBasicInfoSection({ activeLocaleTab, onLocaleTabChange
 
       {activeLocaleTab === 'az' && (
         <>
-          <Field label="Başlıq (Azərbaycanca)" htmlFor="title-az">
+          <Field label={tFields('titleAz')} htmlFor="title-az">
             <Input
               id="title-az"
               {...register('title.az')}
-              placeholder="Optional — falls back to English"
+              placeholder={tFields('titleFallbackPlaceholder')}
             />
           </Field>
-          <Field label="Təsvir (Azərbaycanca)" htmlFor="desc-az">
+          <Field label={tFields('descAz')} htmlFor="desc-az">
             <Textarea id="desc-az" {...register('description.az')} rows={5} />
           </Field>
         </>
       )}
 
       <Field
-        label="Phone"
+        label={tFields('phone')}
         required
         error={errors.phone?.message}
         htmlFor="phone"
-        hint="Shown on the Call button."
+        hint={tFields('phoneHint')}
       >
         <Input
           id="phone"
           type="tel"
           inputMode="tel"
           {...register('phone')}
-          placeholder="+994 50 123 45 67"
+          placeholder={tFields('phonePlaceholder')}
         />
       </Field>
     </SectionCard>

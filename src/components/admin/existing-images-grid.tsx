@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { useDeleteListingImage } from '@/hooks/use-delete-listing-image';
 import { IconLoader2, IconTrash } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -18,6 +19,7 @@ type ExistingImagesGridProps = {
 };
 
 export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImagesGridProps) {
+  const t = useTranslations('admin.existingImages');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const deleteImage = useDeleteListingImage();
@@ -32,7 +34,7 @@ export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImag
       { listingId, imageId: img.id },
       {
         onSuccess: () => onChange(images.filter((i) => i.id !== img.id)),
-        onError: (err) => setError(err instanceof Error ? err.message : 'Could not delete photo'),
+        onError: (err) => setError(err instanceof Error ? err.message : t('removeFailed')),
         onSettled: () => setDeletingId(null),
       },
     );
@@ -42,7 +44,7 @@ export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImag
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium">
-          Current photos
+          {t('current')}
           <span className="text-foreground-muted ml-2 text-xs font-normal">({images.length})</span>
         </p>
         {error ? <p className="text-xs text-rose-600">{error}</p> : null}
@@ -58,14 +60,14 @@ export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImag
               <div className="bg-accent relative aspect-square">
                 <Image
                   src={img.url}
-                  alt={`Photo ${idx + 1}`}
+                  alt={t('photoAlt', { index: idx + 1 })}
                   fill
                   sizes="200px"
                   className="object-cover"
                 />
                 {idx === 0 && (
                   <span className="bg-primary absolute top-2 left-2 rounded-full px-2 py-0.5 text-xs font-medium text-white">
-                    Cover
+                    {t('cover')}
                   </span>
                 )}
                 {isDeleting ? (
@@ -84,7 +86,7 @@ export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImag
                   className="w-full gap-1.5"
                 >
                   <IconTrash size={14} />
-                  Remove
+                  {t('remove')}
                 </Button>
               </div>
             </li>

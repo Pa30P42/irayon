@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useAdminLogin } from '@/hooks/use-admin-login';
 import { IconAlertCircle, IconLoader2 } from '@tabler/icons-react';
 import type { Route } from 'next';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { type FormEvent } from 'react';
 
@@ -16,6 +17,7 @@ type AdminLoginFormProps = {
 export function AdminLoginForm({ next }: AdminLoginFormProps) {
   const router = useRouter();
   const login = useAdminLogin();
+  const t = useTranslations('admin.login');
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -44,7 +46,7 @@ export function AdminLoginForm({ next }: AdminLoginFormProps) {
     <form onSubmit={onSubmit} className="space-y-4" noValidate>
       <div className="space-y-1.5">
         <label htmlFor="username" className="block text-sm font-medium">
-          Username
+          {t('username')}
         </label>
         <Input
           id="username"
@@ -57,7 +59,7 @@ export function AdminLoginForm({ next }: AdminLoginFormProps) {
       </div>
       <div className="space-y-1.5">
         <label htmlFor="password" className="block text-sm font-medium">
-          Password
+          {t('password')}
         </label>
         <Input
           id="password"
@@ -80,10 +82,10 @@ export function AdminLoginForm({ next }: AdminLoginFormProps) {
         {login.isPending ? (
           <>
             <IconLoader2 size={16} className="animate-spin" aria-hidden />
-            Signing in…
+            {t('submitting')}
           </>
         ) : (
-          'Sign in'
+          t('submit')
         )}
       </Button>
     </form>

@@ -10,6 +10,7 @@ import { regionCreateSchema, type RegionCreateInput } from '@/lib/api/regions-va
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconAlertCircle, IconCheck, IconLoader2 } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 
@@ -38,6 +39,10 @@ export function RegionForm({
   onSubmit,
   submitLabel,
 }: RegionFormProps) {
+  const t = useTranslations('admin.regionForm');
+  const tSections = useTranslations('admin.regionForm.sections');
+  const tFields = useTranslations('admin.regionForm.fields');
+  const tCommon = useTranslations('admin.common');
   const {
     register,
     handleSubmit,
@@ -67,7 +72,7 @@ export function RegionForm({
     } catch (err) {
       setSubmitState({
         phase: 'error',
-        message: err instanceof Error ? err.message : 'Save failed',
+        message: err instanceof Error ? err.message : tCommon('saveFailed'),
       });
     }
   };
@@ -75,10 +80,14 @@ export function RegionForm({
   return (
     <form onSubmit={handleSubmit(submit)} className="space-y-6">
       <SectionCard
-        title="Name"
-        description="Localized region name. English is required and used as the canonical fallback."
+        title={tSections('nameTitle')}
+        description={tSections('nameDescription')}
       >
-        <div role="tablist" aria-label="Locale" className="border-border flex gap-1 border-b">
+        <div
+          role="tablist"
+          aria-label={t('localeTablistLabel')}
+          className="border-border flex gap-1 border-b"
+        >
           {(['en', 'ru', 'az'] as const).map((tab) => (
             <button
               key={tab}
@@ -98,44 +107,64 @@ export function RegionForm({
           ))}
         </div>
         <div className={activeTab === 'en' ? '' : 'hidden'}>
-          <Field label="Name (EN)" required htmlFor="name-en" error={errors.name?.en?.message}>
-            <Input id="name-en" {...register('name.en')} placeholder="Gabala" />
+          <Field
+            label={tFields('nameEn')}
+            required
+            htmlFor="name-en"
+            error={errors.name?.en?.message}
+          >
+            <Input
+              id="name-en"
+              {...register('name.en')}
+              placeholder={tFields('nameEnPlaceholder')}
+            />
           </Field>
         </div>
         <div className={activeTab === 'ru' ? '' : 'hidden'}>
-          <Field label="Name (RU)" htmlFor="name-ru" error={errors.name?.ru?.message}>
-            <Input id="name-ru" {...register('name.ru')} placeholder="Габала" />
+          <Field label={tFields('nameRu')} htmlFor="name-ru" error={errors.name?.ru?.message}>
+            <Input
+              id="name-ru"
+              {...register('name.ru')}
+              placeholder={tFields('nameRuPlaceholder')}
+            />
           </Field>
         </div>
         <div className={activeTab === 'az' ? '' : 'hidden'}>
-          <Field label="Name (AZ)" htmlFor="name-az" error={errors.name?.az?.message}>
-            <Input id="name-az" {...register('name.az')} placeholder="Qəbələ" />
+          <Field label={tFields('nameAz')} htmlFor="name-az" error={errors.name?.az?.message}>
+            <Input
+              id="name-az"
+              {...register('name.az')}
+              placeholder={tFields('nameAzPlaceholder')}
+            />
           </Field>
         </div>
       </SectionCard>
 
-      <SectionCard title="Display" description="Controls homepage placement and ordering.">
+      <SectionCard
+        title={tSections('displayTitle')}
+        description={tSections('displayDescription')}
+      >
         {mode === 'edit' && slug ? (
-          <Field label="Slug" hint="Immutable — used in public URLs and bookmarked filters.">
+          <Field label={tFields('slug')} hint={tFields('slugHint')}>
             <Input value={slug} readOnly disabled />
           </Field>
         ) : null}
         <Field
-          label="Cover image URL"
-          hint="Optional. Shown in the homepage Regions grid."
+          label={tFields('coverImage')}
+          hint={tFields('coverImageHint')}
           htmlFor="cover-image"
           error={errors.coverImage?.message}
         >
           <Input
             id="cover-image"
             type="url"
-            placeholder="https://example.com/gabala.jpg"
+            placeholder={tFields('coverImagePlaceholder')}
             {...register('coverImage')}
           />
         </Field>
         <Field
-          label="Sort order"
-          hint="Lower numbers appear first. Defaults to 0."
+          label={tFields('sortOrder')}
+          hint={tFields('sortOrderHint')}
           htmlFor="sort-order"
           error={errors.sortOrder?.message}
         >
@@ -149,10 +178,8 @@ export function RegionForm({
         <label className="flex items-start gap-2 text-sm">
           <input type="checkbox" className="mt-0.5" {...register('featured')} />
           <span>
-            Featured on homepage
-            <span className="text-foreground-muted block text-xs">
-              Featured regions appear in the homepage Regions grid.
-            </span>
+            {tFields('featured')}
+            <span className="text-foreground-muted block text-xs">{tFields('featuredHint')}</span>
           </span>
         </label>
       </SectionCard>
@@ -173,15 +200,15 @@ export function RegionForm({
           {submitState.phase === 'submitting' ? (
             <>
               <IconLoader2 size={16} className="animate-spin" />
-              Saving…
+              {t('saving')}
             </>
           ) : submitState.phase === 'success' ? (
             <>
               <IconCheck size={16} />
-              Saved
+              {t('saved')}
             </>
           ) : (
-            (submitLabel ?? (mode === 'edit' ? 'Save changes' : 'Create region'))
+            (submitLabel ?? (mode === 'edit' ? t('editSubmit') : t('createSubmit')))
           )}
         </Button>
       </div>

@@ -3,6 +3,7 @@
 import type { SubmitState } from '@/hooks/use-listing-submit';
 import { Alert } from '@/components/ui/alert';
 import { IconAlertCircle, IconCheck } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   submitState: SubmitState;
@@ -10,13 +11,15 @@ type Props = {
 };
 
 export function ListingFormStatusBanner({ submitState, isEdit }: Props) {
+  const t = useTranslations('admin.listingForm.statusBanner');
+
   if (submitState.phase === 'error') {
     return (
       <Alert variant="error">
         <IconAlertCircle size={18} className="mt-0.5 shrink-0" />
         <div>
           <p className="font-medium">
-            {isEdit ? "Couldn't update the listing" : "Couldn't create the listing"}
+            {isEdit ? t('errorUpdateTitle') : t('errorCreateTitle')}
           </p>
           <p className="text-xs">{submitState.message}</p>
         </div>
@@ -29,10 +32,12 @@ export function ListingFormStatusBanner({ submitState, isEdit }: Props) {
       <Alert variant="success">
         <IconCheck size={18} className="mt-0.5 shrink-0" />
         <div>
-          <p className="font-medium">{isEdit ? 'Listing updated' : 'Listing created'}</p>
+          <p className="font-medium">
+            {isEdit ? t('successUpdateTitle') : t('successCreateTitle')}
+          </p>
           <p className="text-xs">
-            Slug: <code>{submitState.slug}</code>.
-            {isEdit ? ' Changes saved.' : ' Form is reset — you can create another.'}
+            {t('slugPrefix')} <code>{submitState.slug}</code>.{' '}
+            {isEdit ? t('changesSaved') : t('resetMessage')}
           </p>
         </div>
       </Alert>

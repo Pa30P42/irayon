@@ -2,11 +2,13 @@
 
 import { useAdminLogout } from '@/hooks/use-admin-logout';
 import { IconLoader2, IconLogout } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
 export function AdminLogoutButton() {
   const router = useRouter();
   const logout = useAdminLogout();
+  const t = useTranslations('admin.nav');
 
   const onClick = () => {
     if (logout.isPending) return;
@@ -32,7 +34,7 @@ export function AdminLogoutButton() {
       ) : (
         <IconLogout size={14} aria-hidden />
       )}
-      <span>Sign out</span>
+      <span>{t('signOut')}</span>
     </button>
   );
 }
