@@ -1,4 +1,4 @@
-import type { Icon, IconProps } from '@tabler/icons-react';
+import type { Icon } from '@tabler/icons-react';
 
 export const IconRiver: Icon = ({
   size = 24,
@@ -20,7 +20,7 @@ export const IconRiver: Icon = ({
     className={className}
     {...rest}
   >
-    <path d="M5 3 Q 10 7 6 12 T 8 21" />
-    <path d="M11 3 Q 16 7 12 12 T 14 21" />
+    <path d="M2 9 Q 7 4 12 9 T 22 9" />
+    <path d="M2 15 Q 7 10 12 15 T 22 15" />
   </svg>
 );
