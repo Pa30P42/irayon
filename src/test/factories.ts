@@ -14,7 +14,7 @@ export const makeListing = (overrides: Partial<Listing> & Pick<Listing, 'id'>): 
   price: 200,
   images: [],
   amenities: [],
-  category: 'mountain',
+  categories: ['mountain'],
   rating: 4,
   reviewCount: 10,
   capacity: 4,

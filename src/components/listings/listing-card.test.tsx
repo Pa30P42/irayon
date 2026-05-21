@@ -36,7 +36,7 @@ const baseListing: Listing = {
   price: 320,
   images: ['https://example.test/img.jpg'],
   amenities: ['wifi', 'pool', 'bbq', 'kitchen'],
-  category: 'mountain',
+  categories: ['mountain'],
   rating: 4.9,
   reviewCount: 150,
   capacity: 6,

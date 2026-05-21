@@ -25,12 +25,16 @@ type ListingHighlightsProps = {
 
 export function ListingHighlights({ listing }: ListingHighlightsProps) {
   const t = useTranslations('detail.highlights');
-  const CategoryIcon = CATEGORY_ICONS[listing.category];
+  // A listing may belong to multiple categories now. The highlight row only
+  // has space for one chip, so we surface the first one as the canonical
+  // category — header badges cover the rest.
+  const primaryCategory = listing.categories[0] ?? 'mountain';
+  const CategoryIcon = CATEGORY_ICONS[primaryCategory];
 
   const items = [
     { icon: IconUsers, label: t('guests', { count: listing.capacity }) },
     { icon: IconBed, label: t('bedrooms', { count: listing.bedrooms }) },
-    { icon: CategoryIcon, label: t(`category.${listing.category}`) },
+    { icon: CategoryIcon, label: t(`category.${primaryCategory}`) },
   ];
 
   return (

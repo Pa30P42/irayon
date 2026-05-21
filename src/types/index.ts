@@ -96,7 +96,8 @@ export type Listing = {
   price: number;
   images: string[];
   amenities: Amenity[];
-  category: ListingCategory;
+  /** One or more category tags. Always non-empty. */
+  categories: ListingCategory[];
   rating: number;
   reviewCount: number;
   capacity: number;

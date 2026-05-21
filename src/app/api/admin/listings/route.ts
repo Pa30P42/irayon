@@ -80,7 +80,9 @@ export async function POST(request: Request): Promise<Response> {
         regionId: region.id,
         villageId,
         placeType: dtoToPrismaEnum(input.placeType) as Prisma.ListingCreateInput['placeType'],
-        category: dtoToPrismaEnum(input.category) as Prisma.ListingCreateInput['category'],
+        categories: {
+          set: input.categories.map(dtoToPrismaEnum) as never,
+        } as Prisma.ListingCreateInput['categories'],
         price: input.price,
         capacity: input.capacity,
         bedrooms: input.bedrooms,

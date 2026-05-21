@@ -16,7 +16,14 @@ export const createListingSchema = z.object({
   /** Optional FK to the listing's village. Null when no curated village fits. */
   villageId: z.string().nullable().optional().default(null),
   placeType: z.enum(PLACE_TYPES as readonly [string, ...string[]]),
-  category: z.enum(CATEGORIES as readonly [string, ...string[]]),
+  /**
+   * One or more categories. Admin can pick several (e.g. a forest cabin near
+   * a river). Must include at least one so listing detail / cards still have
+   * something to badge.
+   */
+  categories: z
+    .array(z.enum(CATEGORIES as readonly [string, ...string[]]))
+    .min(1, 'Pick at least one category'),
   price: z.coerce.number().int().positive().max(100_000),
   capacity: z.coerce.number().int().positive().max(50),
   bedrooms: z.coerce.number().int().nonnegative().max(20),

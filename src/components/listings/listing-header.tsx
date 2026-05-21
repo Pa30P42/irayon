@@ -20,7 +20,11 @@ export function ListingHeader({ listing, locale }: ListingHeaderProps) {
   return (
     <header className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="solid">{tCategories(listing.category)}</Badge>
+        {listing.categories.map((c) => (
+          <Badge key={c} variant="solid">
+            {tCategories(c)}
+          </Badge>
+        ))}
         <Badge variant="outline">{regionName}</Badge>
       </div>
 

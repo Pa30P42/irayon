@@ -101,7 +101,10 @@ export function listListingsFromMock(query: ListingsQuery): ListListingsResult {
   const filterState = queryToFilterState(query);
   let results = applyListingsFilter(mockListings, filterState);
 
-  if (query.category) results = results.filter((l) => l.category === query.category);
+  if (query.category.length > 0) {
+    const wanted = new Set(query.category);
+    results = results.filter((l) => l.categories.some((c) => wanted.has(c)));
+  }
   if (typeof query.price_min === 'number') {
     results = results.filter((l) => l.price >= query.price_min!);
   }
@@ -210,7 +213,7 @@ export function rowToDto(row: ListingRow): Listing {
     villageSlug: row.village?.slug ?? null,
     villageName: row.village ? (row.village.name as unknown as LocalizedText) : null,
     placeType: PRISMA_TO_DTO_PLACE_TYPE[row.placeType] ?? 'villa-cottage',
-    category: PRISMA_TO_DTO_CATEGORY[row.category] ?? 'mountain',
+    categories: row.categories.map((c) => PRISMA_TO_DTO_CATEGORY[c] ?? 'mountain'),
     price: row.price,
     rating: row.rating,
     reviewCount: row.reviewCount,
@@ -228,8 +231,13 @@ export function rowToDto(row: ListingRow): Listing {
 
 function buildWhere(query: ListingsQuery): Prisma.ListingWhereInput {
   const where: Prisma.ListingWhereInput = {};
-  if (query.category) {
-    where.category = dtoToPrismaEnum(query.category) as Prisma.ListingWhereInput['category'];
+  // `categories` is an enum array on Postgres; `hasSome` translates to the
+  // `&&` overlap operator, so the listing matches if any of its categories
+  // appears in the filter list.
+  if (query.category.length > 0) {
+    where.categories = {
+      hasSome: query.category.map(dtoToPrismaEnum) as never,
+    };
   }
   // Location: OR(region, village). Pushed under AND so it composes with the
   // other filters (food, fun, amenities) that already build their own AND[].
@@ -255,9 +263,12 @@ function buildWhere(query: ListingsQuery): Prisma.ListingWhereInput {
       if (p === 'forest') ['MOUNTAIN', 'FOREST'].forEach((c) => cats.add(c));
       else ['RIVER', 'SEA', 'LAKE'].forEach((c) => cats.add(c));
     }
-    where.category = {
-      in: Array.from(cats),
-    } as Prisma.ListingWhereInput['category'];
+    // Compose with an explicit `categories` filter (above) by stacking under AND
+    // rather than overwriting it.
+    where.AND = (where.AND ?? []) as Prisma.ListingWhereInput[];
+    (where.AND as Prisma.ListingWhereInput[]).push({
+      categories: { hasSome: Array.from(cats) as never },
+    });
   }
   if (query.food.length > 0) {
     where.AND = (where.AND ?? []) as Prisma.ListingWhereInput[];
@@ -434,7 +445,9 @@ export async function updateListingFromDb(
         regionId: region.id,
         villageId,
         placeType: dtoToPrismaEnum(input.placeType) as Prisma.ListingUpdateInput['placeType'],
-        category: dtoToPrismaEnum(input.category) as Prisma.ListingUpdateInput['category'],
+        categories: {
+          set: input.categories.map(dtoToPrismaEnum) as never,
+        } as Prisma.ListingUpdateInput['categories'],
         price: input.price,
         capacity: input.capacity,
         bedrooms: input.bedrooms,

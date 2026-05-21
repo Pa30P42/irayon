@@ -144,7 +144,9 @@ async function seedListings(
           regionId,
           villageId,
           placeType: toEnumValue(listing.placeType) as Prisma.ListingCreateInput['placeType'],
-          category: toEnumValue(listing.category) as Prisma.ListingCreateInput['category'],
+          categories: {
+            set: listing.categories.map(toEnumValue) as never,
+          } as Prisma.ListingCreateInput['categories'],
           price: listing.price,
           rating: listing.rating,
           reviewCount: listing.reviewCount,
@@ -165,7 +167,9 @@ async function seedListings(
           regionId,
           villageId,
           placeType: toEnumValue(listing.placeType) as Prisma.ListingUpdateInput['placeType'],
-          category: toEnumValue(listing.category) as Prisma.ListingUpdateInput['category'],
+          categories: {
+            set: listing.categories.map(toEnumValue) as never,
+          } as Prisma.ListingUpdateInput['categories'],
           price: listing.price,
           rating: listing.rating,
           reviewCount: listing.reviewCount,

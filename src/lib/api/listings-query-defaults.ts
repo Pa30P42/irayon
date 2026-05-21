@@ -12,6 +12,7 @@ import type { ListingsQuery } from './listings-validator';
  */
 export const emptyListingsQuery = (overrides?: Partial<ListingsQuery>): ListingsQuery => ({
   q: '',
+  category: [],
   region: [],
   village: [],
   type: [],

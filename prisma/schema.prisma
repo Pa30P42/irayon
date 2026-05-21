@@ -108,7 +108,9 @@ model Listing {
   villageId   String?
   village     Village?        @relation(fields: [villageId], references: [id], onDelete: SetNull)
   placeType   PlaceType
-  category    ListingCategory
+  /// One or more category tags. A listing can belong to multiple categories
+  /// (e.g. a mountain forest cabin near a river).
+  categories  ListingCategory[]
   price       Int
   rating      Float           @default(0)
   reviewCount Int             @default(0)
@@ -127,7 +129,7 @@ model Listing {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([category])
+  @@index([categories], type: Gin)
   @@index([regionId])
   @@index([villageId])
   @@index([placeType])
