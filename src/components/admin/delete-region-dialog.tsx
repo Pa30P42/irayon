@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertText } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -74,17 +75,13 @@ export function DeleteRegionDialog({
             <strong>{region.title}</strong>.
           </p>
           {blocked ? (
-            <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+            <AlertText variant="warning">
               This region has {region.listingCount} listing
               {region.listingCount === 1 ? '' : 's'} and {region.villageCount} village
               {region.villageCount === 1 ? '' : 's'}. Reassign or delete those first.
-            </p>
+            </AlertText>
           ) : null}
-          {error ? (
-            <p className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
-              {error}
-            </p>
-          ) : null}
+          {error ? <AlertText variant="error">{error}</AlertText> : null}
         </div>
         <div className="border-border flex items-center justify-end gap-2 border-t px-6 py-3">
           <Button
@@ -97,9 +94,10 @@ export function DeleteRegionDialog({
           </Button>
           <Button
             type="button"
+            variant="destructive"
             onClick={onConfirm}
             disabled={mutation.isPending || blocked}
-            className="gap-2 bg-rose-600 text-white hover:bg-rose-700"
+            className="gap-2"
           >
             {mutation.isPending ? (
               <>

@@ -256,10 +256,9 @@ export async function updateListingFromDb(
         phone: input.phone,
         meals: { set: (input.meals as Meal[]).map(toMeal) },
         activities: { set: (input.activities as Activity[]).map(toActivity) },
-        amenities:
-          amenityRows.length > 0
-            ? { create: amenityRows.map((a) => ({ amenityId: a.id })) }
-            : undefined,
+        ...(amenityRows.length > 0
+          ? { amenities: { create: amenityRows.map((a) => ({ amenityId: a.id })) } }
+          : {}),
       },
     }),
   ]);

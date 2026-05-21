@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { useDeleteListingImage } from '@/hooks/use-delete-listing-image';
 import { IconLoader2, IconTrash } from '@tabler/icons-react';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -19,27 +20,22 @@ type ExistingImagesGridProps = {
 export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImagesGridProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const deleteImage = useDeleteListingImage();
 
   if (images.length === 0) return null;
 
-  const onDelete = async (img: ExistingImage) => {
+  const onDelete = (img: ExistingImage) => {
     if (deletingId) return;
     setError(null);
     setDeletingId(img.id);
-    try {
-      const res = await fetch(`/api/admin/listings/${listingId}/images/${img.id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) {
-        const text = await res.text().catch(() => '');
-        throw new Error(text || `Delete failed (${res.status})`);
-      }
-      onChange(images.filter((i) => i.id !== img.id));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not delete photo');
-    } finally {
-      setDeletingId(null);
-    }
+    deleteImage.mutate(
+      { listingId, imageId: img.id },
+      {
+        onSuccess: () => onChange(images.filter((i) => i.id !== img.id)),
+        onError: (err) => setError(err instanceof Error ? err.message : 'Could not delete photo'),
+        onSettled: () => setDeletingId(null),
+      },
+    );
   };
 
   return (
@@ -81,11 +77,11 @@ export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImag
               <div className="p-2">
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="destructiveGhost"
                   size="sm"
                   onClick={() => onDelete(img)}
                   disabled={isDeleting}
-                  className="w-full gap-1.5 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                  className="w-full gap-1.5"
                 >
                   <IconTrash size={14} />
                   Remove

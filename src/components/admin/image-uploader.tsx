@@ -1,23 +1,13 @@
 'use client';
 // Client component: handles file picking, client-side compression, thumb grid.
-// Owns internal state (one entry per file with status); parent receives only
-// the ready File[] in order, so it can submit them after listing creation.
+// Owns internal state via use-image-uploader; parent receives only the ready
+// File[] in order, so it can submit them after listing creation.
 
 import { Button } from '@/components/ui/button';
-import { compressImage, formatBytes, MAX_UPLOAD_BYTES } from '@/lib/image-compression';
+import { useImageUploader } from '@/hooks/use-image-uploader';
+import { formatBytes, MAX_UPLOAD_BYTES } from '@/lib/image-compression';
 import { cn } from '@/lib/utils';
 import { IconCamera, IconLoader2, IconPhoto, IconPlus, IconX } from '@tabler/icons-react';
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
-
-type Item = {
-  id: string;
-  file: File;
-  previewUrl: string;
-  originalBytes: number;
-  compressedBytes: number;
-  status: 'compressing' | 'ready' | 'error';
-  errorMessage?: string;
-};
 
 type ImageUploaderProps = {
   /** Called whenever the set of ready files changes (in display order). */
@@ -25,112 +15,19 @@ type ImageUploaderProps = {
   maxFiles?: number;
 };
 
-const DEFAULT_MAX_FILES = 12;
-
-export function ImageUploader({
-  onReadyFilesChange,
-  maxFiles = DEFAULT_MAX_FILES,
-}: ImageUploaderProps) {
-  const inputId = useId();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [items, setItems] = useState<Item[]>([]);
-  const [dragOver, setDragOver] = useState(false);
-
-  // Notify parent whenever the ready set changes; parent never has to know
-  // about compression internals.
-  useEffect(() => {
-    onReadyFilesChange(items.filter((i) => i.status === 'ready').map((i) => i.file));
-  }, [items, onReadyFilesChange]);
-
-  // Snapshot the latest items into a ref so the unmount cleanup can read them
-  // without being a state-update side effect (which would silently no-op after
-  // unmount in React 18+).
-  const itemsRef = useRef(items);
-  useEffect(() => {
-    itemsRef.current = items;
-  }, [items]);
-  useEffect(() => {
-    return () => {
-      for (const i of itemsRef.current) URL.revokeObjectURL(i.previewUrl);
-    };
-  }, []);
-
-  const remaining = Math.max(0, maxFiles - items.length);
-  const atLimit = remaining === 0;
-
-  const processFiles = useCallback(
-    async (files: File[]) => {
-      const accepted = files.slice(0, remaining);
-      if (accepted.length === 0) return;
-
-      const placeholders: Item[] = accepted.map((file) => ({
-        id: `${file.name}-${file.size}-${file.lastModified}-${Math.random().toString(36).slice(2)}`,
-        file,
-        previewUrl: URL.createObjectURL(file),
-        originalBytes: file.size,
-        compressedBytes: 0,
-        status: 'compressing',
-      }));
-      setItems((prev) => [...prev, ...placeholders]);
-
-      // Run compressions in parallel; each settles its own row independently.
-      await Promise.all(
-        placeholders.map(async (placeholder) => {
-          try {
-            const result = await compressImage(placeholder.file);
-            setItems((prev) =>
-              prev.map((it) =>
-                it.id === placeholder.id
-                  ? {
-                      ...it,
-                      file: result.file,
-                      compressedBytes: result.compressedBytes,
-                      status: 'ready' as const,
-                    }
-                  : it,
-              ),
-            );
-          } catch (err) {
-            setItems((prev) =>
-              prev.map((it) =>
-                it.id === placeholder.id
-                  ? {
-                      ...it,
-                      status: 'error' as const,
-                      errorMessage: err instanceof Error ? err.message : 'Compression failed',
-                    }
-                  : it,
-              ),
-            );
-          }
-        }),
-      );
-    },
-    [remaining],
-  );
-
-  const onSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const list = event.target.files;
-    if (!list) return;
-    void processFiles(Array.from(list));
-    event.target.value = '';
-  };
-
-  const onDrop = (event: React.DragEvent<HTMLLabelElement>) => {
-    event.preventDefault();
-    setDragOver(false);
-    const list = event.dataTransfer.files;
-    if (!list) return;
-    void processFiles(Array.from(list));
-  };
-
-  const onRemove = (id: string) => {
-    setItems((prev) => {
-      const target = prev.find((it) => it.id === id);
-      if (target) URL.revokeObjectURL(target.previewUrl);
-      return prev.filter((it) => it.id !== id);
-    });
-  };
+export function ImageUploader({ onReadyFilesChange, maxFiles }: ImageUploaderProps) {
+  const {
+    inputId,
+    inputRef,
+    items,
+    dragOver,
+    setDragOver,
+    atLimit,
+    maxFiles: effectiveMaxFiles,
+    onSelect,
+    onDrop,
+    onRemove,
+  } = useImageUploader({ onReadyFilesChange, maxFiles });
 
   return (
     <div className="space-y-3">
@@ -169,7 +66,7 @@ export function ImageUploader({
           JPEG · PNG · WebP · HEIC · max {formatBytes(MAX_UPLOAD_BYTES)} each (auto-compressed)
         </div>
         <div className="text-foreground-muted text-xs tabular-nums">
-          {items.length} / {maxFiles} photos
+          {items.length} / {effectiveMaxFiles} photos
         </div>
       </label>
 

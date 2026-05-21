@@ -158,7 +158,9 @@ export function ListingsMap({
       boxZoom={interactive}
       keyboard={interactive}
       attributionControl={interactive}
-      className={className}
+      // className on react-leaflet's MapContainer doesn't accept undefined
+      // under exactOptionalPropertyTypes; spread only when provided.
+      {...(className ? { className } : {})}
       style={{ width: '100%', height: '100%' }}
     >
       <TileLayer

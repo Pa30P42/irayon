@@ -42,8 +42,12 @@ export function useRegionsWithVillages() {
 export function useVillagesByRegionSlug(regionSlug: string | undefined) {
   return useQuery({
     queryKey: regionSlug ? villagesByRegionKey(regionSlug) : ['regions', '__none__', 'villages'],
-    queryFn: async (): Promise<Village[]> => {
-      const res = await fetch(`/api/regions/${encodeURIComponent(regionSlug!)}/villages`);
+    queryFn: async ({ queryKey }): Promise<Village[]> => {
+      // queryKey carries the narrowed slug; the `enabled` flag below prevents
+      // execution when slug is undefined, so the second element is always a
+      // string here.
+      const slug = queryKey[1] as string;
+      const res = await fetch(`/api/regions/${encodeURIComponent(slug)}/villages`);
       const json = await okOrThrow<{ data: Village[] }>(res);
       return json.data;
     },

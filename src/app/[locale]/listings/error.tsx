@@ -2,6 +2,7 @@
 // Client component: Next.js error boundaries are required to be client components.
 
 import { Button } from '@/components/ui/button';
+import { Heading } from '@/components/ui/typography';
 import { useEffect } from 'react';
 
 export default function ListingsError({
@@ -17,7 +18,9 @@ export default function ListingsError({
 
   return (
     <section className="container-wide py-20 text-center">
-      <h1 className="text-2xl font-semibold">We couldn&apos;t load the listings</h1>
+      <Heading as="h1" level="errorTitle">
+        We couldn&apos;t load the listings
+      </Heading>
       <p className="text-foreground-muted mt-2 text-sm">{error.message}</p>
       <Button className="mt-6" onClick={reset}>
         Try again

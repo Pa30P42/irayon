@@ -1,4 +1,5 @@
 import { EditRegionClient } from '@/components/admin/edit-region-client';
+import { Heading } from '@/components/ui/typography';
 import Link from 'next/link';
 
 export const metadata = {
@@ -19,7 +20,9 @@ export default async function EditRegionPage({ params }: Props) {
           {' / '}
           <span>Edit</span>
         </p>
-        <h1 className="mt-1 text-2xl font-semibold sm:text-3xl">Edit region</h1>
+        <Heading as="h1" level="page" className="mt-1">
+          Edit region
+        </Heading>
       </header>
       <EditRegionClient regionId={id} />
     </>

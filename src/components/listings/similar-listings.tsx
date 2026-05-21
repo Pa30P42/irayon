@@ -1,3 +1,4 @@
+import { Heading } from '@/components/ui/typography';
 import type { Listing, Locale } from '@/types';
 import { useTranslations } from 'next-intl';
 import { ListingCard } from './listing-card';
@@ -14,7 +15,7 @@ export function SimilarListings({ listings, locale }: SimilarListingsProps) {
 
   return (
     <section className="space-y-4">
-      <h2 className="text-xl font-semibold">{t('title')}</h2>
+      <Heading level="subsection">{t('title')}</Heading>
       <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2">
         {listings.map((listing) => (
           <div key={listing.id} className="w-[80vw] shrink-0 snap-start sm:w-[40vw] lg:w-[24%]">

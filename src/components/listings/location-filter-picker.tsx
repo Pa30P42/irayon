@@ -3,9 +3,9 @@
 // checkbox group inside the filter modal — booking.com / hotels.com pattern.
 
 import { useLocale } from '@/hooks/use-locale';
-import { useRegionsWithVillages } from '@/hooks/use-public-regions';
+import { useLocationFilterPicker } from '@/hooks/use-location-filter-picker';
 import { cn, pickLocalized } from '@/lib/utils';
-import type { ListingsFilterState, RegionWithVillages } from '@/types';
+import type { ListingsFilterState } from '@/types';
 import {
   IconChevronDown,
   IconChevronRight,
@@ -15,108 +15,30 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
-import { useMemo, useState } from 'react';
 
 type LocationFilterPickerProps = {
   state: Pick<ListingsFilterState, 'region' | 'village'>;
   onChange: (next: { region: string[]; village: string[] }) => void;
 };
 
-const normalize = (s: string): string => s.trim().toLowerCase();
-
-/**
- * Returns regions filtered by `query`. A region matches if its name OR any
- * of its villages' names contain the query (in any of the three locales).
- * Match results carry their matching villages to drive auto-expand.
- */
-function filterRegions(
-  regions: readonly RegionWithVillages[],
-  query: string,
-): { matched: RegionWithVillages[]; matchingVillagesByRegion: Map<string, Set<string>> } {
-  const q = normalize(query);
-  if (!q) return { matched: [...regions], matchingVillagesByRegion: new Map() };
-
-  const matched: RegionWithVillages[] = [];
-  const matchingVillagesByRegion = new Map<string, Set<string>>();
-
-  for (const region of regions) {
-    const regionHay = [region.slug, region.name.en, region.name.ru, region.name.az]
-      .map(normalize)
-      .join(' ');
-    const regionMatches = regionHay.includes(q);
-
-    const villageHits = new Set<string>();
-    for (const v of region.villages) {
-      const hay = [v.slug, v.name.en, v.name.ru, v.name.az].map(normalize).join(' ');
-      if (hay.includes(q)) villageHits.add(v.slug);
-    }
-
-    if (regionMatches || villageHits.size > 0) {
-      matched.push(region);
-      if (villageHits.size > 0) matchingVillagesByRegion.set(region.slug, villageHits);
-    }
-  }
-
-  return { matched, matchingVillagesByRegion };
-}
-
 export function LocationFilterPicker({ state, onChange }: LocationFilterPickerProps) {
   const t = useTranslations('filter');
   const { locale } = useLocale();
-  const { data: regions, isLoading } = useRegionsWithVillages();
-
-  const [query, setQuery] = useState('');
-  const [manuallyExpanded, setManuallyExpanded] = useState<Set<string>>(new Set());
-
-  const selectedRegions = useMemo(() => new Set(state.region), [state.region]);
-  const selectedVillages = useMemo(() => new Set(state.village), [state.village]);
-
-  const { matched, matchingVillagesByRegion } = useMemo(
-    () => filterRegions(regions ?? [], query),
-    [regions, query],
-  );
-
-  // A region is "expanded" if the user toggled it open, OR a search match
-  // landed inside it, OR its checkbox is selected, OR any of its villages
-  // are selected (so user sees what's already chosen at a glance).
-  const isExpanded = (regionSlug: string): boolean => {
-    if (manuallyExpanded.has(regionSlug)) return true;
-    if (selectedRegions.has(regionSlug)) return true;
-    if (matchingVillagesByRegion.has(regionSlug)) return true;
-    const region = regions?.find((r) => r.slug === regionSlug);
-    if (region && region.villages.some((v) => selectedVillages.has(v.slug))) return true;
-    return false;
-  };
-
-  const toggleManualExpand = (regionSlug: string) => {
-    setManuallyExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(regionSlug)) next.delete(regionSlug);
-      else next.add(regionSlug);
-      return next;
-    });
-  };
-
-  const toggleRegion = (regionSlug: string) => {
-    const next = new Set(state.region);
-    if (next.has(regionSlug)) next.delete(regionSlug);
-    else next.add(regionSlug);
-    onChange({ region: Array.from(next), village: state.village });
-  };
-
-  const toggleVillage = (villageSlug: string) => {
-    const next = new Set(state.village);
-    if (next.has(villageSlug)) next.delete(villageSlug);
-    else next.add(villageSlug);
-    onChange({ region: state.region, village: Array.from(next) });
-  };
-
-  const clearAll = () => {
-    onChange({ region: [], village: [] });
-    setQuery('');
-  };
-
-  const totalSelected = state.region.length + state.village.length;
+  const {
+    isLoading,
+    query,
+    setQuery,
+    matched,
+    matchingVillagesByRegion,
+    selectedRegions,
+    selectedVillages,
+    isExpanded,
+    toggleManualExpand,
+    toggleRegion,
+    toggleVillage,
+    clearAll,
+    totalSelected,
+  } = useLocationFilterPicker({ state, onChange });
 
   return (
     <fieldset className="col-span-full space-y-3">

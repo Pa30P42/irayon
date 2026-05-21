@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/badge';
+import { CardTitle } from '@/components/ui/typography';
 import { Link } from '@/i18n/navigation';
 import { getListingBadge, pickTopAmenities } from '@/lib/listing-card-helpers';
 import { formatPrice, pickLocalized } from '@/lib/utils';
@@ -52,7 +53,9 @@ export function ListingRow({ listing, locale, priority = false }: ListingRowProp
         <div className="flex flex-col justify-between gap-3 p-4 sm:p-6">
           <div>
             <div className="flex items-start justify-between gap-3">
-              <h3 className="line-clamp-2 text-lg font-medium">{title}</h3>
+              <CardTitle size="lg" className="line-clamp-2">
+                {title}
+              </CardTitle>
               <div className="flex shrink-0 items-center gap-1 text-sm" aria-label={t('rating')}>
                 <IconStarFilled size={14} aria-hidden />
                 <span>{listing.rating.toFixed(1)}</span>

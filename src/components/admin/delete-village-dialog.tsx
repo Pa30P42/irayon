@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertText } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -54,11 +55,7 @@ export function DeleteVillageDialog({ regionId, village, onOpenChange }: Props) 
               <strong>{village.name.en}</strong>.
             </p>
           ) : null}
-          {error ? (
-            <p className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
-              {error}
-            </p>
-          ) : null}
+          {error ? <AlertText variant="error">{error}</AlertText> : null}
         </div>
         <div className="border-border flex items-center justify-end gap-2 border-t px-6 py-3">
           <Button
@@ -71,9 +68,10 @@ export function DeleteVillageDialog({ regionId, village, onOpenChange }: Props) 
           </Button>
           <Button
             type="button"
+            variant="destructive"
             onClick={onConfirm}
             disabled={del.isPending}
-            className="gap-2 bg-rose-600 text-white hover:bg-rose-700"
+            className="gap-2"
           >
             {del.isPending ? (
               <>

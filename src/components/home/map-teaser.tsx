@@ -1,6 +1,7 @@
 import { ListingsMapLoader } from '@/components/listings/map/listings-map-loader';
 import { LazyMount } from '@/components/shared/lazy-mount';
 import { Button } from '@/components/ui/button';
+import { Eyebrow, Heading } from '@/components/ui/typography';
 import { Link } from '@/i18n/navigation';
 import type { Listing, Locale } from '@/types';
 import { IconMapPin } from '@tabler/icons-react';
@@ -20,9 +21,9 @@ export function MapTeaser({ listings, locale }: MapTeaserProps) {
         <div className="flex flex-col justify-center p-8 md:p-12">
           <div className="text-primary mb-4 inline-flex items-center gap-2">
             <IconMapPin size={20} />
-            <span className="text-sm font-medium tracking-wide uppercase">{t('label')}</span>
+            <Eyebrow className="text-primary font-medium">{t('label')}</Eyebrow>
           </div>
-          <h2 className="text-2xl font-semibold md:text-3xl">{t('title')}</h2>
+          <Heading level="section">{t('title')}</Heading>
           <p className="text-foreground-muted mt-3 max-w-md">{t('subtitle')}</p>
           <p className="text-foreground-muted mt-2 text-sm">
             {t('count', { count: listings.length })}

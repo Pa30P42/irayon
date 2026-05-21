@@ -33,7 +33,7 @@ export function useAdminRegions() {
 export function useAdminRegion(id: string | undefined) {
   return useQuery({
     queryKey: id ? adminRegionKey(id) : ['admin', 'regions', '__none__'],
-    queryFn: () => fetchAdminRegion(id!),
+    queryFn: ({ queryKey }) => fetchAdminRegion(queryKey[2] as string),
     enabled: !!id,
   });
 }

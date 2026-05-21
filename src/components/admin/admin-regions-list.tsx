@@ -1,6 +1,9 @@
 'use client';
 
+import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { EmptyState as UiEmptyState } from '@/components/ui/empty-state';
+import { Heading } from '@/components/ui/typography';
 import { useAdminRegions } from '@/hooks/use-admin-regions';
 import {
   IconAlertCircle,
@@ -33,7 +36,9 @@ export function AdminRegionsList() {
     <>
       <header className="mb-5 flex items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold sm:text-3xl">Regions</h1>
+          <Heading as="h1" level="page">
+            Regions
+          </Heading>
           <p className="text-foreground-muted mt-1 text-sm">
             {data ? `${regions.length} total` : 'Loading…'}
           </p>
@@ -119,7 +124,7 @@ export function AdminRegionsList() {
                 </Button>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="destructiveGhost"
                   size="sm"
                   onClick={() =>
                     setToDelete({
@@ -129,7 +134,7 @@ export function AdminRegionsList() {
                       villageCount: r.villageCount,
                     })
                   }
-                  className="gap-1.5 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                  className="gap-1.5"
                   aria-label={`Delete ${r.name.en}`}
                 >
                   <IconTrash size={14} />
@@ -157,7 +162,7 @@ function Skeleton() {
     <ul className="space-y-2" aria-hidden>
       {Array.from({ length: 5 }).map((_, i) => (
         <li
-          key={i}
+          key={`skeleton-${i}`}
           className="border-border bg-background flex animate-pulse items-center gap-3 rounded-2xl border p-3 shadow-sm"
         >
           <div className="bg-accent h-12 w-12 shrink-0 rounded-md" />
@@ -173,27 +178,25 @@ function Skeleton() {
 
 function EmptyState() {
   return (
-    <div className="border-border flex flex-col items-center gap-4 rounded-2xl border border-dashed py-16 text-center">
-      <div className="bg-accent grid h-12 w-12 place-items-center rounded-full">
-        <IconMap2 size={22} className="text-primary" aria-hidden />
-      </div>
-      <div className="space-y-1">
-        <h2 className="text-base font-semibold">No regions yet</h2>
-        <p className="text-foreground-muted text-sm">Add the first region to get started.</p>
-      </div>
-      <Button asChild className="gap-2">
-        <Link href="/admin/regions/new">
-          <IconPlus size={16} />
-          New region
-        </Link>
-      </Button>
-    </div>
+    <UiEmptyState
+      icon={<IconMap2 size={22} className="text-primary" aria-hidden />}
+      title="No regions yet"
+      description="Add the first region to get started."
+      action={
+        <Button asChild className="gap-2">
+          <Link href="/admin/regions/new">
+            <IconPlus size={16} />
+            New region
+          </Link>
+        </Button>
+      }
+    />
   );
 }
 
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+    <Alert variant="error" size="lg">
       <IconAlertCircle size={18} className="mt-0.5 shrink-0" />
       <div className="flex-1">
         <p className="font-medium">Couldn&apos;t load regions</p>
@@ -202,6 +205,6 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
       <Button type="button" size="sm" variant="outline" onClick={onRetry}>
         Retry
       </Button>
-    </div>
+    </Alert>
   );
 }

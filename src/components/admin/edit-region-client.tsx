@@ -2,6 +2,7 @@
 
 import { RegionForm } from '@/components/admin/region-form';
 import { VillagesManager } from '@/components/admin/villages-manager';
+import { Alert } from '@/components/ui/alert';
 import { useAdminRegion, useUpdateRegion } from '@/hooks/use-admin-regions';
 import { IconLoader2 } from '@tabler/icons-react';
 
@@ -23,9 +24,9 @@ export function EditRegionClient({ regionId }: EditRegionClientProps) {
 
   if (isError || !data) {
     return (
-      <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+      <Alert variant="error" size="lg" className="block">
         {error instanceof Error ? error.message : 'Region not found'}
-      </div>
+      </Alert>
     );
   }
 

@@ -1,6 +1,9 @@
 'use client';
 
+import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { EmptyState as UiEmptyState } from '@/components/ui/empty-state';
+import { Heading } from '@/components/ui/typography';
 import { useListings } from '@/hooks/use-listings';
 import { formatPrice } from '@/lib/utils';
 import {
@@ -33,7 +36,9 @@ export function AdminListingsList() {
     <>
       <header className="mb-5 flex items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold sm:text-3xl">Listings</h1>
+          <Heading as="h1" level="page">
+            Listings
+          </Heading>
           <p className="text-foreground-muted mt-1 text-sm">
             {data ? `${data.meta.total} total` : 'Loading…'}
           </p>
@@ -132,7 +137,7 @@ export function AdminListingsList() {
                     </Button>
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="destructiveGhost"
                       size="sm"
                       onClick={() =>
                         setToDelete({
@@ -141,7 +146,7 @@ export function AdminListingsList() {
                           photoCount: listing.images.length,
                         })
                       }
-                      className="gap-1.5 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                      className="gap-1.5"
                       aria-label={`Delete ${listing.title.en}`}
                     >
                       <IconTrash size={14} />
@@ -171,7 +176,7 @@ function ListingsSkeleton() {
     <ul className="space-y-3" aria-hidden>
       {Array.from({ length: 4 }).map((_, i) => (
         <li
-          key={i}
+          key={`skeleton-${i}`}
           className="border-border bg-background flex animate-pulse items-center gap-3 rounded-2xl border p-3 shadow-sm"
         >
           <div className="bg-accent h-24 w-24 shrink-0 rounded-md sm:h-28 sm:w-32" />
@@ -187,27 +192,25 @@ function ListingsSkeleton() {
 
 function EmptyState() {
   return (
-    <div className="border-border flex flex-col items-center gap-4 rounded-2xl border border-dashed py-16 text-center">
-      <div className="bg-accent grid h-12 w-12 place-items-center rounded-full">
-        <IconPhoto size={22} className="text-primary" aria-hidden />
-      </div>
-      <div className="space-y-1">
-        <h2 className="text-base font-semibold">No listings yet</h2>
-        <p className="text-foreground-muted text-sm">Create your first villa listing.</p>
-      </div>
-      <Button asChild className="gap-2">
-        <Link href="/admin/listings/new">
-          <IconPlus size={16} />
-          New listing
-        </Link>
-      </Button>
-    </div>
+    <UiEmptyState
+      icon={<IconPhoto size={22} className="text-primary" aria-hidden />}
+      title="No listings yet"
+      description="Create your first villa listing."
+      action={
+        <Button asChild className="gap-2">
+          <Link href="/admin/listings/new">
+            <IconPlus size={16} />
+            New listing
+          </Link>
+        </Button>
+      }
+    />
   );
 }
 
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+    <Alert variant="error" size="lg">
       <IconAlertCircle size={18} className="mt-0.5 shrink-0" />
       <div className="flex-1">
         <p className="font-medium">Couldn&apos;t load listings</p>
@@ -216,6 +219,6 @@ function ErrorState({ message, onRetry }: { message: string; onRetry: () => void
       <Button type="button" size="sm" variant="outline" onClick={onRetry}>
         Retry
       </Button>
-    </div>
+    </Alert>
   );
 }

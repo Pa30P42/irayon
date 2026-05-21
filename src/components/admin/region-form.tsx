@@ -1,7 +1,9 @@
 'use client';
 // Client component: orchestrates the create/edit region form (RHF + zod).
 
-import { Field, SectionCard } from '@/components/admin/form-controls';
+import { Alert } from '@/components/ui/alert';
+import { Field } from '@/components/ui/form-field';
+import { SectionCard } from '@/components/ui/section-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { regionCreateSchema, type RegionCreateInput } from '@/lib/api/regions-validator';
@@ -156,10 +158,10 @@ export function RegionForm({
       </SectionCard>
 
       {submitState.phase === 'error' ? (
-        <div className="flex items-start gap-2 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+        <Alert variant="error" size="sm" className="text-sm text-rose-700">
           <IconAlertCircle size={16} className="mt-0.5 shrink-0" />
           <span>{submitState.message}</span>
-        </div>
+        </Alert>
       ) : null}
 
       <div className="flex items-center justify-end gap-2">

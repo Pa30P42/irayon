@@ -14,7 +14,7 @@ export function JsonLd({ data }: JsonLdProps) {
     <>
       {items.map((item, i) => (
         <script
-          key={i}
+          key={`jsonld-${i}`}
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: sanitizeJsonLd(item) }}
         />

@@ -1,4 +1,5 @@
 import { NewRegionClient } from '@/components/admin/new-region-client';
+import { Heading } from '@/components/ui/typography';
 import Link from 'next/link';
 
 export const metadata = {
@@ -16,7 +17,9 @@ export default function NewRegionPage() {
           {' / '}
           <span>New</span>
         </p>
-        <h1 className="mt-1 text-2xl font-semibold sm:text-3xl">New region</h1>
+        <Heading as="h1" level="page" className="mt-1">
+          New region
+        </Heading>
       </header>
       <NewRegionClient />
     </>

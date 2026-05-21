@@ -1,4 +1,5 @@
 import { AdminLoginForm } from '@/components/admin/admin-login-form';
+import { Eyebrow, Heading } from '@/components/ui/typography';
 import Image from 'next/image';
 
 type PageProps = {
@@ -22,10 +23,10 @@ export default async function AdminLoginPage({ searchParams }: PageProps) {
       <div className="border-border bg-background w-full max-w-sm space-y-6 rounded-2xl border p-6 shadow-sm sm:p-8">
         <header className="flex flex-col items-center space-y-2 text-center">
           <Image src="/logo.svg" alt="iRayon" width={56} height={56} priority />
-          <p className="text-primary text-xs font-semibold tracking-wide uppercase">
-            iRayon · Admin
-          </p>
-          <h1 className="text-xl font-semibold sm:text-2xl">Sign in</h1>
+          <Eyebrow className="text-primary text-xs">iRayon · Admin</Eyebrow>
+          <Heading as="h1" level="compact">
+            Sign in
+          </Heading>
           <p className="text-foreground-muted text-sm">
             Use your administrator credentials to continue.
           </p>

@@ -23,7 +23,7 @@ const fetchAdminVillagesByRegion = async (regionId: string): Promise<Village[]> 
 export function useAdminVillagesByRegion(regionId: string | undefined) {
   return useQuery({
     queryKey: regionId ? adminVillagesByRegionKey(regionId) : ['admin', 'villages', '__none__'],
-    queryFn: () => fetchAdminVillagesByRegion(regionId!),
+    queryFn: ({ queryKey }) => fetchAdminVillagesByRegion(queryKey[2] as string),
     enabled: !!regionId,
   });
 }

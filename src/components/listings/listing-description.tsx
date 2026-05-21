@@ -2,6 +2,7 @@
 // Client component: holds the show-more toggle and measures whether truncation is needed.
 
 import { Button } from '@/components/ui/button';
+import { Heading } from '@/components/ui/typography';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -22,7 +23,7 @@ export function ListingDescription({ description }: ListingDescriptionProps) {
 
   return (
     <section className="space-y-3">
-      <h2 className="text-xl font-semibold">{t('title')}</h2>
+      <Heading level="subsection">{t('title')}</Heading>
       <p className={cn('text-foreground leading-relaxed whitespace-pre-line')}>{visible}</p>
       {needsTruncation ? (
         <Button

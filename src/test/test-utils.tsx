@@ -7,10 +7,10 @@ import type { ReactElement, ReactNode } from 'react';
 
 type ProvidersProps = {
   children: ReactNode;
-  locale?: string;
-  messages?: AbstractIntlMessages;
-  searchParams?: string | URLSearchParams | Record<string, string>;
-  onUrlUpdate?: (event: UrlUpdateEvent) => void;
+  locale?: string | undefined;
+  messages?: AbstractIntlMessages | undefined;
+  searchParams?: string | URLSearchParams | Record<string, string> | undefined;
+  onUrlUpdate?: ((event: UrlUpdateEvent) => void) | undefined;
 };
 
 /** Fresh QueryClient per render — disables retries so failed queries fail fast in tests. */
@@ -33,7 +33,10 @@ export function Providers({
   return (
     <QueryClientProvider client={queryClient}>
       <NextIntlClientProvider locale={locale} messages={messages}>
-        <NuqsTestingAdapter searchParams={searchParams} onUrlUpdate={onUrlUpdate}>
+        <NuqsTestingAdapter
+          {...(searchParams !== undefined ? { searchParams } : {})}
+          {...(onUrlUpdate ? { onUrlUpdate } : {})}
+        >
           {children}
         </NuqsTestingAdapter>
       </NextIntlClientProvider>

@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/badge';
+import { Heading } from '@/components/ui/typography';
 import { pickLocalized } from '@/lib/utils';
 import type { Listing, Locale } from '@/types';
 import { IconStarFilled } from '@tabler/icons-react';
@@ -28,7 +29,9 @@ export function ListingHeader({ listing, locale }: ListingHeaderProps) {
         <Badge variant="outline">{regionName}</Badge>
       </div>
 
-      <h1 className="text-3xl font-semibold md:text-4xl">{title}</h1>
+      <Heading as="h1" level="detail">
+        {title}
+      </Heading>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2 text-sm" aria-label={tListings('rating')}>

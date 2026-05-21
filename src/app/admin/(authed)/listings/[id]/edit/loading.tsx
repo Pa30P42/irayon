@@ -8,7 +8,7 @@ export default function EditListingLoading() {
       <div className="space-y-5" aria-hidden>
         {Array.from({ length: 5 }).map((_, i) => (
           <section
-            key={i}
+            key={`skeleton-${i}`}
             className="border-border bg-background space-y-4 rounded-2xl border p-5 shadow-sm sm:p-6"
           >
             <div className="bg-accent h-5 w-32 animate-pulse rounded" />

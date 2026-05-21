@@ -1,6 +1,8 @@
 'use client';
 
+import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Heading } from '@/components/ui/typography';
 import { useAdminVillagesByRegion } from '@/hooks/use-admin-villages';
 import type { Village } from '@/types';
 import { IconAlertCircle, IconPencil, IconTrash } from '@tabler/icons-react';
@@ -23,7 +25,7 @@ export function VillagesManager({ regionId }: VillagesManagerProps) {
     <section className="border-border bg-background rounded-2xl border p-5 shadow-sm sm:p-6">
       <header className="mb-4 flex items-end justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold sm:text-lg">Villages</h2>
+          <Heading level="adminSubsection">Villages</Heading>
           <p className="text-foreground-muted mt-1 text-sm">
             Sub-locations within this region. Used by listing filters and the listing form.
           </p>
@@ -39,7 +41,7 @@ export function VillagesManager({ regionId }: VillagesManagerProps) {
         {isLoading ? (
           <p className="text-foreground-muted text-sm">Loading…</p>
         ) : isError ? (
-          <div className="flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+          <Alert variant="error" size="lg">
             <IconAlertCircle size={18} className="mt-0.5 shrink-0" />
             <div className="flex-1">
               <p className="font-medium">Couldn&apos;t load villages</p>
@@ -48,7 +50,7 @@ export function VillagesManager({ regionId }: VillagesManagerProps) {
             <Button type="button" size="sm" variant="outline" onClick={() => refetch()}>
               Retry
             </Button>
-          </div>
+          </Alert>
         ) : villages.length === 0 ? (
           <p className="text-foreground-muted py-4 text-center text-sm">
             No villages yet. Add the first one above.
@@ -92,11 +94,11 @@ export function VillagesManager({ regionId }: VillagesManagerProps) {
                     </Button>
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="destructiveGhost"
                       size="sm"
                       onClick={() => setToDelete(v)}
                       aria-label={`Delete ${v.name.en}`}
-                      className="gap-1.5 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                      className="gap-1.5"
                     >
                       <IconTrash size={14} />
                     </Button>

@@ -4,7 +4,7 @@ import { SiteNav } from './site-nav';
 
 export function SiteHeader() {
   return (
-    <header className="bg-background/90 sticky top-0 z-40 border-b border-[var(--color-border)] backdrop-blur">
+    <header className="bg-background/90 border-border sticky top-0 z-40 border-b backdrop-blur">
       <div className="container-wide flex h-16 items-center justify-between">
         <SiteLogo />
         <SiteNav />
