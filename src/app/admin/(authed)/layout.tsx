@@ -1,4 +1,5 @@
 import { AdminLogoutButton } from '@/components/admin/admin-logout-button';
+import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
@@ -11,7 +12,7 @@ export default function AdminAuthedLayout({ children }: { children: ReactNode })
             href="/admin/listings"
             className="text-primary flex items-center gap-2 text-sm font-semibold tracking-wide uppercase"
           >
-            <img src="/logo.svg" alt="" aria-hidden className="h-7 w-7" />
+            <Image src="/logo.svg" alt="" aria-hidden width={28} height={28} priority />
             iRayon · Admin
           </Link>
           <nav className="flex items-center gap-4 text-sm">

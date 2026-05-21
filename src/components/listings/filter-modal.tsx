@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { useFilterModal } from '@/hooks/use-filter-modal';
+import { useListings } from '@/hooks/use-listings';
 import {
   ACTIVITIES,
   BASIC_AMENITIES,
@@ -31,7 +32,13 @@ import { LocationFilterPicker } from './location-filter-picker';
 
 type FilterModalProps = {
   state: ListingsFilterState;
-  listings: Listing[];
+  /**
+   * Listings used to compute live compatibility counts and the apply-button
+   * total. Optional: when omitted, the modal fetches its own batch lazily on
+   * first open. Use this from places like the home hero where the modal may
+   * never be opened — the page shouldn't pay for the fetch upfront.
+   */
+  listings?: Listing[];
   onApply: (next: ListingsFilterState) => void;
   trigger?: ReactNode;
 };
@@ -45,7 +52,25 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
     onApply,
   });
 
-  const liveCount = useMemo(() => applyListingsFilter(listings, draft).length, [listings, draft]);
+  // Lazy-fetch only when the caller didn't pass listings AND the modal is
+  // open. Once fetched, TanStack Query caches the result so re-opening is
+  // instant. When the caller does pass listings, this query stays disabled.
+  const { data: lazyListings } = useListings(
+    { sort: 'newest', limit: 100 },
+    { enabled: listings === undefined && open },
+  );
+  // Memoize so identity is stable across renders that don't change either
+  // input — otherwise the `liveCount` useMemo below sees a fresh array every
+  // render and recomputes the (O(N) per filter group) filter unnecessarily.
+  const effectiveListings = useMemo(
+    () => listings ?? lazyListings?.data ?? [],
+    [listings, lazyListings?.data],
+  );
+
+  const liveCount = useMemo(
+    () => applyListingsFilter(effectiveListings, draft).length,
+    [effectiveListings, draft],
+  );
   const activeCount = countActiveFilters(state);
 
   return (
@@ -80,7 +105,7 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
             options={PLACE_TYPES}
             labelFor={(o) => tOptions(`type.${o}`)}
             state={draft}
-            listings={listings}
+            listings={effectiveListings}
             onToggle={(opt) => toggle('type', opt)}
           />
           <FilterGroup
@@ -89,7 +114,7 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
             options={GUEST_RANGES}
             labelFor={(o) => tOptions(`guests.${o}`)}
             state={draft}
-            listings={listings}
+            listings={effectiveListings}
             onToggle={(opt) => toggle('guests', opt)}
           />
           <FilterGroup
@@ -98,7 +123,7 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
             options={PLACEMENTS}
             labelFor={(o) => tOptions(`placement.${o}`)}
             state={draft}
-            listings={listings}
+            listings={effectiveListings}
             onToggle={(opt) => toggle('placement', opt)}
           />
           <FilterGroup
@@ -107,7 +132,7 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
             options={MEALS}
             labelFor={(o) => tOptions(`food.${o}`)}
             state={draft}
-            listings={listings}
+            listings={effectiveListings}
             onToggle={(opt) => toggle('food', opt)}
           />
           <FilterGroup
@@ -116,7 +141,7 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
             options={EXTRA_AMENITIES}
             labelFor={(o) => tOptions(`extra.${o}`)}
             state={draft}
-            listings={listings}
+            listings={effectiveListings}
             onToggle={(opt) => toggle('extra', opt)}
           />
           <FilterGroup
@@ -125,7 +150,7 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
             options={BASIC_AMENITIES}
             labelFor={(o) => tOptions(`basic.${o}`)}
             state={draft}
-            listings={listings}
+            listings={effectiveListings}
             onToggle={(opt) => toggle('basic', opt)}
           />
           <FilterGroup
@@ -134,7 +159,7 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
             options={ACTIVITIES}
             labelFor={(o) => tOptions(`fun.${o}`)}
             state={draft}
-            listings={listings}
+            listings={effectiveListings}
             onToggle={(opt) => toggle('fun', opt)}
           />
         </div>

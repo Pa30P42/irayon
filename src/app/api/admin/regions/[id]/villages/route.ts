@@ -1,15 +1,18 @@
 import { requireAdmin } from '@/lib/admin-auth';
+import { recordAdminLog } from '@/lib/admin-log';
 import {
   apiBadRequest,
+  apiBadRequestRaw,
   apiConflict,
   apiNotFound,
   apiOk,
   apiServerError,
 } from '@/lib/api/api-response';
+import { parseLocalized } from '@/lib/api/localized-text';
 import { villageCreateSchema } from '@/lib/api/villages-validator';
 import { prisma } from '@/lib/prisma';
 import { slugify, uniqueSlug } from '@/lib/slug';
-import type { LocalizedText, Village } from '@/types';
+import type { Village } from '@/types';
 import type { Prisma } from '@prisma/client';
 
 type Context = { params: Promise<{ id: string }> };
@@ -40,13 +43,13 @@ export async function GET(request: Request, { params }: Context): Promise<Respon
       slug: v.slug,
       regionId: v.regionId,
       regionSlug: region.slug,
-      name: v.name as unknown as LocalizedText,
+      name: parseLocalized(v.name),
       sortOrder: v.sortOrder,
     }));
     return apiOk({ data });
   } catch (err) {
     console.error(`GET /api/admin/regions/${id}/villages failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Fetch failed');
+    return apiServerError('Fetch failed');
   }
 }
 
@@ -67,7 +70,7 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
   try {
     raw = await request.json();
   } catch {
-    return apiServerError('Invalid JSON body');
+    return apiBadRequestRaw('Invalid JSON body');
   }
 
   const parsed = villageCreateSchema.safeParse(raw);
@@ -78,7 +81,7 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
   if (!region) return apiNotFound(`Region "${regionId}" not found`);
 
   const baseSlug = slugify(input.name.en);
-  if (!baseSlug) return apiServerError('Could not derive a slug from the English name');
+  if (!baseSlug) return apiBadRequestRaw('Could not derive a slug from the English name');
 
   // Slug uniqueness scoped to this region only — composite unique index
   // mirrors the same check at the DB layer.
@@ -102,12 +105,17 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
       },
       select: { id: true, slug: true, regionId: true },
     });
+    await recordAdminLog({
+      action: 'village.create',
+      target: created.id,
+      metadata: { regionId: created.regionId, slug: created.slug },
+    });
     return apiOk(created, { status: 201 });
   } catch (err) {
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2002') {
       return apiConflict(`Village "${slug}" already exists in this region`);
     }
     console.error(`POST /api/admin/regions/${regionId}/villages failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Create failed');
+    return apiServerError('Create failed');
   }
 }

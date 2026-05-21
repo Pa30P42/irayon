@@ -7,7 +7,6 @@ import { IconStarFilled } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { AmenityIcon } from './amenity-icon';
-import { FavoriteButton } from './favorite-button';
 
 type ListingCardProps = {
   listing: Listing;
@@ -27,7 +26,7 @@ export function ListingCard({ listing, locale, priority = false }: ListingCardPr
   const regionName = pickLocalized(listing.regionName, locale);
 
   return (
-    <article className="group relative">
+    <article className="group">
       <Link
         href={`/listings/${listing.slug}`}
         aria-label={title}
@@ -82,7 +81,6 @@ export function ListingCard({ listing, locale, priority = false }: ListingCardPr
           </p>
         </div>
       </Link>
-      <FavoriteButton />
     </article>
   );
 }

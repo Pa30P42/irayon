@@ -1,6 +1,6 @@
 import type { Paginated } from '@/lib/api/api-response';
 import type { ListingsQuery } from '@/lib/api/listings-validator';
-import type { Listing } from '@/types';
+import type { Listing, RegionSummary, RegionWithVillages, Village } from '@/types';
 
 /**
  * Browser-side fetcher used by TanStack Query hooks. Throws on non-2xx so
@@ -67,8 +67,6 @@ export async function fetchListingBySlug(
   if (res.status === 404) return null;
   return okJson<Listing>(res);
 }
-
-import type { RegionSummary, RegionWithVillages, Village } from '@/types';
 
 export type RegionsResponse = { data: RegionSummary[] };
 export type RegionsWithVillagesResponse = { data: RegionWithVillages[] };

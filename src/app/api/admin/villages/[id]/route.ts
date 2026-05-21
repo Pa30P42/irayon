@@ -1,14 +1,17 @@
 import { requireAdmin } from '@/lib/admin-auth';
+import { recordAdminLog } from '@/lib/admin-log';
 import {
   apiBadRequest,
+  apiBadRequestRaw,
   apiConflict,
   apiNotFound,
   apiOk,
   apiServerError,
 } from '@/lib/api/api-response';
+import { parseLocalized } from '@/lib/api/localized-text';
 import { villageUpdateSchema } from '@/lib/api/villages-validator';
 import { prisma } from '@/lib/prisma';
-import type { LocalizedText, Village } from '@/types';
+import type { Village } from '@/types';
 import type { Prisma } from '@prisma/client';
 
 type Context = { params: Promise<{ id: string }> };
@@ -20,7 +23,7 @@ const toDto = (
   slug: row.slug,
   regionId: row.regionId,
   regionSlug: row.region.slug,
-  name: row.name as unknown as LocalizedText,
+  name: parseLocalized(row.name),
   sortOrder: row.sortOrder,
 });
 
@@ -38,7 +41,7 @@ export async function GET(request: Request, { params }: Context): Promise<Respon
     return apiOk(toDto(row));
   } catch (err) {
     console.error(`GET /api/admin/villages/${id} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Fetch failed');
+    return apiServerError('Fetch failed');
   }
 }
 
@@ -58,7 +61,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
   try {
     raw = await request.json();
   } catch {
-    return apiServerError('Invalid JSON body');
+    return apiBadRequestRaw('Invalid JSON body');
   }
 
   const parsed = villageUpdateSchema.safeParse(raw);
@@ -93,6 +96,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
       include: { region: { select: { slug: true } } },
     });
     if (!row) return apiNotFound(`Village "${id}" not found`);
+    await recordAdminLog({ action: 'village.update', target: id });
     return apiOk(toDto(row));
   } catch (err) {
     if (err instanceof Error && 'code' in err) {
@@ -102,7 +106,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
         return apiConflict('A village with this slug already exists in the target region');
     }
     console.error(`PATCH /api/admin/villages/${id} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Update failed');
+    return apiServerError('Update failed');
   }
 }
 
@@ -134,12 +138,13 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
     }
 
     await prisma.village.delete({ where: { id } });
+    await recordAdminLog({ action: 'village.delete', target: id });
     return apiOk({ deleted: true });
   } catch (err) {
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2025') {
       return apiNotFound(`Village "${id}" not found`);
     }
     console.error(`DELETE /api/admin/villages/${id} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Delete failed');
+    return apiServerError('Delete failed');
   }
 }

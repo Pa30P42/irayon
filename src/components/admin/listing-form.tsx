@@ -4,97 +4,30 @@
 import { ExistingImagesGrid } from '@/components/admin/existing-images-grid';
 import { ChipGroup, Field, SectionCard, Stepper } from '@/components/admin/form-controls';
 import { ImageUploader } from '@/components/admin/image-uploader';
+import {
+  ACTIVITY_LABEL,
+  AMENITY_LABEL,
+  CATEGORY_LABEL,
+  DEFAULT_VALUES,
+  MEAL_LABEL,
+  PLACE_TYPE_LABEL,
+  type LocaleTab,
+} from '@/components/admin/listing-form-labels';
+import { ListingFormLocaleTabs } from '@/components/admin/listing-form-locale-tabs';
+import { useListingSubmit } from '@/components/admin/use-listing-submit';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { useRegions, useVillagesByRegionSlug } from '@/hooks/use-public-regions';
 import { createListingSchema, type CreateListingInput } from '@/lib/api/listings-create-validator';
 import { ACTIVITIES, AMENITIES, CATEGORIES, MEALS, PLACE_TYPES } from '@/lib/constants';
-import { cn } from '@/lib/utils';
 import type { Activity, Amenity, ListingCategory, Meal, PlaceType } from '@/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconAlertCircle, IconCheck, IconCurrentLocation, IconLoader2 } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm, type SubmitHandler } from 'react-hook-form';
 
-type LocaleTab = 'en' | 'ru' | 'az';
-
 type FormValues = CreateListingInput;
-
-const DEFAULT_VALUES: FormValues = {
-  title: { az: '', ru: '', en: '' },
-  description: { az: '', ru: '', en: '' },
-  region: 'gabala',
-  villageId: null,
-  placeType: 'villa-cottage' as PlaceType,
-  categories: ['mountain'] as ListingCategory[],
-  price: 200,
-  capacity: 4,
-  bedrooms: 2,
-  lat: 40.4093,
-  lng: 49.8671,
-  address: '',
-  phone: '+994',
-  amenities: [],
-  meals: [],
-  activities: [],
-};
-
-const PLACE_TYPE_LABEL: Record<PlaceType, string> = {
-  'a-frame': 'A-frame',
-  'villa-cottage': 'Villa / cottage',
-  hotel: 'Hotel',
-  modular: 'Modular home',
-  'village-room': 'Village room',
-};
-
-const CATEGORY_LABEL: Record<ListingCategory, string> = {
-  mountain: 'Mountain',
-  forest: 'Forest',
-  river: 'River',
-  sea: 'Sea',
-  lake: 'Lake',
-};
-
-const AMENITY_LABEL: Record<Amenity, string> = {
-  wifi: 'Wi-Fi',
-  parking: 'Parking',
-  pool: 'Pool',
-  sauna: 'Sauna',
-  jacuzzi: 'Jacuzzi',
-  fireplace: 'Fireplace',
-  kitchen: 'Kitchen',
-  bbq: 'BBQ',
-  pets: 'Pets allowed',
-  heating: 'Heating',
-  ac: 'Air conditioning',
-  tv: 'TV',
-  washer: 'Washing machine',
-  iron: 'Iron',
-  hairdryer: 'Hairdryer',
-  crib: 'Baby crib',
-  kids: "Kids' entertainment",
-  'ev-charger': 'EV charger',
-};
-
-const MEAL_LABEL: Record<Meal, string> = {
-  breakfast: 'Breakfast included',
-  'on-request': 'Meals on request',
-};
-
-const ACTIVITY_LABEL: Record<Activity, string> = {
-  quad: 'Quad bike',
-  horse: 'Horseback riding',
-  fishing: 'Fishing',
-};
-
-type SubmitState =
-  | { phase: 'idle' }
-  | { phase: 'creating' }
-  | { phase: 'updating' }
-  | { phase: 'uploading'; current: number; total: number }
-  | { phase: 'success'; id: string; slug: string }
-  | { phase: 'error'; message: string };
 
 type ExistingImage = { id: string; url: string };
 
@@ -136,7 +69,17 @@ export function ListingForm({
   const [activeLocaleTab, setActiveLocaleTab] = useState<LocaleTab>('en');
   const [readyFiles, setReadyFiles] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<ExistingImage[]>(initialImages);
-  const [submitState, setSubmitState] = useState<SubmitState>({ phase: 'idle' });
+  const { state: submitState, isBusy, submit } = useListingSubmit({
+    mode,
+    listingId,
+    onSubmitted: (target) => {
+      onSubmitted?.(target);
+      if (!isEdit) {
+        reset(DEFAULT_VALUES);
+        setReadyFiles([]);
+      }
+    },
+  });
 
   // Region/village data is admin-managed, so the form pulls them at runtime.
   // Village options cascade from the currently-selected region.
@@ -169,75 +112,7 @@ export function ListingForm({
     );
   };
 
-  const onSubmit: SubmitHandler<FormValues> = async (values) => {
-    try {
-      let target: { id: string; slug: string };
-
-      if (isEdit) {
-        if (!listingId) throw new Error('Edit mode requires a listingId');
-        setSubmitState({ phase: 'updating' });
-        const patchRes = await fetch(`/api/admin/listings/${listingId}`, {
-          method: 'PATCH',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify(values),
-        });
-        if (!patchRes.ok) {
-          const text = await patchRes.text();
-          throw new Error(text || `Update failed (${patchRes.status})`);
-        }
-        const updated = (await patchRes.json()) as { id: string; slug: string };
-        target = { id: updated.id, slug: updated.slug };
-      } else {
-        setSubmitState({ phase: 'creating' });
-        const createRes = await fetch('/api/admin/listings', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify(values),
-        });
-        if (!createRes.ok) {
-          const text = await createRes.text();
-          throw new Error(text || `Create failed (${createRes.status})`);
-        }
-        target = (await createRes.json()) as { id: string; slug: string };
-      }
-
-      if (readyFiles.length > 0) {
-        setSubmitState({ phase: 'uploading', current: 0, total: readyFiles.length });
-        const form = new FormData();
-        for (const f of readyFiles) form.append('files', f);
-        const uploadRes = await fetch(`/api/admin/listings/${target.id}/images`, {
-          method: 'POST',
-          body: form,
-        });
-        if (!uploadRes.ok) {
-          const text = await uploadRes.text();
-          throw new Error(text || `Upload failed (${uploadRes.status})`);
-        }
-        setSubmitState({
-          phase: 'uploading',
-          current: readyFiles.length,
-          total: readyFiles.length,
-        });
-      }
-
-      setSubmitState({ phase: 'success', id: target.id, slug: target.slug });
-      onSubmitted?.({ id: target.id, slug: target.slug });
-      if (!isEdit) {
-        reset(DEFAULT_VALUES);
-        setReadyFiles([]);
-      }
-    } catch (err) {
-      setSubmitState({
-        phase: 'error',
-        message: err instanceof Error ? err.message : 'Something went wrong',
-      });
-    }
-  };
-
-  const isBusy =
-    submitState.phase === 'creating' ||
-    submitState.phase === 'updating' ||
-    submitState.phase === 'uploading';
+  const onSubmit: SubmitHandler<FormValues> = (values) => submit(values, readyFiles);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 pb-28">
@@ -258,7 +133,7 @@ export function ListingForm({
 
       {/* BASIC INFO */}
       <SectionCard title="Basic info" description="Title and description in each language.">
-        <LocaleTabs active={activeLocaleTab} onChange={setActiveLocaleTab} />
+        <ListingFormLocaleTabs active={activeLocaleTab} onChange={setActiveLocaleTab} />
 
         {activeLocaleTab === 'en' && (
           <>
@@ -616,33 +491,5 @@ export function ListingForm({
         </div>
       </div>
     </form>
-  );
-}
-
-function LocaleTabs({
-  active,
-  onChange,
-}: {
-  active: LocaleTab;
-  onChange: (next: LocaleTab) => void;
-}) {
-  return (
-    <div className="border-border inline-flex gap-1 rounded-lg border p-1" role="tablist">
-      {(['en', 'ru', 'az'] as const).map((t) => (
-        <button
-          key={t}
-          type="button"
-          role="tab"
-          aria-selected={active === t}
-          onClick={() => onChange(t)}
-          className={cn(
-            'rounded-md px-3 py-1.5 text-xs font-medium uppercase transition-colors',
-            active === t ? 'bg-primary text-white' : 'text-foreground-muted hover:bg-accent',
-          )}
-        >
-          {t}
-        </button>
-      ))}
-    </div>
   );
 }

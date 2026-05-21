@@ -42,13 +42,16 @@ export function ImageUploader({
     onReadyFilesChange(items.filter((i) => i.status === 'ready').map((i) => i.file));
   }, [items, onReadyFilesChange]);
 
-  // Revoke object URLs on unmount to avoid leaks.
+  // Snapshot the latest items into a ref so the unmount cleanup can read them
+  // without being a state-update side effect (which would silently no-op after
+  // unmount in React 18+).
+  const itemsRef = useRef(items);
+  useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
   useEffect(() => {
     return () => {
-      setItems((prev) => {
-        prev.forEach((i) => URL.revokeObjectURL(i.previewUrl));
-        return [];
-      });
+      for (const i of itemsRef.current) URL.revokeObjectURL(i.previewUrl);
     };
   }, []);
 

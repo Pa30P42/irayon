@@ -1,14 +1,17 @@
 import { requireAdmin } from '@/lib/admin-auth';
+import { recordAdminLog } from '@/lib/admin-log';
 import {
   apiBadRequest,
+  apiBadRequestRaw,
   apiConflict,
   apiNotFound,
   apiOk,
   apiServerError,
 } from '@/lib/api/api-response';
+import { parseLocalized } from '@/lib/api/localized-text';
 import { regionUpdateSchema } from '@/lib/api/regions-validator';
 import { prisma } from '@/lib/prisma';
-import type { LocalizedText, RegionWithVillages } from '@/types';
+import type { RegionWithVillages } from '@/types';
 import type { Prisma } from '@prisma/client';
 
 type Context = { params: Promise<{ id: string }> };
@@ -24,7 +27,7 @@ const toDto = (
 ): RegionWithVillages => ({
   id: row.id,
   slug: row.slug,
-  name: row.name as unknown as LocalizedText,
+  name: parseLocalized(row.name),
   coverImage: row.coverImage,
   featured: row.featured,
   sortOrder: row.sortOrder,
@@ -38,7 +41,7 @@ const toDto = (
       slug: v.slug,
       regionId: v.regionId,
       regionSlug: row.slug,
-      name: v.name as unknown as LocalizedText,
+      name: parseLocalized(v.name),
       sortOrder: v.sortOrder,
     })),
 });
@@ -60,7 +63,7 @@ export async function GET(request: Request, { params }: Context): Promise<Respon
     return apiOk(toDto(row));
   } catch (err) {
     console.error(`GET /api/admin/regions/${id} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Fetch failed');
+    return apiServerError('Fetch failed');
   }
 }
 
@@ -79,7 +82,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
   try {
     raw = await request.json();
   } catch {
-    return apiServerError('Invalid JSON body');
+    return apiBadRequestRaw('Invalid JSON body');
   }
 
   const parsed = regionUpdateSchema.safeParse(raw);
@@ -105,13 +108,14 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
       include: { villages: true, _count: { select: { listings: true, villages: true } } },
     });
     if (!row) return apiNotFound(`Region "${id}" not found`);
+    await recordAdminLog({ action: 'region.update', target: id });
     return apiOk(toDto(row));
   } catch (err) {
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2025') {
       return apiNotFound(`Region "${id}" not found`);
     }
     console.error(`PATCH /api/admin/regions/${id} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Update failed');
+    return apiServerError('Update failed');
   }
 }
 
@@ -143,12 +147,13 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
     }
 
     await prisma.region.delete({ where: { id } });
+    await recordAdminLog({ action: 'region.delete', target: id });
     return apiOk({ deleted: true });
   } catch (err) {
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2025') {
       return apiNotFound(`Region "${id}" not found`);
     }
     console.error(`DELETE /api/admin/regions/${id} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Delete failed');
+    return apiServerError('Delete failed');
   }
 }

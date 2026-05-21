@@ -1,6 +1,5 @@
 import { renderWithProviders, screen } from '@/test/test-utils';
 import type { Listing } from '@/types';
-import userEvent from '@testing-library/user-event';
 import type { ComponentProps } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { ListingCard } from './listing-card';
@@ -60,21 +59,6 @@ describe('ListingCard', () => {
   it('renders the "Top pick" badge when rating >= 4.85 and reviews >= 100', () => {
     renderWithProviders(<ListingCard listing={baseListing} locale="en" />);
     expect(screen.getByText('Top pick')).toBeInTheDocument();
-  });
-
-  it('toggles the favorite button on click and updates aria-pressed', async () => {
-    const user = userEvent.setup();
-    renderWithProviders(<ListingCard listing={baseListing} locale="en" />);
-
-    const fav = screen.getByRole('button', { name: /add to favorites/i });
-    expect(fav).toHaveAttribute('aria-pressed', 'false');
-
-    await user.click(fav);
-
-    expect(screen.getByRole('button', { name: /remove from favorites/i })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
   });
 
   it('shows at most 3 amenity icons', () => {

@@ -15,9 +15,25 @@ import {
   isAllowedMime,
   objectKeyFromPublicUrl,
   publicUrlFor,
+  sniffImageMatchesMime,
   STORAGE_BUCKET,
   uploadListingImage,
+  type AllowedImageMime,
 } from './storage';
+
+// Valid 16-byte magic-byte headers per MIME — enough to pass `sniffImageMatchesMime`.
+const MAGIC: Record<AllowedImageMime, Uint8Array> = {
+  'image/jpeg': new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+  'image/png': new Uint8Array([
+    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0, 0, 0, 0, 0,
+  ]),
+  'image/webp': new Uint8Array([
+    0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50, 0, 0, 0, 0,
+  ]),
+  'image/avif': new Uint8Array([
+    0, 0, 0, 0x20, 0x66, 0x74, 0x79, 0x70, 0x61, 0x76, 0x69, 0x66, 0, 0, 0, 0,
+  ]),
+};
 
 const ORIGINAL_ENV = { ...process.env };
 
@@ -68,11 +84,31 @@ describe('publicUrlFor / objectKeyFromPublicUrl', () => {
   });
 });
 
+describe('sniffImageMatchesMime', () => {
+  it('accepts each allowed mime when bytes match the magic header', () => {
+    for (const mime of ALLOWED_IMAGE_MIME_TYPES) {
+      expect(sniffImageMatchesMime(MAGIC[mime], mime)).toBe(true);
+    }
+  });
+
+  it('rejects bytes that do not match the declared mime', () => {
+    expect(sniffImageMatchesMime(MAGIC['image/png'], 'image/jpeg')).toBe(false);
+    expect(sniffImageMatchesMime(MAGIC['image/webp'], 'image/png')).toBe(false);
+  });
+
+  it('rejects short inputs', () => {
+    expect(sniffImageMatchesMime(new Uint8Array([0xff, 0xd8]), 'image/jpeg')).toBe(false);
+  });
+});
+
 describe('uploadListingImage', () => {
-  const mkFile = (overrides: Partial<{ type: string; size: number; bytes: Uint8Array }> = {}) => {
-    const bytes = overrides.bytes ?? new Uint8Array([1, 2, 3]);
+  const mkFile = (
+    overrides: Partial<{ type: AllowedImageMime; size: number; bytes: Uint8Array }> = {},
+  ) => {
+    const type = overrides.type ?? 'image/jpeg';
+    const bytes = overrides.bytes ?? MAGIC[type];
     return {
-      type: overrides.type ?? 'image/jpeg',
+      type: type as string,
       size: overrides.size ?? bytes.byteLength,
       arrayBuffer: async () => bytes.buffer.slice(0) as ArrayBuffer,
     };
@@ -80,7 +116,10 @@ describe('uploadListingImage', () => {
 
   it('rejects unsupported MIME types before calling Supabase', async () => {
     await expect(
-      uploadListingImage({ listingId: 'l1', file: mkFile({ type: 'image/svg+xml' }) }),
+      uploadListingImage({
+        listingId: 'l1',
+        file: { ...mkFile(), type: 'image/svg+xml' },
+      }),
     ).rejects.toThrow(/Unsupported MIME type/);
     expect(fromMock).not.toHaveBeenCalled();
   });
@@ -89,6 +128,17 @@ describe('uploadListingImage', () => {
     await expect(
       uploadListingImage({ listingId: 'l1', file: mkFile({ size: 11 * 1024 * 1024 }) }),
     ).rejects.toThrow(/exceeds/);
+    expect(fromMock).not.toHaveBeenCalled();
+  });
+
+  it('rejects when bytes do not match the declared MIME (forged Content-Type)', async () => {
+    // Claim PNG, ship JPEG bytes.
+    await expect(
+      uploadListingImage({
+        listingId: 'lst123',
+        file: { ...mkFile({ type: 'image/jpeg' }), type: 'image/png' },
+      }),
+    ).rejects.toThrow(/do not match declared MIME/);
     expect(fromMock).not.toHaveBeenCalled();
   });
 

@@ -1,14 +1,9 @@
 'use client';
 
-import { applyListingsFilter, sortListings } from '@/lib/listings-filter';
 import { listingsFilterParsers } from '@/lib/listings-filter-parsers';
-import type { Listing, ListingsFilterState, ListingsView, SortOption } from '@/types';
+import type { ListingsFilterState, ListingsView, SortOption } from '@/types';
 import { useQueryStates } from 'nuqs';
 import { useCallback, useMemo } from 'react';
-
-type UseListingsFilterArgs = {
-  listings: Listing[];
-};
 
 type UseListingsFilterResult = {
   state: ListingsFilterState;
@@ -19,7 +14,6 @@ type UseListingsFilterResult = {
   reset: () => void;
   setSort: (sort: SortOption | null) => void;
   setView: (view: ListingsView) => void;
-  filtered: Listing[];
 };
 
 /**
@@ -32,7 +26,16 @@ const cleanForUrl = (value: unknown): unknown => {
   return value;
 };
 
-export function useListingsFilter({ listings }: UseListingsFilterArgs): UseListingsFilterResult {
+/**
+ * Owns the URL slice that describes the current listings query — region,
+ * village, type, guests, placement, food, extra, basic, fun, q, sort, view.
+ *
+ * Used to be the place where in-memory filtering happened too; that moved to
+ * the server (the `/listings` page parses the URL and Prisma-filters before
+ * SSR; the client refetches the matching page on URL change via TanStack).
+ * This hook is now strictly the URL-state owner.
+ */
+export function useListingsFilter(): UseListingsFilterResult {
   // Filter changes use `replace` so typing in search or toggling chips doesn't
   // pile up history entries — back should return to where the user came from,
   // not undo individual toggles. The filter-modal open flag is what owns the
@@ -54,11 +57,6 @@ export function useListingsFilter({ listings }: UseListingsFilterArgs): UseListi
     }),
     [raw],
   );
-
-  const filtered = useMemo(() => {
-    const base = applyListingsFilter(listings, state);
-    return sortListings(base, raw.sort);
-  }, [listings, state, raw.sort]);
 
   const setState = useCallback(
     (next: Partial<ListingsFilterState>) => {
@@ -104,6 +102,5 @@ export function useListingsFilter({ listings }: UseListingsFilterArgs): UseListi
     reset,
     setSort,
     setView,
-    filtered,
   };
 }

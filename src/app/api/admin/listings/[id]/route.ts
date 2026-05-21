@@ -1,4 +1,12 @@
-import { apiBadRequest, apiNotFound, apiOk, apiServerError } from '@/lib/api/api-response';
+import { requireAdmin } from '@/lib/admin-auth';
+import { recordAdminLog } from '@/lib/admin-log';
+import {
+  apiBadRequest,
+  apiBadRequestRaw,
+  apiNotFound,
+  apiOk,
+  apiServerError,
+} from '@/lib/api/api-response';
 import { createListingSchema } from '@/lib/api/listings-create-validator';
 import { deleteListing, getListingById, updateListing } from '@/lib/api/listings-service';
 
@@ -11,7 +19,10 @@ type Context = { params: Promise<{ id: string }> };
  * Public listings are addressable by slug; admins use the immutable id so
  * a slug change wouldn't break the editor.
  */
-export async function GET(_request: Request, { params }: Context): Promise<Response> {
+export async function GET(request: Request, { params }: Context): Promise<Response> {
+  const auth = await requireAdmin(request);
+  if (!auth.ok) return auth.response;
+
   const { id } = await params;
 
   try {
@@ -20,7 +31,7 @@ export async function GET(_request: Request, { params }: Context): Promise<Respo
     return apiOk(listing);
   } catch (err) {
     console.error(`GET /api/admin/listings/${id} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Fetch failed');
+    return apiServerError('Fetch failed');
   }
 }
 
@@ -32,13 +43,16 @@ export async function GET(_request: Request, { params }: Context): Promise<Respo
  * URL stays stable even when the title changes.
  */
 export async function PATCH(request: Request, { params }: Context): Promise<Response> {
+  const auth = await requireAdmin(request);
+  if (!auth.ok) return auth.response;
+
   const { id } = await params;
 
   let raw: unknown;
   try {
     raw = await request.json();
   } catch {
-    return apiServerError('Invalid JSON body');
+    return apiBadRequestRaw('Invalid JSON body');
   }
 
   const parsed = createListingSchema.safeParse(raw);
@@ -47,13 +61,14 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
   try {
     const updated = await updateListing(id, parsed.data);
     if (!updated) return apiNotFound(`Listing "${id}" not found`);
+    await recordAdminLog({ action: 'listing.update', target: id });
     return apiOk(updated);
   } catch (err) {
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2025') {
       return apiNotFound(`Listing "${id}" not found`);
     }
     console.error(`PATCH /api/admin/listings/${id} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Update failed');
+    return apiServerError('Update failed');
   }
 }
 
@@ -61,14 +76,21 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
  * DELETE /api/admin/listings/:id
  *
  * Removes the listing row (cascades to image + amenity link rows) and
- * best-effort removes its bucket-stored images. Auth is enforced by the
- * `/admin` middleware guard.
+ * best-effort removes its bucket-stored images.
  */
-export async function DELETE(_request: Request, { params }: Context): Promise<Response> {
+export async function DELETE(request: Request, { params }: Context): Promise<Response> {
+  const auth = await requireAdmin(request);
+  if (!auth.ok) return auth.response;
+
   const { id } = await params;
 
   try {
     const result = await deleteListing(id);
+    await recordAdminLog({
+      action: 'listing.delete',
+      target: id,
+      metadata: { storageRemoved: result.storageRemoved, storageFailed: result.storageFailed },
+    });
     return apiOk(result);
   } catch (err) {
     // Prisma raises P2025 when the row to delete doesn't exist.
@@ -76,6 +98,6 @@ export async function DELETE(_request: Request, { params }: Context): Promise<Re
       return apiNotFound(`Listing "${id}" not found`);
     }
     console.error(`DELETE /api/admin/listings/${id} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Delete failed');
+    return apiServerError('Delete failed');
   }
 }

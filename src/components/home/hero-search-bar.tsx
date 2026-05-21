@@ -4,7 +4,6 @@
 import { FilterModal } from '@/components/listings/filter-modal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useListings } from '@/hooks/use-listings';
 import { useRouter } from '@/i18n/navigation';
 import { emptyFilterState } from '@/lib/constants';
 import { countActiveFilters } from '@/lib/listings-filter';
@@ -26,12 +25,6 @@ export function HeroSearchBar() {
   const [filters, setFilters] = useState<ListingsFilterState>(() => emptyFilterState());
   const tFilter = useTranslations('filter');
   const activeCount = countActiveFilters(filters);
-
-  // Used only for the FilterModal's compatibility-counts. While loading, the
-  // modal still renders normally — the empty-listings short-circuit in
-  // useFilterCompatibility keeps every option marked compatible.
-  const { data: listingsResponse } = useListings({ sort: 'newest', limit: 100 });
-  const allListings = listingsResponse?.data ?? [];
 
   const onSearch = () => {
     const params = new URLSearchParams();
@@ -73,7 +66,6 @@ export function HeroSearchBar() {
 
       <FilterModal
         state={filters}
-        listings={allListings}
         onApply={setFilters}
         trigger={
           <Button type="button" size="lg" variant="default" className="gap-2">

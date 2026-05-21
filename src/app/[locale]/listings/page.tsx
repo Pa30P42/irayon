@@ -3,6 +3,7 @@ import { Breadcrumb } from '@/components/shared/breadcrumb';
 import { JsonLd } from '@/components/shared/json-ld';
 import type { Locale } from '@/i18n/routing';
 import { emptyListingsQuery } from '@/lib/api/listings-query-defaults';
+import { listingsQuerySchema, type ListingsQuery } from '@/lib/api/listings-validator';
 import { listListings } from '@/lib/api/listings-service';
 import { SITE } from '@/lib/constants';
 import { breadcrumbLd, itemListLd } from '@/lib/json-ld';
@@ -79,18 +80,23 @@ export async function generateMetadata({
   });
 }
 
-export default async function ListingsPage({ params }: ListingsPageProps) {
+export default async function ListingsPage({ params, searchParams }: ListingsPageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
 
   const t = await getTranslations('listings');
 
-  // Server-side fetch of the full set; <ListingsView> filters/sorts client-side
-  // off the URL state. For a small catalog (~100 listings) this is fine; once
-  // we cross several hundred, switch to query-driven server fetches.
-  const { data: listings, meta } = await listListings(
-    emptyListingsQuery({ sort: 'newest', limit: 100 }),
-  );
+  // Parse the URL filters server-side so the SSR payload already matches the
+  // user's request (e.g. `?region=gabala` SSRs only Gabala listings, not the
+  // full catalogue). Falls back to defaults on parse failure — a malformed
+  // querystring shouldn't 500. `limit: 100` is the temporary ceiling until
+  // proper pagination lands.
+  const sp = await searchParams;
+  const parsed = listingsQuerySchema.safeParse(sp);
+  const query: ListingsQuery = parsed.success
+    ? { ...parsed.data, limit: 100 }
+    : emptyListingsQuery({ sort: 'newest', limit: 100 });
+  const { data: listings, meta } = await listListings(query);
 
   const base = SITE.url.replace(/\/$/, '');
   const breadcrumbs = breadcrumbLd([
@@ -111,7 +117,7 @@ export default async function ListingsPage({ params }: ListingsPageProps) {
         <p className="text-foreground-muted mt-2">{t('subtitle')}</p>
       </header>
       <Suspense fallback={<div className="text-foreground-muted">Loading…</div>}>
-        <ListingsView initialListings={listings} locale={locale} />
+        <ListingsView initialListings={listings} initialMeta={meta} locale={locale} />
       </Suspense>
       <JsonLd data={[breadcrumbs, itemList]} />
     </section>

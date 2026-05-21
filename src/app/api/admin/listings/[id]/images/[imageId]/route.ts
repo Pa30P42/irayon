@@ -1,4 +1,5 @@
 import { requireAdmin } from '@/lib/admin-auth';
+import { recordAdminLog } from '@/lib/admin-log';
 import { apiNotFound, apiOk, apiServerError } from '@/lib/api/api-response';
 import { prisma } from '@/lib/prisma';
 import { deleteListingImageByUrl } from '@/lib/storage';
@@ -27,9 +28,14 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
   try {
     const storage = await deleteListingImageByUrl(image.url);
     await prisma.image.delete({ where: { id: image.id } });
+    await recordAdminLog({
+      action: 'listing.image.delete',
+      target: `${id}/${imageId}`,
+      metadata: { storageDeleted: storage.deleted },
+    });
     return apiOk({ deleted: true, storage });
   } catch (err) {
     console.error(`DELETE /api/admin/listings/${id}/images/${imageId} failed`, err);
-    return apiServerError(err instanceof Error ? err.message : 'Delete failed');
+    return apiServerError('Delete failed');
   }
 }
