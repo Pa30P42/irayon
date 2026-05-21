@@ -101,10 +101,9 @@ export async function POST(request: Request): Promise<Response> {
         phone: input.phone,
         meals: (input.meals as Meal[]).map(toMeal),
         activities: (input.activities as Activity[]).map(toActivity),
-        amenities:
-          amenityRows.length > 0
-            ? { create: amenityRows.map((a) => ({ amenityId: a.id })) }
-            : undefined,
+        ...(amenityRows.length > 0
+          ? { amenities: { create: amenityRows.map((a) => ({ amenityId: a.id })) } }
+          : {}),
       },
       select: { id: true, slug: true },
     });

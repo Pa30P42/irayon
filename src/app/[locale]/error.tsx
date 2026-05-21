@@ -2,6 +2,7 @@
 // Client component because Next.js error boundaries must be client components.
 
 import { Button } from '@/components/ui/button';
+import { Heading } from '@/components/ui/typography';
 import { useEffect } from 'react';
 
 export default function LocaleErrorBoundary({
@@ -17,7 +18,7 @@ export default function LocaleErrorBoundary({
 
   return (
     <div className="container-wide py-20 text-center">
-      <h2 className="text-2xl font-semibold">Something went wrong</h2>
+      <Heading level="errorTitle">Something went wrong</Heading>
       <p className="text-foreground-muted mt-2">{error.message}</p>
       <Button className="mt-6" onClick={reset}>
         Try again

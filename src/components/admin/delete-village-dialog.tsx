@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertText } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -11,6 +12,7 @@ import {
 import { useDeleteVillage } from '@/hooks/use-admin-villages';
 import type { Village } from '@/types';
 import { IconAlertTriangle, IconLoader2 } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 type Props = {
@@ -20,6 +22,9 @@ type Props = {
 };
 
 export function DeleteVillageDialog({ regionId, village, onOpenChange }: Props) {
+  const t = useTranslations('admin.dialogs');
+  const tVillage = useTranslations('admin.dialogs.deleteVillage');
+  const tCommon = useTranslations('admin.common');
   const del = useDeleteVillage(regionId);
   const [error, setError] = useState<string | null>(null);
   const open = village !== null;
@@ -29,7 +34,7 @@ export function DeleteVillageDialog({ regionId, village, onOpenChange }: Props) 
     setError(null);
     del.mutate(village.id, {
       onSuccess: () => onOpenChange(false),
-      onError: (err) => setError(err instanceof Error ? err.message : 'Delete failed'),
+      onError: (err) => setError(err instanceof Error ? err.message : tCommon('deleteFailed')),
     });
   };
 
@@ -42,23 +47,19 @@ export function DeleteVillageDialog({ regionId, village, onOpenChange }: Props) 
               <IconAlertTriangle size={20} />
             </div>
             <div>
-              <DialogTitle>Delete village?</DialogTitle>
-              <DialogDescription>This can&apos;t be undone.</DialogDescription>
+              <DialogTitle>{tVillage('title')}</DialogTitle>
+              <DialogDescription>{t('cantBeUndone')}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
         <div className="space-y-3 px-6 py-4 text-sm">
           {village ? (
             <p>
-              <span className="text-foreground-muted">You&apos;re about to delete</span>{' '}
+              <span className="text-foreground-muted">{t('youreAboutToDelete')}</span>{' '}
               <strong>{village.name.en}</strong>.
             </p>
           ) : null}
-          {error ? (
-            <p className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
-              {error}
-            </p>
-          ) : null}
+          {error ? <AlertText variant="error">{error}</AlertText> : null}
         </div>
         <div className="border-border flex items-center justify-end gap-2 border-t px-6 py-3">
           <Button
@@ -67,21 +68,22 @@ export function DeleteVillageDialog({ regionId, village, onOpenChange }: Props) 
             onClick={() => onOpenChange(false)}
             disabled={del.isPending}
           >
-            Cancel
+            {tCommon('cancel')}
           </Button>
           <Button
             type="button"
+            variant="destructive"
             onClick={onConfirm}
             disabled={del.isPending}
-            className="gap-2 bg-rose-600 text-white hover:bg-rose-700"
+            className="gap-2"
           >
             {del.isPending ? (
               <>
                 <IconLoader2 size={16} className="animate-spin" />
-                Deleting…
+                {tVillage('deleting')}
               </>
             ) : (
-              'Delete village'
+              tVillage('confirm')
             )}
           </Button>
         </div>

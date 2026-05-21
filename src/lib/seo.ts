@@ -19,10 +19,10 @@ export type BuildMetadataInput = {
   path: string;
   locale: SeoLocale;
   /** Optional cover image URL (absolute). Falls back to the default OG image. */
-  image?: string;
-  keywords?: string[];
+  image?: string | undefined;
+  keywords?: string[] | undefined;
   /** Set to `false` to add `noindex` (e.g. filtered search results). */
-  index?: boolean;
+  index?: boolean | undefined;
 };
 
 const trimSlash = (s: string): string => s.replace(/\/$/, '');

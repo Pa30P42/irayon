@@ -1,3 +1,4 @@
+import { Eyebrow, Heading } from '@/components/ui/typography';
 import { groupAmenities, type AmenityGroupKey } from '@/lib/amenity-groups';
 import type { Amenity, Listing } from '@/types';
 import { useTranslations } from 'next-intl';
@@ -24,14 +25,14 @@ export function ListingAmenities({ listing }: ListingAmenitiesProps) {
 
   return (
     <section className="space-y-6">
-      <h2 className="text-xl font-semibold">{t('title')}</h2>
+      <Heading level="subsection">{t('title')}</Heading>
 
       <div className="space-y-6">
         {nonEmptyGroups.map((groupKey) => (
           <div key={groupKey}>
-            <h3 className="text-foreground-muted mb-3 text-sm font-semibold tracking-wide uppercase">
+            <Eyebrow as="h3" className="mb-3 block">
               {t(`groups.${groupKey}`)}
-            </h3>
+            </Eyebrow>
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {groups[groupKey].map((amenity: Amenity) => (
                 <li key={amenity} className="flex items-center gap-3">

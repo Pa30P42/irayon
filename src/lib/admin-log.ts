@@ -20,7 +20,9 @@ export async function recordAdminLog(input: {
       data: {
         action: input.action,
         target: input.target ?? null,
-        metadata: input.metadata,
+        // Prisma's JsonValue input doesn't accept `undefined` under
+        // exactOptionalPropertyTypes; omit the key when no metadata was given.
+        ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
       },
     });
   } catch (err) {

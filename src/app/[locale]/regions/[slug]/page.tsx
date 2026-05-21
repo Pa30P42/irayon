@@ -1,6 +1,7 @@
 import { ListingGrid } from '@/components/listings/listing-grid';
 import { Breadcrumb } from '@/components/shared/breadcrumb';
 import { JsonLd } from '@/components/shared/json-ld';
+import { Heading } from '@/components/ui/typography';
 import { routing, type Locale } from '@/i18n/routing';
 import { emptyListingsQuery } from '@/lib/api/listings-query-defaults';
 import { listListings, listRegions } from '@/lib/api/listings-service';
@@ -89,9 +90,9 @@ export default async function RegionLandingPage({ params }: RegionPageProps) {
     <section className="container-wide py-12">
       <Breadcrumb items={[{ name: t('title'), href: '/listings' }, { name: regionName }]} />
       <header className="mt-4 mb-8 space-y-2">
-        <h1 className="text-3xl font-semibold md:text-4xl">
+        <Heading as="h1" level="detail">
           {titlesByLocale(regionName)[locale as SeoLocale]}
-        </h1>
+        </Heading>
         <p className="text-foreground-muted max-w-2xl">
           {descriptionsByLocale(regionName)[locale as SeoLocale]}
         </p>

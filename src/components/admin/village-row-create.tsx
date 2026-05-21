@@ -4,11 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCreateVillage } from '@/hooks/use-admin-villages';
 import { IconCheck, IconLoader2, IconPlus } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 type Props = { regionId: string };
 
 export function CreateVillageRow({ regionId }: Props) {
+  const t = useTranslations('admin.villages');
+  const tCommon = useTranslations('admin.common');
   const create = useCreateVillage(regionId);
   const [nameEn, setNameEn] = useState('');
   const [nameRu, setNameRu] = useState('');
@@ -37,7 +40,7 @@ export function CreateVillageRow({ regionId }: Props) {
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 1500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Create failed');
+      setError(err instanceof Error ? err.message : tCommon('createFailed'));
     }
   };
 
@@ -47,24 +50,32 @@ export function CreateVillageRow({ regionId }: Props) {
       className="border-border bg-accent/40 grid gap-2 rounded-lg border p-3 sm:grid-cols-[1fr_1fr_1fr_auto_auto] sm:items-end"
     >
       <label className="block text-xs font-medium">
-        <span className="text-foreground-muted">Name (EN) *</span>
+        <span className="text-foreground-muted">{t('nameEn')}</span>
         <Input
           value={nameEn}
           onChange={(e) => setNameEn(e.target.value)}
-          placeholder="Vandam"
+          placeholder={t('namePlaceholderEn')}
           required
         />
       </label>
       <label className="block text-xs font-medium">
-        <span className="text-foreground-muted">Name (RU)</span>
-        <Input value={nameRu} onChange={(e) => setNameRu(e.target.value)} placeholder="Вандам" />
+        <span className="text-foreground-muted">{t('nameRu')}</span>
+        <Input
+          value={nameRu}
+          onChange={(e) => setNameRu(e.target.value)}
+          placeholder={t('namePlaceholderRu')}
+        />
       </label>
       <label className="block text-xs font-medium">
-        <span className="text-foreground-muted">Name (AZ)</span>
-        <Input value={nameAz} onChange={(e) => setNameAz(e.target.value)} placeholder="Vəndam" />
+        <span className="text-foreground-muted">{t('nameAz')}</span>
+        <Input
+          value={nameAz}
+          onChange={(e) => setNameAz(e.target.value)}
+          placeholder={t('namePlaceholderAz')}
+        />
       </label>
       <label className="block text-xs font-medium">
-        <span className="text-foreground-muted">Order</span>
+        <span className="text-foreground-muted">{t('order')}</span>
         <Input
           type="number"
           inputMode="numeric"
@@ -86,7 +97,7 @@ export function CreateVillageRow({ regionId }: Props) {
         ) : (
           <IconPlus size={14} />
         )}
-        Add
+        {t('add')}
       </Button>
       {error ? <p className="col-span-full text-xs text-rose-700">{error}</p> : null}
     </form>

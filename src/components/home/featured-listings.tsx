@@ -2,6 +2,7 @@
 // Client component: reads category from URL and renders matching listings.
 
 import { ListingCard } from '@/components/listings/listing-card';
+import { Heading } from '@/components/ui/typography';
 import { useCategoryFilter } from '@/hooks/use-category-filter';
 import { useFilteredListings } from '@/hooks/use-filtered-listings';
 import { HOME_FEATURED_LIMIT } from '@/lib/constants';
@@ -26,7 +27,7 @@ export function FeaturedListings({ initialListings, locale }: FeaturedListingsPr
   return (
     <section className="container-wide py-12">
       <header className="mb-8">
-        <h2 className="text-2xl font-semibold md:text-3xl">{t('title')}</h2>
+        <Heading level="section">{t('title')}</Heading>
         <p className="text-foreground-muted mt-2">{t('subtitle')}</p>
       </header>
 

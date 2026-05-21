@@ -49,7 +49,10 @@ export const apiBadRequestRaw = (message: string) =>
  * referential integrity (e.g. region has listings, village has listings).
  */
 export const apiConflict = (message: string, fields?: Record<string, string[]>) =>
-  NextResponse.json<ApiError>({ error: { message, fields } }, { status: 409 });
+  NextResponse.json<ApiError>(
+    { error: fields ? { message, fields } : { message } },
+    { status: 409 },
+  );
 
 export const apiUnauthorized = (message = 'Authentication required') =>
   NextResponse.json<ApiError>({ error: { message } }, { status: 401 });

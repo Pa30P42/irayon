@@ -1,9 +1,12 @@
 'use client';
 
+import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Heading } from '@/components/ui/typography';
 import { useAdminVillagesByRegion } from '@/hooks/use-admin-villages';
 import type { Village } from '@/types';
 import { IconAlertCircle, IconPencil, IconTrash } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { DeleteVillageDialog } from './delete-village-dialog';
 import { CreateVillageRow } from './village-row-create';
@@ -14,6 +17,9 @@ type VillagesManagerProps = {
 };
 
 export function VillagesManager({ regionId }: VillagesManagerProps) {
+  const t = useTranslations('admin.villages');
+  const tCommon = useTranslations('admin.common');
+  const tRegions = useTranslations('admin.regions');
   const { data, isLoading, isError, error, refetch } = useAdminVillagesByRegion(regionId);
   const villages = data ?? [];
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -23,13 +29,11 @@ export function VillagesManager({ regionId }: VillagesManagerProps) {
     <section className="border-border bg-background rounded-2xl border p-5 shadow-sm sm:p-6">
       <header className="mb-4 flex items-end justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold sm:text-lg">Villages</h2>
-          <p className="text-foreground-muted mt-1 text-sm">
-            Sub-locations within this region. Used by listing filters and the listing form.
-          </p>
+          <Heading level="adminSubsection">{t('title')}</Heading>
+          <p className="text-foreground-muted mt-1 text-sm">{t('description')}</p>
         </div>
         <span className="text-foreground-muted text-xs">
-          {villages.length} village{villages.length === 1 ? '' : 's'}
+          {t('count', { count: villages.length })}
         </span>
       </header>
 
@@ -37,22 +41,22 @@ export function VillagesManager({ regionId }: VillagesManagerProps) {
 
       <div className="mt-4">
         {isLoading ? (
-          <p className="text-foreground-muted text-sm">Loading…</p>
+          <p className="text-foreground-muted text-sm">{t('loading')}</p>
         ) : isError ? (
-          <div className="flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+          <Alert variant="error" size="lg">
             <IconAlertCircle size={18} className="mt-0.5 shrink-0" />
             <div className="flex-1">
-              <p className="font-medium">Couldn&apos;t load villages</p>
-              <p className="text-xs">{error instanceof Error ? error.message : 'Unknown error'}</p>
+              <p className="font-medium">{t('loadFailed')}</p>
+              <p className="text-xs">
+                {error instanceof Error ? error.message : tCommon('unknownError')}
+              </p>
             </div>
             <Button type="button" size="sm" variant="outline" onClick={() => refetch()}>
-              Retry
+              {tCommon('retry')}
             </Button>
-          </div>
+          </Alert>
         ) : villages.length === 0 ? (
-          <p className="text-foreground-muted py-4 text-center text-sm">
-            No villages yet. Add the first one above.
-          </p>
+          <p className="text-foreground-muted py-4 text-center text-sm">{t('empty')}</p>
         ) : (
           <ul className="divide-border divide-y">
             {villages.map((v) =>
@@ -75,7 +79,7 @@ export function VillagesManager({ regionId }: VillagesManagerProps) {
                         {v.name.az || '—'} / {v.name.ru || '—'}
                       </span>
                       {' · '}
-                      <span>order {v.sortOrder}</span>
+                      <span>{tRegions('order', { value: v.sortOrder })}</span>
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
@@ -84,19 +88,19 @@ export function VillagesManager({ regionId }: VillagesManagerProps) {
                       variant="ghost"
                       size="sm"
                       onClick={() => setEditingId(v.id)}
-                      aria-label={`Edit ${v.name.en}`}
+                      aria-label={t('editAria', { title: v.name.en })}
                       className="gap-1.5"
                     >
                       <IconPencil size={14} />
-                      <span className="hidden sm:inline">Edit</span>
+                      <span className="hidden sm:inline">{t('edit')}</span>
                     </Button>
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="destructiveGhost"
                       size="sm"
                       onClick={() => setToDelete(v)}
-                      aria-label={`Delete ${v.name.en}`}
-                      className="gap-1.5 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                      aria-label={t('deleteAria', { title: v.name.en })}
+                      className="gap-1.5"
                     >
                       <IconTrash size={14} />
                     </Button>

@@ -1,7 +1,9 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { useDeleteListingImage } from '@/hooks/use-delete-listing-image';
 import { IconLoader2, IconTrash } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useState } from 'react';
 
@@ -17,36 +19,32 @@ type ExistingImagesGridProps = {
 };
 
 export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImagesGridProps) {
+  const t = useTranslations('admin.existingImages');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const deleteImage = useDeleteListingImage();
 
   if (images.length === 0) return null;
 
-  const onDelete = async (img: ExistingImage) => {
+  const onDelete = (img: ExistingImage) => {
     if (deletingId) return;
     setError(null);
     setDeletingId(img.id);
-    try {
-      const res = await fetch(`/api/admin/listings/${listingId}/images/${img.id}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) {
-        const text = await res.text().catch(() => '');
-        throw new Error(text || `Delete failed (${res.status})`);
-      }
-      onChange(images.filter((i) => i.id !== img.id));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not delete photo');
-    } finally {
-      setDeletingId(null);
-    }
+    deleteImage.mutate(
+      { listingId, imageId: img.id },
+      {
+        onSuccess: () => onChange(images.filter((i) => i.id !== img.id)),
+        onError: (err) => setError(err instanceof Error ? err.message : t('removeFailed')),
+        onSettled: () => setDeletingId(null),
+      },
+    );
   };
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium">
-          Current photos
+          {t('current')}
           <span className="text-foreground-muted ml-2 text-xs font-normal">({images.length})</span>
         </p>
         {error ? <p className="text-xs text-rose-600">{error}</p> : null}
@@ -62,14 +60,14 @@ export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImag
               <div className="bg-accent relative aspect-square">
                 <Image
                   src={img.url}
-                  alt={`Photo ${idx + 1}`}
+                  alt={t('photoAlt', { index: idx + 1 })}
                   fill
                   sizes="200px"
                   className="object-cover"
                 />
                 {idx === 0 && (
                   <span className="bg-primary absolute top-2 left-2 rounded-full px-2 py-0.5 text-xs font-medium text-white">
-                    Cover
+                    {t('cover')}
                   </span>
                 )}
                 {isDeleting ? (
@@ -81,14 +79,14 @@ export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImag
               <div className="p-2">
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="destructiveGhost"
                   size="sm"
                   onClick={() => onDelete(img)}
                   disabled={isDeleting}
-                  className="w-full gap-1.5 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                  className="w-full gap-1.5"
                 >
                   <IconTrash size={14} />
-                  Remove
+                  {t('remove')}
                 </Button>
               </div>
             </li>

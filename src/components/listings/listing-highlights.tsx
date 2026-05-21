@@ -39,8 +39,11 @@ export function ListingHighlights({ listing }: ListingHighlightsProps) {
 
   return (
     <ul className="grid gap-4 sm:grid-cols-3">
-      {items.map((item, idx) => (
-        <li key={idx} className="border-border flex items-center gap-3 rounded-lg border p-4">
+      {items.map((item) => (
+        <li
+          key={item.label}
+          className="border-border flex items-center gap-3 rounded-lg border p-4"
+        >
           <item.icon size={28} className="text-primary shrink-0" aria-hidden />
           <span className="text-sm font-medium">{item.label}</span>
         </li>

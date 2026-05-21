@@ -1,6 +1,9 @@
 'use client';
 
+import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { EmptyState as UiEmptyState } from '@/components/ui/empty-state';
+import { Heading } from '@/components/ui/typography';
 import { useListings } from '@/hooks/use-listings';
 import { formatPrice } from '@/lib/utils';
 import {
@@ -13,6 +16,7 @@ import {
   IconRefresh,
   IconTrash,
 } from '@tabler/icons-react';
+import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
@@ -21,6 +25,9 @@ import { DeleteListingDialog } from './delete-listing-dialog';
 type DialogState = { id: string; title: string; photoCount: number } | null;
 
 export function AdminListingsList() {
+  const t = useTranslations('admin.listings');
+  const tCommon = useTranslations('admin.common');
+  const locale = useLocale();
   const [toDelete, setToDelete] = useState<DialogState>(null);
   const { data, isLoading, isError, error, refetch, isFetching } = useListings({
     sort: 'newest',
@@ -33,9 +40,11 @@ export function AdminListingsList() {
     <>
       <header className="mb-5 flex items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold sm:text-3xl">Listings</h1>
+          <Heading as="h1" level="page">
+            {t('title')}
+          </Heading>
           <p className="text-foreground-muted mt-1 text-sm">
-            {data ? `${data.meta.total} total` : 'Loading…'}
+            {data ? t('totalCount', { count: data.meta.total }) : t('loadingCount')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -45,7 +54,7 @@ export function AdminListingsList() {
             size="sm"
             onClick={() => refetch()}
             disabled={isFetching}
-            aria-label="Refresh"
+            aria-label={t('refresh')}
             className="gap-1.5"
           >
             {isFetching ? (
@@ -53,12 +62,12 @@ export function AdminListingsList() {
             ) : (
               <IconRefresh size={16} />
             )}
-            <span className="hidden sm:inline">Refresh</span>
+            <span className="hidden sm:inline">{t('refresh')}</span>
           </Button>
           <Button asChild size="sm" className="gap-2">
             <Link href="/admin/listings/new">
               <IconPlus size={16} />
-              <span>New</span>
+              <span>{t('new')}</span>
             </Link>
           </Button>
         </div>
@@ -68,7 +77,7 @@ export function AdminListingsList() {
         <ListingsSkeleton />
       ) : isError ? (
         <ErrorState
-          message={error instanceof Error ? error.message : 'Failed to load'}
+          message={error instanceof Error ? error.message : tCommon('loadFailed')}
           onRetry={() => refetch()}
         />
       ) : listings.length === 0 ? (
@@ -106,33 +115,35 @@ export function AdminListingsList() {
                       {' · '}
                       <span>
                         {formatPrice(listing.price, 'en')} AZN{' '}
-                        <span className="text-foreground-muted">/ night</span>
+                        <span className="text-foreground-muted">{t('perNight')}</span>
                       </span>
                       {' · '}
-                      <span>
-                        {listing.images.length} photo{listing.images.length === 1 ? '' : 's'}
-                      </span>
+                      <span>{t('photoCount', { count: listing.images.length })}</span>
                     </p>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Button asChild variant="ghost" size="sm" className="gap-1.5">
-                      <Link href={`/en/listings/${listing.slug}`} target="_blank" rel="noreferrer">
+                      <Link
+                        href={`/${locale}/listings/${listing.slug}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
                         <IconExternalLink size={14} />
-                        <span className="hidden sm:inline">View</span>
+                        <span className="hidden sm:inline">{t('view')}</span>
                       </Link>
                     </Button>
                     <Button asChild variant="ghost" size="sm" className="gap-1.5">
                       <Link
                         href={`/admin/listings/${listing.id}/edit`}
-                        aria-label={`Edit ${listing.title.en}`}
+                        aria-label={t('editAria', { title: listing.title.en })}
                       >
                         <IconPencil size={14} />
-                        <span className="hidden sm:inline">Edit</span>
+                        <span className="hidden sm:inline">{t('edit')}</span>
                       </Link>
                     </Button>
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="destructiveGhost"
                       size="sm"
                       onClick={() =>
                         setToDelete({
@@ -141,11 +152,11 @@ export function AdminListingsList() {
                           photoCount: listing.images.length,
                         })
                       }
-                      className="gap-1.5 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                      aria-label={`Delete ${listing.title.en}`}
+                      className="gap-1.5"
+                      aria-label={t('deleteAria', { title: listing.title.en })}
                     >
                       <IconTrash size={14} />
-                      <span className="hidden sm:inline">Delete</span>
+                      <span className="hidden sm:inline">{t('delete')}</span>
                     </Button>
                   </div>
                 </div>
@@ -171,7 +182,7 @@ function ListingsSkeleton() {
     <ul className="space-y-3" aria-hidden>
       {Array.from({ length: 4 }).map((_, i) => (
         <li
-          key={i}
+          key={`skeleton-${i}`}
           className="border-border bg-background flex animate-pulse items-center gap-3 rounded-2xl border p-3 shadow-sm"
         >
           <div className="bg-accent h-24 w-24 shrink-0 rounded-md sm:h-28 sm:w-32" />
@@ -186,36 +197,37 @@ function ListingsSkeleton() {
 }
 
 function EmptyState() {
+  const t = useTranslations('admin.listings');
   return (
-    <div className="border-border flex flex-col items-center gap-4 rounded-2xl border border-dashed py-16 text-center">
-      <div className="bg-accent grid h-12 w-12 place-items-center rounded-full">
-        <IconPhoto size={22} className="text-primary" aria-hidden />
-      </div>
-      <div className="space-y-1">
-        <h2 className="text-base font-semibold">No listings yet</h2>
-        <p className="text-foreground-muted text-sm">Create your first villa listing.</p>
-      </div>
-      <Button asChild className="gap-2">
-        <Link href="/admin/listings/new">
-          <IconPlus size={16} />
-          New listing
-        </Link>
-      </Button>
-    </div>
+    <UiEmptyState
+      icon={<IconPhoto size={22} className="text-primary" aria-hidden />}
+      title={t('emptyTitle')}
+      description={t('emptyDescription')}
+      action={
+        <Button asChild className="gap-2">
+          <Link href="/admin/listings/new">
+            <IconPlus size={16} />
+            {t('emptyAction')}
+          </Link>
+        </Button>
+      }
+    />
   );
 }
 
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  const t = useTranslations('admin.listings');
+  const tCommon = useTranslations('admin.common');
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+    <Alert variant="error" size="lg">
       <IconAlertCircle size={18} className="mt-0.5 shrink-0" />
       <div className="flex-1">
-        <p className="font-medium">Couldn&apos;t load listings</p>
+        <p className="font-medium">{t('loadFailed')}</p>
         <p className="text-xs">{message}</p>
       </div>
       <Button type="button" size="sm" variant="outline" onClick={onRetry}>
-        Retry
+        {tCommon('retry')}
       </Button>
-    </div>
+    </Alert>
   );
 }

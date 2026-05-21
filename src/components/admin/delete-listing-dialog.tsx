@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertText } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { useDeleteListing } from '@/hooks/use-delete-listing';
 import { IconAlertTriangle, IconLoader2 } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 type DeleteListingDialogProps = {
@@ -25,6 +27,9 @@ export function DeleteListingDialog({
   listing,
   onDeleted,
 }: DeleteListingDialogProps) {
+  const t = useTranslations('admin.dialogs');
+  const tListing = useTranslations('admin.dialogs.deleteListing');
+  const tCommon = useTranslations('admin.common');
   const mutation = useDeleteListing();
   const [error, setError] = useState<string | null>(null);
 
@@ -42,7 +47,7 @@ export function DeleteListingDialog({
         onDeleted?.();
       },
       onError: (err) => {
-        setError(err instanceof Error ? err.message : 'Delete failed');
+        setError(err instanceof Error ? err.message : tCommon('deleteFailed'));
       },
     });
   };
@@ -56,27 +61,23 @@ export function DeleteListingDialog({
               <IconAlertTriangle size={20} />
             </div>
             <div>
-              <DialogTitle>Delete listing?</DialogTitle>
-              <DialogDescription>This can&apos;t be undone.</DialogDescription>
+              <DialogTitle>{tListing('title')}</DialogTitle>
+              <DialogDescription>{t('cantBeUndone')}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
         <div className="space-y-3 px-6 py-4 text-sm">
           <p>
-            <span className="text-foreground-muted">You&apos;re about to delete</span>{' '}
+            <span className="text-foreground-muted">{t('youreAboutToDelete')}</span>{' '}
             <strong>{listing.title}</strong>{' '}
             {listing.photoCount > 0 ? (
               <span className="text-foreground-muted">
-                and {listing.photoCount} photo{listing.photoCount === 1 ? '' : 's'}
+                {tListing('andPhotos', { count: listing.photoCount })}
               </span>
             ) : null}
             .
           </p>
-          {error ? (
-            <p className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
-              {error}
-            </p>
-          ) : null}
+          {error ? <AlertText variant="error">{error}</AlertText> : null}
         </div>
         <div className="border-border flex items-center justify-end gap-2 border-t px-6 py-3">
           <Button
@@ -85,21 +86,22 @@ export function DeleteListingDialog({
             onClick={() => onOpenChange(false)}
             disabled={mutation.isPending}
           >
-            Cancel
+            {tCommon('cancel')}
           </Button>
           <Button
             type="button"
+            variant="destructive"
             onClick={onConfirm}
             disabled={mutation.isPending}
-            className="gap-2 bg-rose-600 text-white hover:bg-rose-700"
+            className="gap-2"
           >
             {mutation.isPending ? (
               <>
                 <IconLoader2 size={16} className="animate-spin" />
-                Deleting…
+                {tListing('deleting')}
               </>
             ) : (
-              'Delete listing'
+              tListing('confirm')
             )}
           </Button>
         </div>

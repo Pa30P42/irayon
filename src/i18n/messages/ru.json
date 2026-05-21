@@ -109,6 +109,7 @@
     "photoCount": "{current} / {total}",
     "previousPhoto": "Предыдущее фото",
     "nextPhoto": "Следующее фото",
+    "closePhoto": "Закрыть",
     "memberSince": "На сайте с {year}",
     "host": "Хозяин: {name}",
     "highlights": {
@@ -262,5 +263,304 @@
     "az": "Азербайджанский",
     "ru": "Русский",
     "en": "Английский"
+  },
+  "admin": {
+    "appName": "iRayon · Admin",
+    "localeSwitcher": { "label": "Язык админ-панели" },
+    "nav": {
+      "listings": "Объявления",
+      "regions": "Регионы",
+      "new": "Новое",
+      "signOut": "Выйти"
+    },
+    "login": {
+      "eyebrow": "iRayon · Admin",
+      "title": "Вход",
+      "subtitle": "Используйте учётные данные администратора, чтобы продолжить.",
+      "username": "Имя пользователя",
+      "password": "Пароль",
+      "submit": "Войти",
+      "submitting": "Вход…"
+    },
+    "error": {
+      "title": "Ошибка админ-панели",
+      "tryAgain": "Повторить"
+    },
+    "common": {
+      "cancel": "Отмена",
+      "save": "Сохранить",
+      "saving": "Сохранение…",
+      "saved": "Сохранено",
+      "edit": "Изменить",
+      "delete": "Удалить",
+      "deleting": "Удаление…",
+      "refresh": "Обновить",
+      "retry": "Повторить",
+      "loading": "Загрузка…",
+      "view": "Открыть",
+      "add": "Добавить",
+      "remove": "Удалить",
+      "new": "Новое",
+      "unknownError": "Неизвестная ошибка",
+      "saveFailed": "Не удалось сохранить",
+      "deleteFailed": "Не удалось удалить",
+      "updateFailed": "Не удалось обновить",
+      "createFailed": "Не удалось создать",
+      "loadFailed": "Не удалось загрузить"
+    },
+    "listings": {
+      "title": "Объявления",
+      "totalCount": "Всего {count}",
+      "loadingCount": "Загрузка…",
+      "new": "Новое",
+      "newListing": "Новое объявление",
+      "edit": "Изменить",
+      "delete": "Удалить",
+      "view": "Открыть",
+      "refresh": "Обновить",
+      "editAria": "Изменить {title}",
+      "deleteAria": "Удалить {title}",
+      "perNight": "/ ночь",
+      "photoCount": "{count, plural, =0 {0 фото} one {# фото} few {# фото} other {# фото}}",
+      "emptyTitle": "Пока нет объявлений",
+      "emptyDescription": "Создайте своё первое объявление виллы.",
+      "emptyAction": "Новое объявление",
+      "loadFailed": "Не удалось загрузить объявления",
+      "newPage": {
+        "title": "Новое объявление",
+        "description": "Сначала фотографии — это самое важное поле. Всё остальное на одном экране, прокрутите вниз, чтобы заполнить, и нажмите <strong>Создать объявление</strong>."
+      },
+      "editPage": {
+        "title": "Редактировать объявление",
+        "description": "Обновите поля и нажмите <strong>Сохранить изменения</strong>. Добавление и удаление фото применяется сразу; остальное сохраняется вместе."
+      }
+    },
+    "regions": {
+      "title": "Регионы",
+      "totalCount": "Всего {count}",
+      "loadingCount": "Загрузка…",
+      "new": "Новый регион",
+      "featured": "Избранный",
+      "featuredTitle": "Избранный на главной",
+      "refresh": "Обновить",
+      "edit": "Изменить",
+      "delete": "Удалить",
+      "editAria": "Изменить {title}",
+      "deleteAria": "Удалить {title}",
+      "listingsCount": "{count, plural, =0 {0 объявлений} one {# объявление} few {# объявления} other {# объявлений}}",
+      "villagesCount": "{count, plural, =0 {0 деревень} one {# деревня} few {# деревни} other {# деревень}}",
+      "order": "порядок {value}",
+      "emptyTitle": "Пока нет регионов",
+      "emptyDescription": "Добавьте первый регион, чтобы начать.",
+      "emptyAction": "Новый регион",
+      "loadFailed": "Не удалось загрузить регионы",
+      "breadcrumbRoot": "Регионы",
+      "breadcrumbNew": "Новый",
+      "breadcrumbEdit": "Изменить",
+      "newPage": { "title": "Новый регион" },
+      "editPage": {
+        "title": "Редактировать регион",
+        "notFound": "Регион не найден"
+      }
+    },
+    "villages": {
+      "title": "Деревни",
+      "description": "Подразделения внутри региона. Используются в фильтрах и форме объявлений.",
+      "count": "{count, plural, =0 {0 деревень} one {# деревня} few {# деревни} other {# деревень}}",
+      "loading": "Загрузка…",
+      "loadFailed": "Не удалось загрузить деревни",
+      "empty": "Пока нет деревень. Добавьте первую выше.",
+      "nameEn": "Название (EN) *",
+      "nameRu": "Название (RU)",
+      "nameAz": "Название (AZ)",
+      "order": "Порядок",
+      "add": "Добавить",
+      "save": "Сохранить",
+      "cancel": "Отмена",
+      "edit": "Изменить",
+      "delete": "Удалить",
+      "editAria": "Изменить {title}",
+      "deleteAria": "Удалить {title}",
+      "namePlaceholderEn": "Vandam",
+      "namePlaceholderRu": "Вандам",
+      "namePlaceholderAz": "Vəndam"
+    },
+    "dialogs": {
+      "cantBeUndone": "Это действие нельзя отменить.",
+      "youreAboutToDelete": "Вы собираетесь удалить",
+      "deleteListing": {
+        "title": "Удалить объявление?",
+        "andPhotos": "{count, plural, =0 {} one {и # фото} few {и # фото} other {и # фото}}",
+        "confirm": "Удалить объявление",
+        "deleting": "Удаление…"
+      },
+      "deleteRegion": {
+        "title": "Удалить регион?",
+        "blocked": "В этом регионе есть {listings, plural, =0 {0 объявлений} one {# объявление} few {# объявления} other {# объявлений}} и {villages, plural, =0 {0 деревень} one {# деревня} few {# деревни} other {# деревень}}. Сначала переназначьте или удалите их.",
+        "confirm": "Удалить регион",
+        "deleting": "Удаление…"
+      },
+      "deleteVillage": {
+        "title": "Удалить деревню?",
+        "confirm": "Удалить деревню",
+        "deleting": "Удаление…"
+      }
+    },
+    "listingForm": {
+      "sections": {
+        "photosTitle": "Фотографии",
+        "photosDescription": "Нажмите, чтобы добавить фото с телефона. Мы автоматически сожмём их без потери качества.",
+        "basicInfoTitle": "Основная информация",
+        "basicInfoDescription": "Название и описание на каждом языке.",
+        "locationTitle": "Местоположение",
+        "capacityTitle": "Вместимость и цена",
+        "categoriesTitle": "Категории",
+        "categoriesDescription": "Выберите все категории, подходящие к этому месту. Лесной домик у реки может быть и тем, и другим.",
+        "amenitiesTitle": "Удобства",
+        "amenitiesDescription": "Отметьте каждое удобство, которое есть в этом месте.",
+        "mealsActivitiesTitle": "Питание и активности"
+      },
+      "fields": {
+        "titleEn": "Название (английский)",
+        "titleRu": "Название (русский)",
+        "titleAz": "Название (азербайджанский)",
+        "titleEnHint": "Используется для URL slug.",
+        "titleEnPlaceholder": "напр., Gabala Pine Retreat",
+        "titleFallbackPlaceholder": "По желанию — возвращается к английскому",
+        "descEn": "Описание (английский)",
+        "descRu": "Описание (русский)",
+        "descAz": "Описание (азербайджанский)",
+        "descPlaceholder": "Что могут ожидать гости...",
+        "phone": "Телефон",
+        "phoneHint": "Показывается на кнопке Позвонить.",
+        "phonePlaceholder": "+994 50 123 45 67",
+        "region": "Регион",
+        "village": "Деревня",
+        "villageHint": "Необязательное подразделение. Каскадно меняется от региона.",
+        "villageNone": "— Без деревни —",
+        "placeType": "Тип места",
+        "address": "Адрес",
+        "addressPlaceholder": "напр., Вандам, Габала",
+        "lat": "Широта",
+        "lng": "Долгота",
+        "useCurrentLocation": "Использовать моё местоположение",
+        "guests": "Гости",
+        "bedrooms": "Спальни",
+        "price": "Цена / ночь (AZN)",
+        "meals": "Питание",
+        "activities": "Активности"
+      },
+      "actionBar": {
+        "newListingFallback": "Новое объявление",
+        "photoCount": "{count, plural, =0 {0 фото} one {# фото} few {# фото} other {# фото}}",
+        "uploading": "Загрузка фото…",
+        "saving": "Сохранение…",
+        "creating": "Создание…",
+        "saveChanges": "Сохранить изменения",
+        "createListing": "Создать объявление"
+      },
+      "statusBanner": {
+        "errorCreateTitle": "Не удалось создать объявление",
+        "errorUpdateTitle": "Не удалось обновить объявление",
+        "successCreateTitle": "Объявление создано",
+        "successUpdateTitle": "Объявление обновлено",
+        "slugPrefix": "Slug:",
+        "changesSaved": "Изменения сохранены.",
+        "resetMessage": "Форма сброшена — можно создать ещё одно."
+      }
+    },
+    "regionForm": {
+      "sections": {
+        "nameTitle": "Название",
+        "nameDescription": "Локализованное название региона. Английский обязателен и используется как канонический запасной вариант.",
+        "displayTitle": "Отображение",
+        "displayDescription": "Управляет размещением и порядком на главной."
+      },
+      "fields": {
+        "nameEn": "Название (EN)",
+        "nameRu": "Название (RU)",
+        "nameAz": "Название (AZ)",
+        "nameEnPlaceholder": "Gabala",
+        "nameRuPlaceholder": "Габала",
+        "nameAzPlaceholder": "Qəbələ",
+        "slug": "Slug",
+        "slugHint": "Неизменяемый — используется в публичных URL и сохранённых фильтрах.",
+        "coverImage": "URL обложки",
+        "coverImageHint": "По желанию. Показывается в сетке Регионов на главной.",
+        "coverImagePlaceholder": "https://example.com/gabala.jpg",
+        "sortOrder": "Порядок сортировки",
+        "sortOrderHint": "Меньшие числа отображаются первыми. По умолчанию 0.",
+        "featured": "Избранный на главной",
+        "featuredHint": "Избранные регионы появляются в сетке Регионов на главной."
+      },
+      "createSubmit": "Создать регион",
+      "editSubmit": "Сохранить изменения",
+      "saving": "Сохранение…",
+      "saved": "Сохранено",
+      "localeTablistLabel": "Язык"
+    },
+    "imageUploader": {
+      "addPhotos": "Нажмите, чтобы добавить фото, или перетащите сюда",
+      "atLimit": "Достигнут лимит",
+      "formats": "JPEG · PNG · WebP · HEIC · максимум {size} каждое (авто-сжатие)",
+      "photoCount": "{count} / {max} фото",
+      "cover": "Обложка",
+      "addMore": "Добавить ещё",
+      "recommended": "Первое фото становится обложкой. Рекомендуем 3+ фото, чтобы гости могли представить место.",
+      "removePhoto": "Удалить фото {index}",
+      "photoAlt": "Фото {index}"
+    },
+    "existingImages": {
+      "current": "Текущие фото",
+      "remove": "Удалить",
+      "removeFailed": "Не удалось удалить фото",
+      "cover": "Обложка",
+      "photoAlt": "Фото {index}"
+    },
+    "labels": {
+      "placeType": {
+        "a-frame": "A-frame",
+        "villa-cottage": "Вилла / коттедж",
+        "hotel": "Отель",
+        "modular": "Модульный дом",
+        "village-room": "Комната в деревне"
+      },
+      "category": {
+        "mountain": "Горы",
+        "forest": "Лес",
+        "river": "Река",
+        "sea": "Море",
+        "lake": "Озеро"
+      },
+      "amenity": {
+        "wifi": "Wi-Fi",
+        "parking": "Парковка",
+        "pool": "Бассейн",
+        "sauna": "Сауна",
+        "jacuzzi": "Джакузи",
+        "fireplace": "Камин",
+        "kitchen": "Кухня",
+        "bbq": "Мангал",
+        "pets": "Можно с питомцами",
+        "heating": "Отопление",
+        "ac": "Кондиционер",
+        "tv": "Телевизор",
+        "washer": "Стиральная машина",
+        "iron": "Утюг",
+        "hairdryer": "Фен",
+        "crib": "Детская кроватка",
+        "kids": "Развлечения для детей",
+        "ev-charger": "Зарядка электромобиля"
+      },
+      "meal": {
+        "breakfast": "Завтрак включён",
+        "on-request": "Питание по запросу"
+      },
+      "activity": {
+        "quad": "Квадроцикл",
+        "horse": "Верховая езда",
+        "fishing": "Рыбалка"
+      }
+    }
   }
 }

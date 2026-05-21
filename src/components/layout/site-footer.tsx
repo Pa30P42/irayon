@@ -1,3 +1,4 @@
+import { Heading } from '@/components/ui/typography';
 import { useTranslations } from 'next-intl';
 import { SiteLogo } from './site-logo';
 
@@ -7,7 +8,7 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-background mt-12 border-t border-[var(--color-border)]">
+    <footer className="bg-background border-border mt-12 border-t">
       <div className="container-wide grid grid-cols-1 gap-8 py-12 md:grid-cols-4">
         <div>
           <SiteLogo />
@@ -27,7 +28,9 @@ export function SiteFooter() {
 function FooterColumn({ title, items }: { title: string; items: readonly string[] }) {
   return (
     <div>
-      <h3 className="mb-3 text-sm font-semibold">{title}</h3>
+      <Heading as="h3" level="column" className="mb-3">
+        {title}
+      </Heading>
       <ul className="text-foreground-muted space-y-2 text-sm">
         {items.map((item) => (
           <li key={item}>{item}</li>

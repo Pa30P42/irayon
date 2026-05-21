@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 
 type ShareSaveButtonsProps = {
   shareTitle: string;
-  shareText?: string;
+  shareText?: string | undefined;
 };
 
 export function ShareSaveButtons({ shareTitle, shareText }: ShareSaveButtonsProps) {
@@ -18,7 +18,10 @@ export function ShareSaveButtons({ shareTitle, shareText }: ShareSaveButtonsProp
     const url = window.location.href;
     if ('share' in navigator) {
       try {
-        await navigator.share({ title: shareTitle, text: shareText, url });
+        const data: ShareData = shareText
+          ? { title: shareTitle, text: shareText, url }
+          : { title: shareTitle, url };
+        await navigator.share(data);
         return;
       } catch {
         // User cancelled or share failed — fall through to clipboard.

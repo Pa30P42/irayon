@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { useTrackCall } from '@/hooks/use-track-call';
 import { cn } from '@/lib/utils';
 import { IconPhone } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
@@ -21,20 +22,12 @@ export function CallButton({
   size = 'lg',
 }: CallButtonProps) {
   const t = useTranslations('listings');
+  const trackCall = useTrackCall();
 
   const onClick = () => {
-    // Fire-and-forget: keepalive lets the request survive the navigation that
-    // a tel: link triggers on mobile.
-    try {
-      fetch('/api/calls', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ listingId, source }),
-        keepalive: true,
-      }).catch(() => {});
-    } catch {
-      // swallow — analytics must never block the call action
-    }
+    // Fire-and-forget — analytics must never block the call action, so we
+    // ignore the mutation result and any error.
+    trackCall.mutate({ listingId, source });
   };
 
   return (

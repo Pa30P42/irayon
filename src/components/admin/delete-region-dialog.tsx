@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertText } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,6 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { useDeleteRegion } from '@/hooks/use-admin-regions';
 import { IconAlertTriangle, IconLoader2 } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 type DeleteRegionDialogProps = {
@@ -30,6 +32,9 @@ export function DeleteRegionDialog({
   region,
   onDeleted,
 }: DeleteRegionDialogProps) {
+  const t = useTranslations('admin.dialogs');
+  const tRegion = useTranslations('admin.dialogs.deleteRegion');
+  const tCommon = useTranslations('admin.common');
   const mutation = useDeleteRegion();
   const [error, setError] = useState<string | null>(null);
 
@@ -49,7 +54,7 @@ export function DeleteRegionDialog({
         onDeleted?.();
       },
       onError: (err) => {
-        setError(err instanceof Error ? err.message : 'Delete failed');
+        setError(err instanceof Error ? err.message : tCommon('deleteFailed'));
       },
     });
   };
@@ -63,28 +68,25 @@ export function DeleteRegionDialog({
               <IconAlertTriangle size={20} />
             </div>
             <div>
-              <DialogTitle>Delete region?</DialogTitle>
-              <DialogDescription>This can&apos;t be undone.</DialogDescription>
+              <DialogTitle>{tRegion('title')}</DialogTitle>
+              <DialogDescription>{t('cantBeUndone')}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
         <div className="space-y-3 px-6 py-4 text-sm">
           <p>
-            <span className="text-foreground-muted">You&apos;re about to delete</span>{' '}
+            <span className="text-foreground-muted">{t('youreAboutToDelete')}</span>{' '}
             <strong>{region.title}</strong>.
           </p>
           {blocked ? (
-            <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-              This region has {region.listingCount} listing
-              {region.listingCount === 1 ? '' : 's'} and {region.villageCount} village
-              {region.villageCount === 1 ? '' : 's'}. Reassign or delete those first.
-            </p>
+            <AlertText variant="warning">
+              {tRegion('blocked', {
+                listings: region.listingCount,
+                villages: region.villageCount,
+              })}
+            </AlertText>
           ) : null}
-          {error ? (
-            <p className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
-              {error}
-            </p>
-          ) : null}
+          {error ? <AlertText variant="error">{error}</AlertText> : null}
         </div>
         <div className="border-border flex items-center justify-end gap-2 border-t px-6 py-3">
           <Button
@@ -93,21 +95,22 @@ export function DeleteRegionDialog({
             onClick={() => onOpenChange(false)}
             disabled={mutation.isPending}
           >
-            Cancel
+            {tCommon('cancel')}
           </Button>
           <Button
             type="button"
+            variant="destructive"
             onClick={onConfirm}
             disabled={mutation.isPending || blocked}
-            className="gap-2 bg-rose-600 text-white hover:bg-rose-700"
+            className="gap-2"
           >
             {mutation.isPending ? (
               <>
                 <IconLoader2 size={16} className="animate-spin" />
-                Deleting…
+                {tRegion('deleting')}
               </>
             ) : (
-              'Delete region'
+              tRegion('confirm')
             )}
           </Button>
         </div>

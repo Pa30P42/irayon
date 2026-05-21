@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { usePhotoLightbox } from '@/hooks/use-photo-lightbox';
 import { cn } from '@/lib/utils';
-import { IconChevronLeft, IconChevronRight, IconPhoto } from '@tabler/icons-react';
+import { IconChevronLeft, IconChevronRight, IconPhoto, IconX } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
@@ -14,7 +14,7 @@ type PhotoGalleryProps = {
   alt: string;
 };
 
-const MAX_GRID_PHOTOS = 5;
+const GRID_SLOTS = 4;
 
 export function PhotoGallery({ photos, alt }: PhotoGalleryProps) {
   const t = useTranslations('detail');
@@ -22,7 +22,7 @@ export function PhotoGallery({ photos, alt }: PhotoGalleryProps) {
 
   if (photos.length === 0) return null;
   const cover = photos[0];
-  const grid = photos.slice(1, MAX_GRID_PHOTOS);
+  const gridSlots = Array.from({ length: GRID_SLOTS }, (_, i) => photos[i + 1]);
 
   return (
     <>
@@ -48,50 +48,60 @@ export function PhotoGallery({ photos, alt }: PhotoGalleryProps) {
         ))}
       </div>
 
-      {/* Desktop: hero + 4-image grid */}
+      {/* Desktop: 1 hero + 2x2 grid, fixed height */}
       <div className="hidden md:block">
-        <div className="grid aspect-2/1 grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-2xl">
-          <button
-            type="button"
-            onClick={() => openAt(0)}
-            className="bg-accent focus-visible:ring-primary relative col-span-2 row-span-2 overflow-hidden focus-visible:ring-2 focus-visible:outline-none"
-            aria-label={`${alt} 1`}
-          >
-            {cover ? (
-              <Image
-                src={cover}
-                alt={alt}
-                fill
-                sizes="(min-width: 1280px) 50vw, 60vw"
-                className="object-cover transition-transform hover:scale-105"
-                priority
-              />
-            ) : null}
-          </button>
-
-          {grid.map((src, i) => (
+        <div className="relative h-130 overflow-hidden rounded-xl">
+          <div className="grid h-full grid-cols-2 gap-1">
             <button
-              key={`${src}-${i}`}
               type="button"
-              onClick={() => openAt(i + 1)}
-              className={cn(
-                'bg-accent focus-visible:ring-primary relative overflow-hidden focus-visible:ring-2 focus-visible:outline-none',
-              )}
-              aria-label={`${alt} ${i + 2}`}
+              onClick={() => openAt(0)}
+              className="bg-accent focus-visible:ring-primary group relative h-full w-full overflow-hidden focus-visible:ring-2 focus-visible:outline-none"
+              aria-label={`${alt} 1`}
             >
-              <Image
-                src={src}
-                alt={alt}
-                fill
-                sizes="(min-width: 1280px) 25vw, 30vw"
-                className="object-cover transition-transform hover:scale-105"
-              />
+              {cover ? (
+                <Image
+                  src={cover}
+                  alt={alt}
+                  fill
+                  sizes="(min-width: 1280px) 50vw, 60vw"
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  priority
+                />
+              ) : null}
             </button>
-          ))}
-        </div>
 
-        <div className="mt-3 flex justify-end">
-          <Button variant="outline" onClick={() => openAt(0)} className="gap-2">
+            <div className="grid grid-cols-2 grid-rows-2 gap-1">
+              {gridSlots.map((src, i) =>
+                src ? (
+                  <button
+                    key={`${src}-${i}`}
+                    type="button"
+                    onClick={() => openAt(i + 1)}
+                    className={cn(
+                      'bg-accent focus-visible:ring-primary group relative h-full w-full overflow-hidden focus-visible:ring-2 focus-visible:outline-none',
+                    )}
+                    aria-label={`${alt} ${i + 2}`}
+                  >
+                    <Image
+                      src={src}
+                      alt={alt}
+                      fill
+                      sizes="25vw"
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </button>
+                ) : (
+                  <div key={`empty-${i}`} className="bg-accent h-full w-full" aria-hidden />
+                ),
+              )}
+            </div>
+          </div>
+
+          <Button
+            variant="outline"
+            onClick={() => openAt(0)}
+            className="border-border/60 absolute right-4 bottom-4 gap-2 bg-white/80 text-black shadow-sm backdrop-blur-sm hover:bg-white"
+          >
             <IconPhoto size={16} />
             {t('showAllPhotos')} · {total}
           </Button>
@@ -100,6 +110,7 @@ export function PhotoGallery({ photos, alt }: PhotoGalleryProps) {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
+          hideClose
           className="bg-black/95 sm:h-[100dvh] sm:max-h-[100dvh] sm:max-w-none sm:rounded-none"
           aria-label={alt}
         >
@@ -108,6 +119,15 @@ export function PhotoGallery({ photos, alt }: PhotoGalleryProps) {
             {t('photoCount', { current: index + 1, total })}
           </DialogDescription>
           <div className="relative flex h-full w-full items-center justify-center">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label={t('closePhoto')}
+              className="absolute top-4 right-4 z-10 grid h-11 w-11 place-items-center rounded-full bg-white/90 text-black hover:bg-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+            >
+              <IconX size={20} />
+            </button>
+
             <button
               type="button"
               onClick={prev}

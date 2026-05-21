@@ -1,6 +1,9 @@
 'use client';
 
+import { Alert } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { EmptyState as UiEmptyState } from '@/components/ui/empty-state';
+import { Heading } from '@/components/ui/typography';
 import { useAdminRegions } from '@/hooks/use-admin-regions';
 import {
   IconAlertCircle,
@@ -12,6 +15,7 @@ import {
   IconStarFilled,
   IconTrash,
 } from '@tabler/icons-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useState } from 'react';
 import { DeleteRegionDialog } from './delete-region-dialog';
@@ -24,6 +28,8 @@ type DialogState = {
 } | null;
 
 export function AdminRegionsList() {
+  const t = useTranslations('admin.regions');
+  const tCommon = useTranslations('admin.common');
   const { data, isLoading, isError, error, refetch, isFetching } = useAdminRegions();
   const [toDelete, setToDelete] = useState<DialogState>(null);
 
@@ -33,9 +39,11 @@ export function AdminRegionsList() {
     <>
       <header className="mb-5 flex items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold sm:text-3xl">Regions</h1>
+          <Heading as="h1" level="page">
+            {t('title')}
+          </Heading>
           <p className="text-foreground-muted mt-1 text-sm">
-            {data ? `${regions.length} total` : 'Loading…'}
+            {data ? t('totalCount', { count: regions.length }) : t('loadingCount')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -45,7 +53,7 @@ export function AdminRegionsList() {
             size="sm"
             onClick={() => refetch()}
             disabled={isFetching}
-            aria-label="Refresh"
+            aria-label={t('refresh')}
             className="gap-1.5"
           >
             {isFetching ? (
@@ -53,12 +61,12 @@ export function AdminRegionsList() {
             ) : (
               <IconRefresh size={16} />
             )}
-            <span className="hidden sm:inline">Refresh</span>
+            <span className="hidden sm:inline">{t('refresh')}</span>
           </Button>
           <Button asChild size="sm" className="gap-2">
             <Link href="/admin/regions/new">
               <IconPlus size={16} />
-              <span>New region</span>
+              <span>{t('new')}</span>
             </Link>
           </Button>
         </div>
@@ -68,7 +76,7 @@ export function AdminRegionsList() {
         <Skeleton />
       ) : isError ? (
         <ErrorState
-          message={error instanceof Error ? error.message : 'Failed to load'}
+          message={error instanceof Error ? error.message : tCommon('loadFailed')}
           onRetry={() => refetch()}
         />
       ) : regions.length === 0 ? (
@@ -89,37 +97,36 @@ export function AdminRegionsList() {
                   {r.featured ? (
                     <span
                       className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800"
-                      title="Featured on homepage"
+                      title={t('featuredTitle')}
                     >
                       <IconStarFilled size={11} />
-                      Featured
+                      {t('featured')}
                     </span>
                   ) : null}
                 </h2>
                 <p className="text-foreground-muted mt-0.5 text-xs sm:text-sm">
                   <code className="text-[11px]">{r.slug}</code>
                   {' · '}
-                  <span>
-                    {r.listingCount} listing{r.listingCount === 1 ? '' : 's'}
-                  </span>
+                  <span>{t('listingsCount', { count: r.listingCount })}</span>
                   {' · '}
-                  <span>
-                    {r.villageCount} village{r.villageCount === 1 ? '' : 's'}
-                  </span>
+                  <span>{t('villagesCount', { count: r.villageCount })}</span>
                   {' · '}
-                  <span>order {r.sortOrder}</span>
+                  <span>{t('order', { value: r.sortOrder })}</span>
                 </p>
               </div>
               <div className="flex items-center gap-1.5">
                 <Button asChild variant="ghost" size="sm" className="gap-1.5">
-                  <Link href={`/admin/regions/${r.id}/edit`} aria-label={`Edit ${r.name.en}`}>
+                  <Link
+                    href={`/admin/regions/${r.id}/edit`}
+                    aria-label={t('editAria', { title: r.name.en })}
+                  >
                     <IconPencil size={14} />
-                    <span className="hidden sm:inline">Edit</span>
+                    <span className="hidden sm:inline">{t('edit')}</span>
                   </Link>
                 </Button>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="destructiveGhost"
                   size="sm"
                   onClick={() =>
                     setToDelete({
@@ -129,11 +136,11 @@ export function AdminRegionsList() {
                       villageCount: r.villageCount,
                     })
                   }
-                  className="gap-1.5 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
-                  aria-label={`Delete ${r.name.en}`}
+                  className="gap-1.5"
+                  aria-label={t('deleteAria', { title: r.name.en })}
                 >
                   <IconTrash size={14} />
-                  <span className="hidden sm:inline">Delete</span>
+                  <span className="hidden sm:inline">{t('delete')}</span>
                 </Button>
               </div>
             </li>
@@ -157,7 +164,7 @@ function Skeleton() {
     <ul className="space-y-2" aria-hidden>
       {Array.from({ length: 5 }).map((_, i) => (
         <li
-          key={i}
+          key={`skeleton-${i}`}
           className="border-border bg-background flex animate-pulse items-center gap-3 rounded-2xl border p-3 shadow-sm"
         >
           <div className="bg-accent h-12 w-12 shrink-0 rounded-md" />
@@ -172,36 +179,37 @@ function Skeleton() {
 }
 
 function EmptyState() {
+  const t = useTranslations('admin.regions');
   return (
-    <div className="border-border flex flex-col items-center gap-4 rounded-2xl border border-dashed py-16 text-center">
-      <div className="bg-accent grid h-12 w-12 place-items-center rounded-full">
-        <IconMap2 size={22} className="text-primary" aria-hidden />
-      </div>
-      <div className="space-y-1">
-        <h2 className="text-base font-semibold">No regions yet</h2>
-        <p className="text-foreground-muted text-sm">Add the first region to get started.</p>
-      </div>
-      <Button asChild className="gap-2">
-        <Link href="/admin/regions/new">
-          <IconPlus size={16} />
-          New region
-        </Link>
-      </Button>
-    </div>
+    <UiEmptyState
+      icon={<IconMap2 size={22} className="text-primary" aria-hidden />}
+      title={t('emptyTitle')}
+      description={t('emptyDescription')}
+      action={
+        <Button asChild className="gap-2">
+          <Link href="/admin/regions/new">
+            <IconPlus size={16} />
+            {t('emptyAction')}
+          </Link>
+        </Button>
+      }
+    />
   );
 }
 
 function ErrorState({ message, onRetry }: { message: string; onRetry: () => void }) {
+  const t = useTranslations('admin.regions');
+  const tCommon = useTranslations('admin.common');
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+    <Alert variant="error" size="lg">
       <IconAlertCircle size={18} className="mt-0.5 shrink-0" />
       <div className="flex-1">
-        <p className="font-medium">Couldn&apos;t load regions</p>
+        <p className="font-medium">{t('loadFailed')}</p>
         <p className="text-xs">{message}</p>
       </div>
       <Button type="button" size="sm" variant="outline" onClick={onRetry}>
-        Retry
+        {tCommon('retry')}
       </Button>
-    </div>
+    </Alert>
   );
 }

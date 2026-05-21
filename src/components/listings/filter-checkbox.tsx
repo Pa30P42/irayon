@@ -8,9 +8,9 @@ type FilterCheckboxProps = {
   id: string;
   label: string;
   checked: boolean;
-  count?: number;
+  count?: number | undefined;
   /** Incompatible (would yield 0 results). Renders strikethrough + non-interactive. */
-  incompatible?: boolean;
+  incompatible?: boolean | undefined;
   onChange: (next: boolean) => void;
 };
 

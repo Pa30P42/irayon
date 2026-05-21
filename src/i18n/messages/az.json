@@ -109,6 +109,7 @@
     "photoCount": "{current} / {total}",
     "previousPhoto": "Əvvəlki şəkil",
     "nextPhoto": "Növbəti şəkil",
+    "closePhoto": "Bağla",
     "memberSince": "{year}-dən üzv",
     "host": "Ev sahibi: {name}",
     "highlights": {
@@ -262,5 +263,304 @@
     "az": "Azərbaycanca",
     "ru": "Rus dili",
     "en": "İngilis dili"
+  },
+  "admin": {
+    "appName": "iRayon · Admin",
+    "localeSwitcher": { "label": "Admin paneli dili" },
+    "nav": {
+      "listings": "Elanlar",
+      "regions": "Regionlar",
+      "new": "Yeni",
+      "signOut": "Çıxış"
+    },
+    "login": {
+      "eyebrow": "iRayon · Admin",
+      "title": "Daxil ol",
+      "subtitle": "Davam etmək üçün admin məlumatlarınızı daxil edin.",
+      "username": "İstifadəçi adı",
+      "password": "Şifrə",
+      "submit": "Daxil ol",
+      "submitting": "Daxil olunur…"
+    },
+    "error": {
+      "title": "Admin xətası",
+      "tryAgain": "Yenidən cəhd et"
+    },
+    "common": {
+      "cancel": "Ləğv et",
+      "save": "Yadda saxla",
+      "saving": "Saxlanılır…",
+      "saved": "Saxlandı",
+      "edit": "Redaktə et",
+      "delete": "Sil",
+      "deleting": "Silinir…",
+      "refresh": "Yenilə",
+      "retry": "Yenidən cəhd et",
+      "loading": "Yüklənir…",
+      "view": "Bax",
+      "add": "Əlavə et",
+      "remove": "Sil",
+      "new": "Yeni",
+      "unknownError": "Naməlum xəta",
+      "saveFailed": "Saxlamaq alınmadı",
+      "deleteFailed": "Silmək alınmadı",
+      "updateFailed": "Yeniləmək alınmadı",
+      "createFailed": "Yaratmaq alınmadı",
+      "loadFailed": "Yüklənmədi"
+    },
+    "listings": {
+      "title": "Elanlar",
+      "totalCount": "Cəmi {count}",
+      "loadingCount": "Yüklənir…",
+      "new": "Yeni",
+      "newListing": "Yeni elan",
+      "edit": "Redaktə et",
+      "delete": "Sil",
+      "view": "Bax",
+      "refresh": "Yenilə",
+      "editAria": "{title} elanını redaktə et",
+      "deleteAria": "{title} elanını sil",
+      "perNight": "/ gecə",
+      "photoCount": "{count, plural, =0 {0 şəkil} one {# şəkil} other {# şəkil}}",
+      "emptyTitle": "Hələ heç bir elan yoxdur",
+      "emptyDescription": "İlk villa elanınızı yaradın.",
+      "emptyAction": "Yeni elan",
+      "loadFailed": "Elanları yükləmək alınmadı",
+      "newPage": {
+        "title": "Yeni elan",
+        "description": "Əvvəlcə şəkillər — bu, ən vacib sahədir. Aşağıdakı hər şey tək ekranda yerləşir, doldurmaq üçün aşağı sürüşdürün və sonra <strong>Elan yarat</strong> düyməsinə vurun."
+      },
+      "editPage": {
+        "title": "Elanı redaktə et",
+        "description": "Sahələri yeniləyin və <strong>Dəyişiklikləri saxla</strong> düyməsinə vurun. Şəkillərin əlavə edilməsi və ya silinməsi dərhal tətbiq olunur; qalan hər şey birlikdə saxlanılır."
+      }
+    },
+    "regions": {
+      "title": "Regionlar",
+      "totalCount": "Cəmi {count}",
+      "loadingCount": "Yüklənir…",
+      "new": "Yeni region",
+      "featured": "Seçilmiş",
+      "featuredTitle": "Ana səhifədə seçilmiş",
+      "refresh": "Yenilə",
+      "edit": "Redaktə et",
+      "delete": "Sil",
+      "editAria": "{title} regionunu redaktə et",
+      "deleteAria": "{title} regionunu sil",
+      "listingsCount": "{count, plural, =0 {0 elan} one {# elan} other {# elan}}",
+      "villagesCount": "{count, plural, =0 {0 kənd} one {# kənd} other {# kənd}}",
+      "order": "sıra {value}",
+      "emptyTitle": "Hələ heç bir region yoxdur",
+      "emptyDescription": "Başlamaq üçün ilk regionu əlavə edin.",
+      "emptyAction": "Yeni region",
+      "loadFailed": "Regionları yükləmək alınmadı",
+      "breadcrumbRoot": "Regionlar",
+      "breadcrumbNew": "Yeni",
+      "breadcrumbEdit": "Redaktə",
+      "newPage": { "title": "Yeni region" },
+      "editPage": {
+        "title": "Regionu redaktə et",
+        "notFound": "Region tapılmadı"
+      }
+    },
+    "villages": {
+      "title": "Kəndlər",
+      "description": "Bu regiondakı alt yerlər. Elan filtrlərində və elan formasında istifadə olunur.",
+      "count": "{count, plural, =0 {0 kənd} one {# kənd} other {# kənd}}",
+      "loading": "Yüklənir…",
+      "loadFailed": "Kəndləri yükləmək alınmadı",
+      "empty": "Hələ heç bir kənd yoxdur. Yuxarıda birincisini əlavə edin.",
+      "nameEn": "Ad (EN) *",
+      "nameRu": "Ad (RU)",
+      "nameAz": "Ad (AZ)",
+      "order": "Sıra",
+      "add": "Əlavə et",
+      "save": "Saxla",
+      "cancel": "Ləğv et",
+      "edit": "Redaktə et",
+      "delete": "Sil",
+      "editAria": "{title} kəndini redaktə et",
+      "deleteAria": "{title} kəndini sil",
+      "namePlaceholderEn": "Vandam",
+      "namePlaceholderRu": "Вандам",
+      "namePlaceholderAz": "Vəndam"
+    },
+    "dialogs": {
+      "cantBeUndone": "Bu əməliyyat geri qaytarıla bilməz.",
+      "youreAboutToDelete": "Siz aşağıdakını silmək üzrəsiniz:",
+      "deleteListing": {
+        "title": "Elanı silmək?",
+        "andPhotos": "{count, plural, =0 {} one {və # şəkil} other {və # şəkil}}",
+        "confirm": "Elanı sil",
+        "deleting": "Silinir…"
+      },
+      "deleteRegion": {
+        "title": "Regionu silmək?",
+        "blocked": "Bu regionda {listings, plural, =0 {0 elan} one {# elan} other {# elan}} və {villages, plural, =0 {0 kənd} one {# kənd} other {# kənd}} var. Əvvəlcə onları köçürün və ya silin.",
+        "confirm": "Regionu sil",
+        "deleting": "Silinir…"
+      },
+      "deleteVillage": {
+        "title": "Kəndi silmək?",
+        "confirm": "Kəndi sil",
+        "deleting": "Silinir…"
+      }
+    },
+    "listingForm": {
+      "sections": {
+        "photosTitle": "Şəkillər",
+        "photosDescription": "Telefonunuzdan şəkilləri əlavə etmək üçün toxunun. Biz onları keyfiyyət itirmədən avtomatik sıxacağıq.",
+        "basicInfoTitle": "Əsas məlumat",
+        "basicInfoDescription": "Hər dildə başlıq və təsvir.",
+        "locationTitle": "Məkan",
+        "capacityTitle": "Tutum və qiymət",
+        "categoriesTitle": "Kateqoriyalar",
+        "categoriesDescription": "Bu yerin uyğun olduğu hər kateqoriyanı seçin. Çayın yaxınlığındakı meşə evi həm biri, həm də digəri ola bilər.",
+        "amenitiesTitle": "Şərait",
+        "amenitiesDescription": "Bu yerin təklif etdiyi hər bir şəraitə toxunun.",
+        "mealsActivitiesTitle": "Yemək və əyləncələr"
+      },
+      "fields": {
+        "titleEn": "Başlıq (İngilis)",
+        "titleRu": "Başlıq (Rus)",
+        "titleAz": "Başlıq (Azərbaycan)",
+        "titleEnHint": "URL slug üçün istifadə olunur.",
+        "titleEnPlaceholder": "məs. Gabala Pine Retreat",
+        "titleFallbackPlaceholder": "İstəyə bağlı — İngilis dilinə qayıdır",
+        "descEn": "Təsvir (İngilis)",
+        "descRu": "Təsvir (Rus)",
+        "descAz": "Təsvir (Azərbaycan)",
+        "descPlaceholder": "Qonaqların nə gözləyə biləcəyi...",
+        "phone": "Telefon",
+        "phoneHint": "Zəng düyməsində göstərilir.",
+        "phonePlaceholder": "+994 50 123 45 67",
+        "region": "Region",
+        "village": "Kənd",
+        "villageHint": "İstəyə bağlı alt yer. Seçilmiş regiondan kaskad şəkildə dəyişir.",
+        "villageNone": "— Kənd yoxdur —",
+        "placeType": "Yer növü",
+        "address": "Ünvan",
+        "addressPlaceholder": "məs. Vəndam, Qəbələ",
+        "lat": "Enlik",
+        "lng": "Uzunluq",
+        "useCurrentLocation": "Mənim cari məkanımı istifadə et",
+        "guests": "Qonaqlar",
+        "bedrooms": "Yataq otağı",
+        "price": "Qiymət / gecə (AZN)",
+        "meals": "Yeməklər",
+        "activities": "Əyləncələr"
+      },
+      "actionBar": {
+        "newListingFallback": "Yeni elan",
+        "photoCount": "{count, plural, =0 {0 şəkil} one {# şəkil} other {# şəkil}}",
+        "uploading": "Şəkillər yüklənir…",
+        "saving": "Saxlanılır…",
+        "creating": "Yaradılır…",
+        "saveChanges": "Dəyişiklikləri saxla",
+        "createListing": "Elan yarat"
+      },
+      "statusBanner": {
+        "errorCreateTitle": "Elanı yaratmaq alınmadı",
+        "errorUpdateTitle": "Elanı yeniləmək alınmadı",
+        "successCreateTitle": "Elan yaradıldı",
+        "successUpdateTitle": "Elan yeniləndi",
+        "slugPrefix": "Slug:",
+        "changesSaved": "Dəyişikliklər saxlanıldı.",
+        "resetMessage": "Forma sıfırlandı — yenisini yarada bilərsiniz."
+      }
+    },
+    "regionForm": {
+      "sections": {
+        "nameTitle": "Ad",
+        "nameDescription": "Lokallaşdırılmış region adı. İngilis dili məcburidir və əsas ehtiyat kimi istifadə olunur.",
+        "displayTitle": "Görünüş",
+        "displayDescription": "Ana səhifədə yerləşdirilməni və sıralamanı idarə edir."
+      },
+      "fields": {
+        "nameEn": "Ad (EN)",
+        "nameRu": "Ad (RU)",
+        "nameAz": "Ad (AZ)",
+        "nameEnPlaceholder": "Gabala",
+        "nameRuPlaceholder": "Габала",
+        "nameAzPlaceholder": "Qəbələ",
+        "slug": "Slug",
+        "slugHint": "Dəyişməz — açıq URL və saxlanılan filtrlərdə istifadə olunur.",
+        "coverImage": "Cover şəkil URL",
+        "coverImageHint": "İstəyə bağlı. Ana səhifədəki Regionlar şəbəkəsində göstərilir.",
+        "coverImagePlaceholder": "https://example.com/gabala.jpg",
+        "sortOrder": "Sıralama",
+        "sortOrderHint": "Daha aşağı rəqəm əvvəl görünür. Standart 0.",
+        "featured": "Ana səhifədə seçilmiş",
+        "featuredHint": "Seçilmiş regionlar ana səhifədəki Regionlar şəbəkəsində görünür."
+      },
+      "createSubmit": "Regionu yarat",
+      "editSubmit": "Dəyişiklikləri saxla",
+      "saving": "Saxlanılır…",
+      "saved": "Saxlandı",
+      "localeTablistLabel": "Dil"
+    },
+    "imageUploader": {
+      "addPhotos": "Şəkil əlavə etmək üçün toxunun və ya buraya buraxın",
+      "atLimit": "Limit dolub",
+      "formats": "JPEG · PNG · WebP · HEIC · hər biri maks. {size} (avtomatik sıxılır)",
+      "photoCount": "{count} / {max} şəkil",
+      "cover": "Üz qabığı",
+      "addMore": "Daha çox əlavə et",
+      "recommended": "Birinci şəkil üz qabığı olur. Qonaqların məkanı təsəvvür edə bilməsi üçün 3+ şəkil tövsiyə olunur.",
+      "removePhoto": "{index} şəkli sil",
+      "photoAlt": "Şəkil {index}"
+    },
+    "existingImages": {
+      "current": "Cari şəkillər",
+      "remove": "Sil",
+      "removeFailed": "Şəkli silmək alınmadı",
+      "cover": "Üz qabığı",
+      "photoAlt": "Şəkil {index}"
+    },
+    "labels": {
+      "placeType": {
+        "a-frame": "A-frame",
+        "villa-cottage": "Villa / kottec",
+        "hotel": "Otel",
+        "modular": "Modul ev",
+        "village-room": "Kənd otağı"
+      },
+      "category": {
+        "mountain": "Dağ",
+        "forest": "Meşə",
+        "river": "Çay",
+        "sea": "Dəniz",
+        "lake": "Göl"
+      },
+      "amenity": {
+        "wifi": "Wi-Fi",
+        "parking": "Avtopark",
+        "pool": "Hovuz",
+        "sauna": "Sauna",
+        "jacuzzi": "Jakuzi",
+        "fireplace": "Kamin",
+        "kitchen": "Mətbəx",
+        "bbq": "Mangal",
+        "pets": "Heyvanlarla",
+        "heating": "İstilik sistemi",
+        "ac": "Kondisioner",
+        "tv": "Televizor",
+        "washer": "Paltaryuyan",
+        "iron": "Ütü",
+        "hairdryer": "Saç qurutmaq üçün cihaz",
+        "crib": "Uşaq beşiyi",
+        "kids": "Uşaqlar üçün əyləncə",
+        "ev-charger": "Elektromobil zaryadı"
+      },
+      "meal": {
+        "breakfast": "Səhər yeməyi daxil",
+        "on-request": "Yemək (sorğu ilə)"
+      },
+      "activity": {
+        "quad": "Kvadrosikl",
+        "horse": "At sürmə",
+        "fishing": "Balıq tutmaq"
+      }
+    }
   }
 }

@@ -143,10 +143,10 @@ async function seedListings(
           description: listing.description as unknown as Prisma.InputJsonValue,
           regionId,
           villageId,
-          placeType: toEnumValue(listing.placeType) as Prisma.ListingCreateInput['placeType'],
+          placeType: toEnumValue(listing.placeType) as NonNullable<Prisma.ListingCreateInput['placeType']>,
           categories: {
             set: listing.categories.map(toEnumValue) as never,
-          } as Prisma.ListingCreateInput['categories'],
+          } as NonNullable<Prisma.ListingCreateInput['categories']>,
           price: listing.price,
           rating: listing.rating,
           reviewCount: listing.reviewCount,
@@ -156,20 +156,20 @@ async function seedListings(
           lng: listing.location.lng,
           address: listing.location.address,
           phone: listing.phone,
-          meals: listing.meals.map(toEnumValue) as Prisma.ListingCreateInput['meals'],
+          meals: listing.meals.map(toEnumValue) as NonNullable<Prisma.ListingCreateInput['meals']>,
           activities: listing.activities.map(
             toEnumValue,
-          ) as Prisma.ListingCreateInput['activities'],
+          ) as NonNullable<Prisma.ListingCreateInput['activities']>,
         },
         update: {
           title: listing.title as unknown as Prisma.InputJsonValue,
           description: listing.description as unknown as Prisma.InputJsonValue,
           regionId,
           villageId,
-          placeType: toEnumValue(listing.placeType) as Prisma.ListingUpdateInput['placeType'],
+          placeType: toEnumValue(listing.placeType) as NonNullable<Prisma.ListingUpdateInput['placeType']>,
           categories: {
             set: listing.categories.map(toEnumValue) as never,
-          } as Prisma.ListingUpdateInput['categories'],
+          } as NonNullable<Prisma.ListingUpdateInput['categories']>,
           price: listing.price,
           rating: listing.rating,
           reviewCount: listing.reviewCount,
@@ -179,10 +179,10 @@ async function seedListings(
           lng: listing.location.lng,
           address: listing.location.address,
           phone: listing.phone,
-          meals: listing.meals.map(toEnumValue) as Prisma.ListingUpdateInput['meals'],
+          meals: listing.meals.map(toEnumValue) as NonNullable<Prisma.ListingUpdateInput['meals']>,
           activities: listing.activities.map(
             toEnumValue,
-          ) as Prisma.ListingUpdateInput['activities'],
+          ) as NonNullable<Prisma.ListingUpdateInput['activities']>,
         },
       });
 

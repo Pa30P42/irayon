@@ -1,4 +1,5 @@
 import { ListingsMapLoader } from '@/components/listings/map/listings-map-loader';
+import { Heading } from '@/components/ui/typography';
 import type { Listing, Locale } from '@/types';
 import { IconMapPin } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
@@ -14,7 +15,7 @@ export function ListingLocation({ listing, locale }: ListingLocationProps) {
 
   return (
     <section className="space-y-4">
-      <h2 className="text-xl font-semibold">{t('title')}</h2>
+      <Heading level="subsection">{t('title')}</Heading>
 
       <div className="border-border relative aspect-16/9 w-full overflow-hidden rounded-2xl border">
         <ListingsMapLoader

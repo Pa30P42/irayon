@@ -15,7 +15,6 @@ export function NewRegionClient() {
         const result = await create.mutateAsync(values);
         router.push(`/admin/regions/${result.id}/edit`);
       }}
-      submitLabel="Create region"
     />
   );
 }

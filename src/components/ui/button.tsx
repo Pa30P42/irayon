@@ -16,6 +16,8 @@ const buttonVariants = cva(
           'border border-[var(--color-border)] bg-transparent hover:bg-[var(--color-accent)]',
         ghost: 'hover:bg-[var(--color-accent)]',
         link: 'text-[var(--color-primary)] underline-offset-4 hover:underline',
+        destructive: 'bg-rose-600 text-white hover:bg-rose-700',
+        destructiveGhost: 'text-rose-600 hover:bg-rose-50 hover:text-rose-700',
       },
       size: {
         sm: 'h-9 px-3',

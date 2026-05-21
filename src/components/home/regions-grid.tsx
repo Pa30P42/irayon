@@ -1,3 +1,4 @@
+import { Heading } from '@/components/ui/typography';
 import { Link } from '@/i18n/navigation';
 import { listRegions } from '@/lib/api/listings-service';
 import { HOME_FEATURED_REGION_LIMIT } from '@/lib/constants';
@@ -67,7 +68,7 @@ export async function RegionsGrid({ locale }: RegionsGridProps) {
   return (
     <section className="container-wide py-12">
       <header className="mb-8">
-        <h2 className="text-2xl font-semibold md:text-3xl">{t('title')}</h2>
+        <Heading level="section">{t('title')}</Heading>
         <p className="text-foreground-muted mt-2">{t('subtitle')}</p>
       </header>
       <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6">
