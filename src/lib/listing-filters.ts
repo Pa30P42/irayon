@@ -8,7 +8,7 @@ export function filterByHomeCategory(listings: Listing[], category: HomeCategory
     case 'forest':
     case 'river':
     case 'sea':
-      return listings.filter((l) => l.category === category);
+      return listings.filter((l) => l.categories.includes(category));
     case 'pool':
       return listings.filter((l) => l.amenities.includes('pool'));
     case 'bbq':

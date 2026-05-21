@@ -6,6 +6,7 @@ describe('emptyListingsQuery', () => {
     const q = emptyListingsQuery();
     expect(q).toEqual({
       q: '',
+      category: [],
       region: [],
       village: [],
       type: [],

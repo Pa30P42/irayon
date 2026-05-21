@@ -21,10 +21,11 @@ const matchesGuests = (listing: Listing, range: GuestRange | null): boolean => {
 
 const matchesPlacement = (listing: Listing, placements: Placement[]): boolean => {
   if (placements.length === 0) return true;
+  const cats = listing.categories;
   return placements.some((p) =>
     p === 'forest'
-      ? listing.category === 'forest' || listing.category === 'mountain'
-      : listing.category === 'river' || listing.category === 'sea' || listing.category === 'lake',
+      ? cats.includes('forest') || cats.includes('mountain')
+      : cats.includes('river') || cats.includes('sea') || cats.includes('lake'),
   );
 };
 

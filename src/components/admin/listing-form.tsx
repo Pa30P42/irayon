@@ -27,7 +27,7 @@ const DEFAULT_VALUES: FormValues = {
   region: 'gabala',
   villageId: null,
   placeType: 'villa-cottage' as PlaceType,
-  category: 'mountain' as ListingCategory,
+  categories: ['mountain'] as ListingCategory[],
   price: 200,
   capacity: 4,
   bedrooms: 2,
@@ -486,16 +486,18 @@ export function ListingForm({
       </SectionCard>
 
       {/* CATEGORY */}
-      <SectionCard title="Category" description="Where is this place located?">
+      <SectionCard
+        title="Categories"
+        description="Pick every category this place fits. A forest cabin near a river can be both."
+      >
         <Controller
           control={control}
-          name="category"
+          name="categories"
           render={({ field }) => (
             <ChipGroup
-              ariaLabel="Category"
-              single
-              selected={[field.value as ListingCategory]}
-              onChange={(next) => field.onChange(next[0])}
+              ariaLabel="Categories"
+              selected={field.value as ListingCategory[]}
+              onChange={field.onChange}
               options={CATEGORIES.map((c) => ({
                 value: c as ListingCategory,
                 label: CATEGORY_LABEL[c as ListingCategory],
@@ -503,6 +505,9 @@ export function ListingForm({
             />
           )}
         />
+        {errors.categories?.message ? (
+          <p className="text-xs text-rose-600">{errors.categories.message}</p>
+        ) : null}
       </SectionCard>
 
       {/* AMENITIES */}

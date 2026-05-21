@@ -6,7 +6,7 @@ const validBase = {
   description: { en: 'A peaceful pine retreat in the woods.' },
   region: 'gabala',
   placeType: 'villa-cottage',
-  category: 'forest',
+  categories: ['forest'],
   price: 320,
   capacity: 8,
   bedrooms: 4,
@@ -40,8 +40,17 @@ describe('createListingSchema', () => {
   });
 
   it('rejects unknown values for fixed-universe enums (category, placeType)', () => {
-    expect(() => createListingSchema.parse({ ...validBase, category: 'volcano' })).toThrow();
+    expect(() => createListingSchema.parse({ ...validBase, categories: ['volcano'] })).toThrow();
     expect(() => createListingSchema.parse({ ...validBase, placeType: 'unknown' })).toThrow();
+  });
+
+  it('accepts multiple categories', () => {
+    const parsed = createListingSchema.parse({ ...validBase, categories: ['forest', 'river'] });
+    expect(parsed.categories).toEqual(['forest', 'river']);
+  });
+
+  it('requires at least one category', () => {
+    expect(() => createListingSchema.parse({ ...validBase, categories: [] })).toThrow();
   });
 
   it('accepts an explicit villageId or null', () => {

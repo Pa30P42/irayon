@@ -11,7 +11,7 @@ export const regionSchema = z.string().min(1);
 export const amenitySchema = z.enum(AMENITIES as readonly [string, ...string[]]);
 
 export const listingFiltersSchema = z.object({
-  category: listingCategorySchema.optional(),
+  category: z.array(listingCategorySchema).optional(),
   region: regionSchema.optional(),
   minPrice: z.coerce.number().int().nonnegative().optional(),
   maxPrice: z.coerce.number().int().positive().optional(),

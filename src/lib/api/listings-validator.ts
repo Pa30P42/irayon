@@ -31,7 +31,12 @@ const csvSlugs = z.preprocess(csvArray, z.array(z.string().min(1)).default([]));
 
 export const listingsQuerySchema = z.object({
   q: z.string().trim().max(200).optional().default(''),
-  category: z.enum(CATEGORIES as readonly [string, ...string[]]).optional(),
+  /**
+   * One or more category slugs. Accepts the single-value form `?category=forest`
+   * AND the CSV form `?category=forest,mountain` — both come in via the same
+   * URL key and parse into an array on the service side.
+   */
+  category: csvEnum(CATEGORIES as readonly [string, ...string[]]),
   /** Region slugs (multi). Single-value URLs (?region=gabala) parse fine. */
   region: csvSlugs,
   /** Village slugs (multi). Validated against DB at the service layer. */

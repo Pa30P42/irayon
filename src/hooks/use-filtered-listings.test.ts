@@ -16,7 +16,7 @@ const make = (overrides: Partial<Listing> & Pick<Listing, 'id'>): Listing => ({
   price: 200,
   images: [],
   amenities: [],
-  category: 'mountain',
+  categories: ['mountain'],
   rating: 4,
   reviewCount: 10,
   capacity: 4,
@@ -30,11 +30,11 @@ const make = (overrides: Partial<Listing> & Pick<Listing, 'id'>): Listing => ({
 });
 
 const fixtures: Listing[] = [
-  make({ id: '1', category: 'mountain', amenities: ['pool', 'wifi'], bedrooms: 4 }),
-  make({ id: '2', category: 'forest', amenities: ['fireplace', 'heating'], bedrooms: 2 }),
-  make({ id: '3', category: 'sea', amenities: ['pool', 'bbq'], bedrooms: 5 }),
-  make({ id: '4', category: 'river', amenities: ['kitchen'], bedrooms: 1 }),
-  make({ id: '5', category: 'mountain', amenities: ['fireplace'], bedrooms: 3 }),
+  make({ id: '1', categories: ['mountain'], amenities: ['pool', 'wifi'], bedrooms: 4 }),
+  make({ id: '2', categories: ['forest'], amenities: ['fireplace', 'heating'], bedrooms: 2 }),
+  make({ id: '3', categories: ['sea'], amenities: ['pool', 'bbq'], bedrooms: 5 }),
+  make({ id: '4', categories: ['river'], amenities: ['kitchen'], bedrooms: 1 }),
+  make({ id: '5', categories: ['mountain'], amenities: ['fireplace'], bedrooms: 3 }),
 ];
 
 describe('useFilteredListings', () => {

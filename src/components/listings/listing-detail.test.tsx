@@ -27,7 +27,7 @@ const listing = makeListing({
   title: { az: 'AZ Title', ru: 'RU Title', en: 'Gabala Pine Retreat' },
   description: { az: 'AZ desc', ru: 'RU desc', en: 'A peaceful pine retreat in the woods.' },
   region: 'gabala',
-  category: 'forest',
+  categories: ['forest'],
   price: 320,
   capacity: 8,
   bedrooms: 4,

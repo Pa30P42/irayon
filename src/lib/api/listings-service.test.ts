@@ -38,7 +38,20 @@ describe('listListingsFromMock', () => {
   it('filters by category + region simultaneously', () => {
     const query = listingsQuerySchema.parse({ category: 'forest', region: 'gabala' });
     const result = listListingsFromMock(query);
-    expect(result.data.every((l) => l.category === 'forest' && l.region === 'gabala')).toBe(true);
+    expect(
+      result.data.every((l) => l.categories.includes('forest') && l.region === 'gabala'),
+    ).toBe(true);
+  });
+
+  it('filters by multiple categories (OR overlap)', () => {
+    const query = listingsQuerySchema.parse({ category: 'forest,river' });
+    const result = listListingsFromMock(query);
+    expect(result.data.length).toBeGreaterThan(0);
+    expect(
+      result.data.every(
+        (l) => l.categories.includes('forest') || l.categories.includes('river'),
+      ),
+    ).toBe(true);
   });
 
   it('respects price_min / price_max bounds', () => {
@@ -107,7 +120,7 @@ const mkRow = (overrides: Partial<ListingRow> = {}): ListingRow =>
     villageId: null,
     village: null,
     placeType: 'VILLA_COTTAGE',
-    category: 'FOREST',
+    categories: ['FOREST'],
     price: 320,
     rating: 4.9,
     reviewCount: 100,
@@ -168,7 +181,7 @@ describe('rowToDto', () => {
       villageSlug: null,
       villageName: null,
       placeType: 'villa-cottage',
-      category: 'forest',
+      categories: ['forest'],
       meals: ['breakfast'],
       activities: ['horse'],
       amenities: ['wifi'],
@@ -234,7 +247,8 @@ describe('listListingsFromDb', () => {
     // We can also inspect calls to listing.findMany via mockDeep:
     expect(db.listing.findMany).toHaveBeenCalled();
     const findManyArgs = db.listing.findMany.mock.calls[0]?.[0];
-    expect(findManyArgs?.where?.category).toBe('FOREST');
+    const cat = findManyArgs?.where?.categories as { hasSome: string[] };
+    expect(cat.hasSome).toEqual(['FOREST']);
   });
 
   it('builds a placement filter that maps "water" to RIVER/SEA/LAKE', async () => {
@@ -244,8 +258,12 @@ describe('listListingsFromDb', () => {
     await listListingsFromDb(query, db);
 
     const findManyArgs = db.listing.findMany.mock.calls[0]?.[0];
-    const cat = findManyArgs?.where?.category as { in: string[] };
-    expect(cat.in.sort()).toEqual(['LAKE', 'RIVER', 'SEA']);
+    // Placement is composed under AND alongside any explicit category filter.
+    const andClauses = findManyArgs?.where?.AND as Array<{
+      categories?: { hasSome: string[] };
+    }>;
+    const placementClause = andClauses.find((c) => c.categories?.hasSome);
+    expect(placementClause?.categories?.hasSome.sort()).toEqual(['LAKE', 'RIVER', 'SEA']);
   });
 });
 
@@ -261,7 +279,7 @@ describe('getListingFromDb', () => {
     db.listing.findUnique.mockResolvedValueOnce(mkRow() as never);
     const result = await getListingFromDb('db-villa', db);
     expect(result?.slug).toBe('db-villa');
-    expect(result?.category).toBe('forest');
+    expect(result?.categories).toEqual(['forest']);
   });
 });
 
