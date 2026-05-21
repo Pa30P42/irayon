@@ -109,6 +109,7 @@
     "photoCount": "{current} / {total}",
     "previousPhoto": "Previous photo",
     "nextPhoto": "Next photo",
+    "closePhoto": "Close",
     "memberSince": "Member since {year}",
     "host": "Hosted by {name}",
     "highlights": {

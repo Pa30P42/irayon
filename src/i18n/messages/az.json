@@ -109,6 +109,7 @@
     "photoCount": "{current} / {total}",
     "previousPhoto": "Əvvəlki şəkil",
     "nextPhoto": "Növbəti şəkil",
+    "closePhoto": "Bağla",
     "memberSince": "{year}-dən üzv",
     "host": "Ev sahibi: {name}",
     "highlights": {

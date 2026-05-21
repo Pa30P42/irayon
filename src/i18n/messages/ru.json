@@ -109,6 +109,7 @@
     "photoCount": "{current} / {total}",
     "previousPhoto": "Предыдущее фото",
     "nextPhoto": "Следующее фото",
+    "closePhoto": "Закрыть",
     "memberSince": "На сайте с {year}",
     "host": "Хозяин: {name}",
     "highlights": {

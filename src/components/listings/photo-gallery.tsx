@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
 import { usePhotoLightbox } from '@/hooks/use-photo-lightbox';
 import { cn } from '@/lib/utils';
-import { IconChevronLeft, IconChevronRight, IconPhoto } from '@tabler/icons-react';
+import { IconChevronLeft, IconChevronRight, IconPhoto, IconX } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 
@@ -100,6 +100,7 @@ export function PhotoGallery({ photos, alt }: PhotoGalleryProps) {
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
+          hideClose
           className="bg-black/95 sm:h-[100dvh] sm:max-h-[100dvh] sm:max-w-none sm:rounded-none"
           aria-label={alt}
         >
@@ -108,6 +109,15 @@ export function PhotoGallery({ photos, alt }: PhotoGalleryProps) {
             {t('photoCount', { current: index + 1, total })}
           </DialogDescription>
           <div className="relative flex h-full w-full items-center justify-center">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label={t('closePhoto')}
+              className="absolute top-4 right-4 z-10 grid h-11 w-11 place-items-center rounded-full bg-white/90 text-black hover:bg-white focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none"
+            >
+              <IconX size={20} />
+            </button>
+
             <button
               type="button"
               onClick={prev}
