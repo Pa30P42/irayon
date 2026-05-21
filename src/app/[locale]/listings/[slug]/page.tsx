@@ -61,21 +61,24 @@ export default async function ListingDetailPage({ params }: ListingDetailProps) 
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const listing = await getListingBySlug(slug);
+  // Listing + translations have no inter-dependencies — fan them out so the
+  // server's TTFB is bounded by the slowest of the three, not their sum.
+  const [listing, t, tAmenity] = await Promise.all([
+    getListingBySlug(slug),
+    getTranslations({ locale, namespace: 'listings' }),
+    getTranslations({ locale, namespace: 'amenity' }),
+  ]);
   if (!listing) notFound();
 
   // Same-region siblings, server-filtered. Returns up to 5 so we can drop
-  // the current listing and still have 4 to display.
+  // the current listing and still have 4 to display. Genuinely depends on
+  // `listing.region`, so it stays sequential.
   const { data: regionListings } = await listListings(
     emptyListingsQuery({ region: [listing.region], sort: 'newest', limit: 5 }),
   );
   const similar = regionListings.filter((l) => l.id !== listing.id).slice(0, 4);
 
   const seoLocale = locale as SeoLocale;
-  const [t, tAmenity] = await Promise.all([
-    getTranslations({ locale, namespace: 'listings' }),
-    getTranslations({ locale, namespace: 'amenity' }),
-  ]);
 
   const base = SITE.url.replace(/\/$/, '');
   const canonicalUrl = `${base}/${locale}/listings/${listing.slug}`;
