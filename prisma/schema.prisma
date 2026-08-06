@@ -3,8 +3,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Session-mode (port 5432) connection for migrate/seed/studio — those
+  // don't work through Supabase's pgbouncer transaction pooler.
+  directUrl = env("DIRECT_URL")
 }
 
 // Enum values are mapped to the kebab/lowercase forms used by the API DTOs,

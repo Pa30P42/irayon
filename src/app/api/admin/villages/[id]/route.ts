@@ -10,6 +10,7 @@ import {
 } from '@/lib/api/api-response';
 import { parseLocalized } from '@/lib/api/localized-text';
 import { villageUpdateSchema } from '@/lib/api/villages-validator';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import type { Village } from '@/types';
 import type { Prisma } from '@prisma/client';
@@ -40,7 +41,7 @@ export async function GET(request: Request, { params }: Context): Promise<Respon
     if (!row) return apiNotFound(`Village "${id}" not found`);
     return apiOk(toDto(row));
   } catch (err) {
-    console.error(`GET /api/admin/villages/${id} failed`, err);
+    logger.error(`GET /api/admin/villages/${id} failed`, { err });
     return apiServerError('Fetch failed');
   }
 }
@@ -105,7 +106,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
       if (code === 'P2002')
         return apiConflict('A village with this slug already exists in the target region');
     }
-    console.error(`PATCH /api/admin/villages/${id} failed`, err);
+    logger.error(`PATCH /api/admin/villages/${id} failed`, { err });
     return apiServerError('Update failed');
   }
 }
@@ -144,7 +145,7 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2025') {
       return apiNotFound(`Village "${id}" not found`);
     }
-    console.error(`DELETE /api/admin/villages/${id} failed`, err);
+    logger.error(`DELETE /api/admin/villages/${id} failed`, { err });
     return apiServerError('Delete failed');
   }
 }

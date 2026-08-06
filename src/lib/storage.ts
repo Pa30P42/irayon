@@ -57,8 +57,7 @@ export function sniffImageMatchesMime(bytes: Uint8Array, mime: AllowedImageMime)
     // bytes. Lighter check: bytes 4-7 == 'ftyp' AND bytes 8-11 in known AVIF
     // brand set.
     case 'image/avif': {
-      const ftyp =
-        b[4] === 0x66 && b[5] === 0x74 && b[6] === 0x79 && b[7] === 0x70;
+      const ftyp = b[4] === 0x66 && b[5] === 0x74 && b[6] === 0x79 && b[7] === 0x70;
       if (!ftyp) return false;
       const brand = String.fromCharCode(b[8]!, b[9]!, b[10]!, b[11]!);
       return brand === 'avif' || brand === 'avis' || brand === 'mif1' || brand === 'msf1';

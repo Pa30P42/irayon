@@ -113,17 +113,8 @@ export function ListingFormLocationSection() {
         />
       </Field>
 
-      <Field
-        label={tFields('address')}
-        required
-        error={errors.address?.message}
-        htmlFor="address"
-      >
-        <Input
-          id="address"
-          {...register('address')}
-          placeholder={tFields('addressPlaceholder')}
-        />
+      <Field label={tFields('address')} required error={errors.address?.message} htmlFor="address">
+        <Input id="address" {...register('address')} placeholder={tFields('addressPlaceholder')} />
       </Field>
 
       <div className="grid grid-cols-2 gap-3">

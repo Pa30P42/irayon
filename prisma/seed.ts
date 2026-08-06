@@ -143,7 +143,9 @@ async function seedListings(
           description: listing.description as unknown as Prisma.InputJsonValue,
           regionId,
           villageId,
-          placeType: toEnumValue(listing.placeType) as NonNullable<Prisma.ListingCreateInput['placeType']>,
+          placeType: toEnumValue(listing.placeType) as NonNullable<
+            Prisma.ListingCreateInput['placeType']
+          >,
           categories: {
             set: listing.categories.map(toEnumValue) as never,
           } as NonNullable<Prisma.ListingCreateInput['categories']>,
@@ -157,16 +159,18 @@ async function seedListings(
           address: listing.location.address,
           phone: listing.phone,
           meals: listing.meals.map(toEnumValue) as NonNullable<Prisma.ListingCreateInput['meals']>,
-          activities: listing.activities.map(
-            toEnumValue,
-          ) as NonNullable<Prisma.ListingCreateInput['activities']>,
+          activities: listing.activities.map(toEnumValue) as NonNullable<
+            Prisma.ListingCreateInput['activities']
+          >,
         },
         update: {
           title: listing.title as unknown as Prisma.InputJsonValue,
           description: listing.description as unknown as Prisma.InputJsonValue,
           regionId,
           villageId,
-          placeType: toEnumValue(listing.placeType) as NonNullable<Prisma.ListingUpdateInput['placeType']>,
+          placeType: toEnumValue(listing.placeType) as NonNullable<
+            Prisma.ListingUpdateInput['placeType']
+          >,
           categories: {
             set: listing.categories.map(toEnumValue) as never,
           } as NonNullable<Prisma.ListingUpdateInput['categories']>,
@@ -180,9 +184,9 @@ async function seedListings(
           address: listing.location.address,
           phone: listing.phone,
           meals: listing.meals.map(toEnumValue) as NonNullable<Prisma.ListingUpdateInput['meals']>,
-          activities: listing.activities.map(
-            toEnumValue,
-          ) as NonNullable<Prisma.ListingUpdateInput['activities']>,
+          activities: listing.activities.map(toEnumValue) as NonNullable<
+            Prisma.ListingUpdateInput['activities']
+          >,
         },
       });
 

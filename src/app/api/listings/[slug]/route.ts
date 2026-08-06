@@ -3,6 +3,7 @@ export const revalidate = 300;
 
 import { apiNotFound, apiOk, apiServerError } from '@/lib/api/api-response';
 import { getListingBySlug } from '@/lib/api/listings-service';
+import { logger } from '@/lib/logger';
 
 type Context = {
   params: Promise<{ slug: string }>;
@@ -16,7 +17,7 @@ export async function GET(_request: Request, { params }: Context): Promise<Respo
     if (!listing) return apiNotFound(`Listing "${slug}" not found`);
     return apiOk(listing);
   } catch (err) {
-    console.error(`GET /api/listings/${slug} failed`, err);
+    logger.error(`GET /api/listings/${slug} failed`, { err });
     return apiServerError();
   }
 }

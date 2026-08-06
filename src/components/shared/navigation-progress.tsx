@@ -95,10 +95,7 @@ function NavigationProgressInner() {
   if (!visible) return null;
 
   return (
-    <div
-      aria-hidden
-      className="pointer-events-none fixed inset-x-0 top-0 z-60 h-0.5"
-    >
+    <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 z-60 h-0.5">
       <div
         className="bg-primary h-full shadow-[0_0_8px_var(--color-primary)] transition-[width,opacity] duration-200 ease-out"
         style={{ width: `${progress}%`, opacity: progress >= 100 ? 0 : 1 }}

@@ -50,12 +50,7 @@ export function ListingFormCapacitySection() {
             )}
           />
         </Field>
-        <Field
-          label={tFields('price')}
-          required
-          error={errors.price?.message}
-          htmlFor="price"
-        >
+        <Field label={tFields('price')} required error={errors.price?.message} htmlFor="price">
           <Input
             id="price"
             type="number"

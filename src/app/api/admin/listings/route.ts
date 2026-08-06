@@ -9,6 +9,7 @@ import {
 } from '@/lib/api/api-response';
 import { createListingSchema, type CreateListingInput } from '@/lib/api/listings-create-validator';
 import { toActivity, toCategory, toMeal, toPlaceType } from '@/lib/api/prisma-enums';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { slugify, uniqueSlug } from '@/lib/slug';
 import type { Activity, ListingCategory, Meal, PlaceType } from '@/types';
@@ -115,7 +116,7 @@ export async function POST(request: Request): Promise<Response> {
     });
     return apiOk(created, { status: 201 });
   } catch (err) {
-    console.error('POST /api/admin/listings failed', err);
+    logger.error('POST /api/admin/listings failed', { err });
     return apiServerError('Create failed');
   }
 }

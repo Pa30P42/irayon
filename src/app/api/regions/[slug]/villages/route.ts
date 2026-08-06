@@ -1,5 +1,6 @@
 import { apiNotFound, apiOk, apiServerError } from '@/lib/api/api-response';
 import { listVillagesByRegionSlug } from '@/lib/api/listings-service';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 
 type Context = { params: Promise<{ slug: string }> };
@@ -23,7 +24,7 @@ export async function GET(_request: Request, { params }: Context): Promise<Respo
     const data = await listVillagesByRegionSlug(slug);
     return apiOk({ data });
   } catch (err) {
-    console.error(`GET /api/regions/${slug}/villages failed`, err);
+    logger.error(`GET /api/regions/${slug}/villages failed`, { err });
     return apiServerError('Fetch failed');
   }
 }

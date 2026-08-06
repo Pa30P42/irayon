@@ -1,5 +1,5 @@
-import { prisma } from './prisma';
 import type { Prisma } from '@prisma/client';
+import { prisma } from './prisma';
 
 /**
  * Record an admin mutation in the audit trail. Best-effort: failures are

@@ -3,6 +3,7 @@ import { recordAdminLog } from '@/lib/admin-log';
 import { apiBadRequest, apiBadRequestRaw, apiOk, apiServerError } from '@/lib/api/api-response';
 import { listRegionsWithVillages } from '@/lib/api/listings-service';
 import { regionCreateSchema } from '@/lib/api/regions-validator';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { slugify, uniqueSlug } from '@/lib/slug';
 import type { Prisma } from '@prisma/client';
@@ -21,7 +22,7 @@ export async function GET(request: Request): Promise<Response> {
     const data = await listRegionsWithVillages();
     return apiOk({ data });
   } catch (err) {
-    console.error('GET /api/admin/regions failed', err);
+    logger.error('GET /api/admin/regions failed', { err });
     return apiServerError('Fetch failed');
   }
 }
@@ -78,7 +79,7 @@ export async function POST(request: Request): Promise<Response> {
     });
     return apiOk(created, { status: 201 });
   } catch (err) {
-    console.error('POST /api/admin/regions failed', err);
+    logger.error('POST /api/admin/regions failed', { err });
     return apiServerError('Create failed');
   }
 }

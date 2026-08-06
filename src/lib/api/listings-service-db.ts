@@ -13,8 +13,8 @@ import type {
 } from '@/types';
 import { $Enums, type Prisma, type PrismaClient } from '@prisma/client';
 import { LISTING_INCLUDE, rowToDto } from './listing-dto';
-import type { ListListingsResult } from './listings-service-mock';
 import type { CreateListingInput } from './listings-create-validator';
+import type { ListListingsResult } from './listings-service-mock';
 import type { ListingsQuery } from './listings-validator';
 import { parseLocalized } from './localized-text';
 import { toActivity, toCategory, toMeal, toPlaceType } from './prisma-enums';

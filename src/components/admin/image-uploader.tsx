@@ -61,9 +61,7 @@ export function ImageUploader({ onReadyFilesChange, maxFiles }: ImageUploaderPro
         <div className="bg-accent grid h-12 w-12 place-items-center rounded-full">
           <IconCamera size={24} className="text-primary" aria-hidden />
         </div>
-        <div className="text-sm font-medium">
-          {atLimit ? t('atLimit') : t('addPhotos')}
-        </div>
+        <div className="text-sm font-medium">{atLimit ? t('atLimit') : t('addPhotos')}</div>
         <div className="text-foreground-muted text-xs">
           {t('formats', { size: formatBytes(MAX_UPLOAD_BYTES) })}
         </div>

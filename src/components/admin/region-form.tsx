@@ -2,10 +2,10 @@
 // Client component: orchestrates the create/edit region form (RHF + zod).
 
 import { Alert } from '@/components/ui/alert';
-import { Field } from '@/components/ui/form-field';
-import { SectionCard } from '@/components/ui/section-card';
 import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
+import { SectionCard } from '@/components/ui/section-card';
 import { regionCreateSchema, type RegionCreateInput } from '@/lib/api/regions-validator';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -79,10 +79,7 @@ export function RegionForm({
 
   return (
     <form onSubmit={handleSubmit(submit)} className="space-y-6">
-      <SectionCard
-        title={tSections('nameTitle')}
-        description={tSections('nameDescription')}
-      >
+      <SectionCard title={tSections('nameTitle')} description={tSections('nameDescription')}>
         <div
           role="tablist"
           aria-label={t('localeTablistLabel')}
@@ -140,10 +137,7 @@ export function RegionForm({
         </div>
       </SectionCard>
 
-      <SectionCard
-        title={tSections('displayTitle')}
-        description={tSections('displayDescription')}
-      >
+      <SectionCard title={tSections('displayTitle')} description={tSections('displayDescription')}>
         {mode === 'edit' && slug ? (
           <Field label={tFields('slug')} hint={tFields('slugHint')}>
             <Input value={slug} readOnly disabled />

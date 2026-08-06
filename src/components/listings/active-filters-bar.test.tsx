@@ -13,9 +13,7 @@ describe('ActiveFiltersBar — CopyLinkButton', () => {
     // `userEvent.setup()` installs a virtual clipboard, so we must spy AFTER
     // setup — patching earlier (e.g. in beforeEach) gets overwritten.
     const user = userEvent.setup();
-    const writeTextSpy = vi
-      .spyOn(navigator.clipboard, 'writeText')
-      .mockResolvedValue(undefined);
+    const writeTextSpy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue(undefined);
 
     // Need at least one active filter for the bar to render.
     renderWithProviders(

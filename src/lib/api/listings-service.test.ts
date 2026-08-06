@@ -38,9 +38,9 @@ describe('listListingsFromMock', () => {
   it('filters by category + region simultaneously', () => {
     const query = listingsQuerySchema.parse({ category: 'forest', region: 'gabala' });
     const result = listListingsFromMock(query);
-    expect(
-      result.data.every((l) => l.categories.includes('forest') && l.region === 'gabala'),
-    ).toBe(true);
+    expect(result.data.every((l) => l.categories.includes('forest') && l.region === 'gabala')).toBe(
+      true,
+    );
   });
 
   it('filters by multiple categories (OR overlap)', () => {
@@ -48,9 +48,7 @@ describe('listListingsFromMock', () => {
     const result = listListingsFromMock(query);
     expect(result.data.length).toBeGreaterThan(0);
     expect(
-      result.data.every(
-        (l) => l.categories.includes('forest') || l.categories.includes('river'),
-      ),
+      result.data.every((l) => l.categories.includes('forest') || l.categories.includes('river')),
     ).toBe(true);
   });
 

@@ -13,7 +13,6 @@ export const toPlaceType = (v: PlaceType): $Enums.PlaceType =>
 export const toCategory = (v: ListingCategory): $Enums.ListingCategory =>
   v.toUpperCase() as $Enums.ListingCategory;
 
-export const toMeal = (v: Meal): $Enums.Meal =>
-  v.toUpperCase().replace(/-/g, '_') as $Enums.Meal;
+export const toMeal = (v: Meal): $Enums.Meal => v.toUpperCase().replace(/-/g, '_') as $Enums.Meal;
 
 export const toActivity = (v: Activity): $Enums.Activity => v.toUpperCase() as $Enums.Activity;

@@ -9,6 +9,7 @@ import {
 } from '@/lib/api/api-response';
 import { listListings } from '@/lib/api/listings-service';
 import { listingsQuerySchema, searchParamsToObject } from '@/lib/api/listings-validator';
+import { logger } from '@/lib/logger';
 import type { Listing } from '@/types';
 
 export async function GET(request: Request): Promise<Response> {
@@ -20,7 +21,7 @@ export async function GET(request: Request): Promise<Response> {
     const result = await listListings(parsed.data);
     return apiPaginated<Listing>(result satisfies Paginated<Listing>);
   } catch (err) {
-    console.error('GET /api/listings failed', err);
+    logger.error('GET /api/listings failed', { err });
     return apiServerError();
   }
 }

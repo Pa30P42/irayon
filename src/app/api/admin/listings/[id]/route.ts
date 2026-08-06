@@ -9,6 +9,7 @@ import {
 } from '@/lib/api/api-response';
 import { createListingSchema } from '@/lib/api/listings-create-validator';
 import { deleteListing, getListingById, updateListing } from '@/lib/api/listings-service';
+import { logger } from '@/lib/logger';
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -30,7 +31,7 @@ export async function GET(request: Request, { params }: Context): Promise<Respon
     if (!listing) return apiNotFound(`Listing "${id}" not found`);
     return apiOk(listing);
   } catch (err) {
-    console.error(`GET /api/admin/listings/${id} failed`, err);
+    logger.error(`GET /api/admin/listings/${id} failed`, { err });
     return apiServerError('Fetch failed');
   }
 }
@@ -67,7 +68,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2025') {
       return apiNotFound(`Listing "${id}" not found`);
     }
-    console.error(`PATCH /api/admin/listings/${id} failed`, err);
+    logger.error(`PATCH /api/admin/listings/${id} failed`, { err });
     return apiServerError('Update failed');
   }
 }
@@ -97,7 +98,7 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2025') {
       return apiNotFound(`Listing "${id}" not found`);
     }
-    console.error(`DELETE /api/admin/listings/${id} failed`, err);
+    logger.error(`DELETE /api/admin/listings/${id} failed`, { err });
     return apiServerError('Delete failed');
   }
 }

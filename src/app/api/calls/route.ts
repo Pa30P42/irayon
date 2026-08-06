@@ -1,3 +1,4 @@
+import { checkRateLimit, getClientIp, rateLimitHeaders } from '@/lib/rate-limit';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -7,6 +8,14 @@ const callEventSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  const rate = checkRateLimit('calls', getClientIp(request));
+  if (!rate.success) {
+    return NextResponse.json(
+      { error: 'rate_limited' },
+      { status: 429, headers: rateLimitHeaders(rate) },
+    );
+  }
+
   let body: unknown;
   try {
     body = await request.json();

@@ -49,12 +49,9 @@ type AlertTextProps = React.HTMLAttributes<HTMLParagraphElement> &
  */
 export function AlertText({ className, variant, ...props }: AlertTextProps) {
   return (
-    <p
-      className={cn(alertTextVariants({ variant }), 'px-3 py-2 text-xs', className)}
-      {...props}
-    />
+    <p className={cn(alertTextVariants({ variant }), 'px-3 py-2 text-xs', className)} {...props} />
   );
 }
 
-export { alertVariants, alertTextVariants };
+export { alertTextVariants, alertVariants };
 export type { AlertProps, AlertTextProps };

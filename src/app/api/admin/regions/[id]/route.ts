@@ -10,6 +10,7 @@ import {
 } from '@/lib/api/api-response';
 import { parseLocalized } from '@/lib/api/localized-text';
 import { regionUpdateSchema } from '@/lib/api/regions-validator';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import type { RegionWithVillages } from '@/types';
 import type { Prisma } from '@prisma/client';
@@ -62,7 +63,7 @@ export async function GET(request: Request, { params }: Context): Promise<Respon
     if (!row) return apiNotFound(`Region "${id}" not found`);
     return apiOk(toDto(row));
   } catch (err) {
-    console.error(`GET /api/admin/regions/${id} failed`, err);
+    logger.error(`GET /api/admin/regions/${id} failed`, { err });
     return apiServerError('Fetch failed');
   }
 }
@@ -114,7 +115,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2025') {
       return apiNotFound(`Region "${id}" not found`);
     }
-    console.error(`PATCH /api/admin/regions/${id} failed`, err);
+    logger.error(`PATCH /api/admin/regions/${id} failed`, { err });
     return apiServerError('Update failed');
   }
 }
@@ -153,7 +154,7 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2025') {
       return apiNotFound(`Region "${id}" not found`);
     }
-    console.error(`DELETE /api/admin/regions/${id} failed`, err);
+    logger.error(`DELETE /api/admin/regions/${id} failed`, { err });
     return apiServerError('Delete failed');
   }
 }

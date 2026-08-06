@@ -5,25 +5,25 @@ Villa and cottage rentals across Azerbaijan — built with Next.js 15, React 19,
 ## Quick start
 
 ```bash
-npm install
+pnpm install
 cp .env.example .env
-npm run prisma:generate
-npm run dev
+pnpm prisma:generate
+pnpm dev
 ```
 
 Open <http://localhost:3000> — the middleware redirects to the default locale (`/az`).
 
 ## Scripts
 
-| Command             | Purpose                     |
-| ------------------- | --------------------------- |
-| `npm run dev`       | Next dev server (Turbopack) |
-| `npm run build`     | Production build            |
-| `npm run start`     | Run production build        |
-| `npm run lint`      | ESLint flat config          |
-| `npm run format`    | Prettier                    |
-| `npm run typecheck` | `tsc --noEmit`              |
-| `npm run test`      | Vitest                      |
+| Command          | Purpose                     |
+| ---------------- | --------------------------- |
+| `pnpm dev`       | Next dev server (Turbopack) |
+| `pnpm build`     | Production build            |
+| `pnpm start`     | Run production build        |
+| `pnpm lint`      | ESLint flat config          |
+| `pnpm format`    | Prettier                    |
+| `pnpm typecheck` | `tsc --noEmit`              |
+| `pnpm test`      | Vitest                      |
 
 ## Locales
 

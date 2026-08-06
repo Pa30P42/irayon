@@ -10,6 +10,7 @@ import {
 } from '@/lib/api/api-response';
 import { parseLocalized } from '@/lib/api/localized-text';
 import { villageCreateSchema } from '@/lib/api/villages-validator';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { slugify, uniqueSlug } from '@/lib/slug';
 import type { Village } from '@/types';
@@ -48,7 +49,7 @@ export async function GET(request: Request, { params }: Context): Promise<Respon
     }));
     return apiOk({ data });
   } catch (err) {
-    console.error(`GET /api/admin/regions/${id}/villages failed`, err);
+    logger.error(`GET /api/admin/regions/${id}/villages failed`, { err });
     return apiServerError('Fetch failed');
   }
 }
@@ -115,7 +116,7 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2002') {
       return apiConflict(`Village "${slug}" already exists in this region`);
     }
-    console.error(`POST /api/admin/regions/${regionId}/villages failed`, err);
+    logger.error(`POST /api/admin/regions/${regionId}/villages failed`, { err });
     return apiServerError('Create failed');
   }
 }

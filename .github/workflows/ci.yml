@@ -1,0 +1,61 @@
+# Quality gate for the repo. Runs on every PR and on pushes to main so the
+# lint / typecheck / test / format suite can't silently go red. Mark this
+# workflow as a required status check in branch protection to enforce it
+# before merge.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Cancel superseded runs on the same ref (e.g. rapid pushes to a PR branch).
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lint, typecheck, test, format, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # pnpm before setup-node so the node cache can key off the pnpm store.
+      # Version is read from the `packageManager` field in package.json.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The generated Prisma client provides the types `tsc` and the tests
+      # rely on (e.g. the `Prisma` namespace). `generate` reads schema.prisma
+      # only — it never connects to a database.
+      - name: Generate Prisma client
+        run: pnpm prisma:generate
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test
+
+      # Compile the production bundle to catch build-only breakage (RSC, typed
+      # routes, server/client boundary) that lint/typecheck/test miss. Runs with
+      # DATABASE_URL unset, so the services fall back to mock data and the build
+      # never touches a real database (and never runs migrations).
+      - name: Build
+        run: pnpm build:ci

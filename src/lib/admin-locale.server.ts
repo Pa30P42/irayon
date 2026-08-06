@@ -1,5 +1,5 @@
-import 'server-only';
 import { cookies } from 'next/headers';
+import 'server-only';
 import {
   ADMIN_LOCALE_COOKIE,
   DEFAULT_ADMIN_LOCALE,

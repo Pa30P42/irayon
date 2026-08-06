@@ -7,6 +7,7 @@ import {
   apiOk,
   apiServerError,
 } from '@/lib/api/api-response';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import {
   ALLOWED_IMAGE_MIME_TYPES,
@@ -112,7 +113,7 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
     });
     return apiOk({ data: created }, { status: 201 });
   } catch (err) {
-    console.error(`POST /api/admin/listings/${id}/images failed`, err);
+    logger.error(`POST /api/admin/listings/${id}/images failed`, { err });
     return apiServerError('Upload failed');
   }
 }

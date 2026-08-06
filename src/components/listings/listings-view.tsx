@@ -2,8 +2,8 @@
 // Client component: wires URL filters to a server-fetched listings query
 // (TanStack-cached, refetches when the URL filter slice changes).
 
-import { useListingsFilter } from '@/hooks/use-listings-filter';
 import { useListings } from '@/hooks/use-listings';
+import { useListingsFilter } from '@/hooks/use-listings-filter';
 import type { Paginated } from '@/lib/api/api-response';
 import { queryFromFilterState } from '@/lib/api/listings-query-from-state';
 import type { Listing, Locale } from '@/types';
