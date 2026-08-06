@@ -9,6 +9,7 @@ import {
   apiServerError,
 } from '@/lib/api/api-response';
 import { parseLocalized } from '@/lib/api/localized-text';
+import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
 import { villageCreateSchema } from '@/lib/api/villages-validator';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
@@ -111,6 +112,7 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
       target: created.id,
       metadata: { regionId: created.regionId, slug: created.slug },
     });
+    revalidateListingSurfaces();
     return apiOk(created, { status: 201 });
   } catch (err) {
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2002') {

@@ -13,6 +13,7 @@ import {
   updateListingFromDb,
   type DeleteListingResult,
   type ListingImageRef,
+  type ListingStatusScope,
 } from './listings-service-db';
 import {
   getListingFromMock,
@@ -40,8 +41,17 @@ import type { ListingsQuery } from './listings-validator';
 export const isUsingMockData = (): boolean =>
   !process.env.DATABASE_URL || process.env.DATABASE_URL === '';
 
-export async function listListings(query: ListingsQuery): Promise<ListListingsResult> {
-  return isUsingMockData() ? listListingsFromMock(query) : listListingsFromDb(query);
+/**
+ * Public reads default to `'published'` rows only. The admin API is the only
+ * caller that widens the scope (specific status or `'all'`).
+ */
+export async function listListings(
+  query: ListingsQuery,
+  status: ListingStatusScope = 'published',
+): Promise<ListListingsResult> {
+  return isUsingMockData()
+    ? listListingsFromMock(query, status)
+    : listListingsFromDb(query, undefined, status);
 }
 
 export async function getListingBySlug(slug: string): Promise<Listing | null> {
@@ -86,7 +96,8 @@ export async function listVillagesByRegionSlug(regionSlug: string) {
  */
 export async function deleteListing(id: string): Promise<DeleteListingResult> {
   if (isUsingMockData()) {
-    return { deleted: true, storageRemoved: 0, storageFailed: 0 };
+    const listing = mockListings.find((l) => l.id === id);
+    return { deleted: true, slug: listing?.slug ?? null, storageRemoved: 0, storageFailed: 0 };
   }
   return deleteListingFromDb(id);
 }
@@ -101,9 +112,11 @@ export {
   listListingsFromDb,
   listRegionsFromDb,
   listRegionsWithVillagesFromDb,
+  publicListingWhere,
   updateListingFromDb,
   type DeleteListingResult,
   type ListingImageRef,
+  type ListingStatusScope,
 } from './listings-service-db';
 export {
   getListingFromMock,

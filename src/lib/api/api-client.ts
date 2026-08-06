@@ -1,6 +1,6 @@
 import type { Paginated } from '@/lib/api/api-response';
 import type { ListingsQuery } from '@/lib/api/listings-validator';
-import type { Listing, RegionSummary, RegionWithVillages, Village } from '@/types';
+import type { Listing, ListingStatus, RegionSummary, RegionWithVillages, Village } from '@/types';
 
 /**
  * Browser-side fetcher used by TanStack Query hooks. Throws on non-2xx so
@@ -57,6 +57,34 @@ export async function fetchListings(
   const params = buildListingsParams(input);
   const res = await fetch(buildUrl('/api/listings', params), init);
   return okJson<Paginated<Listing>>(res);
+}
+
+export type AdminListingsQueryInput = ListingsQueryInput & {
+  /** Admin-only status scope; `all` (default) includes drafts and archived. */
+  status?: ListingStatus | 'all';
+};
+
+/** Admin catalogue: same shape as the public list, plus drafts/archived. */
+export async function fetchAdminListings(
+  input: AdminListingsQueryInput,
+  init?: RequestInit,
+): Promise<Paginated<Listing>> {
+  const params = buildListingsParams(input);
+  const res = await fetch(buildUrl('/api/admin/listings', params), init);
+  return okJson<Paginated<Listing>>(res);
+}
+
+/** Flip only a listing's status (admin list quick action). */
+export async function patchListingStatus(
+  id: string,
+  status: ListingStatus,
+): Promise<{ id: string; slug: string | null; status: ListingStatus }> {
+  const res = await fetch(buildUrl(`/api/admin/listings/${encodeURIComponent(id)}/status`), {
+    method: 'PATCH',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ status }),
+  });
+  return okJson(res);
 }
 
 export async function fetchListingBySlug(

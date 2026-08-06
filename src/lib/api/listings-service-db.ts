@@ -4,6 +4,7 @@ import type {
   Activity,
   Listing,
   ListingCategory,
+  ListingStatus,
   Meal,
   PlaceType,
   RegionSummary,
@@ -17,7 +18,23 @@ import type { CreateListingInput } from './listings-create-validator';
 import type { ListListingsResult } from './listings-service-mock';
 import type { ListingsQuery } from './listings-validator';
 import { parseLocalized } from './localized-text';
-import { toActivity, toCategory, toMeal, toPlaceType } from './prisma-enums';
+import { toActivity, toCategory, toListingStatus, toMeal, toPlaceType } from './prisma-enums';
+
+/**
+ * Visibility gate for every public read. Apply anywhere a listing reaches an
+ * unauthenticated surface (catalogue, detail, sitemap, static params) so
+ * drafts/archived rows never leak.
+ */
+export const publicListingWhere = { status: $Enums.ListingStatus.PUBLISHED } as const;
+
+/**
+ * Status scope for service reads. Public callers get the default
+ * (`'published'`); the admin API passes an explicit status or `'all'`.
+ */
+export type ListingStatusScope = ListingStatus | 'all';
+
+const statusWhere = (scope: ListingStatusScope): Prisma.ListingWhereInput =>
+  scope === 'all' ? {} : { status: toListingStatus(scope) };
 
 /**
  * Prisma-backed implementations of the listings service. Exported separately
@@ -25,8 +42,11 @@ import { toActivity, toCategory, toMeal, toPlaceType } from './prisma-enums';
  * `PrismaClient` instead of standing up a real DB.
  */
 
-function buildWhere(query: ListingsQuery): Prisma.ListingWhereInput {
-  const where: Prisma.ListingWhereInput = {};
+function buildWhere(
+  query: ListingsQuery,
+  status: ListingStatusScope = 'published',
+): Prisma.ListingWhereInput {
+  const where: Prisma.ListingWhereInput = { ...statusWhere(status) };
   // `categories` is an enum array on Postgres; `hasSome` translates to the
   // `&&` overlap operator, so the listing matches if any of its categories
   // appears in the filter list.
@@ -133,8 +153,9 @@ function buildOrderBy(sort?: SortOption): Prisma.ListingOrderByWithRelationInput
 export async function listListingsFromDb(
   query: ListingsQuery,
   db: PrismaClient = defaultPrisma,
+  status: ListingStatusScope = 'published',
 ): Promise<ListListingsResult> {
-  const where = buildWhere(query);
+  const where = buildWhere(query, status);
   const orderBy = buildOrderBy(query.sort as SortOption | undefined);
   const skip = (query.page - 1) * query.limit;
 
@@ -158,7 +179,12 @@ export async function getListingFromDb(
   slug: string,
   db: PrismaClient = defaultPrisma,
 ): Promise<Listing | null> {
-  const row = await db.listing.findUnique({ where: { slug }, include: LISTING_INCLUDE });
+  // findFirst (not findUnique) so the public visibility gate composes with
+  // the unique slug lookup — drafts/archived listings 404 publicly.
+  const row = await db.listing.findFirst({
+    where: { slug, ...publicListingWhere },
+    include: LISTING_INCLUDE,
+  });
   return row ? rowToDto(row) : null;
 }
 
@@ -246,6 +272,7 @@ export async function updateListingFromDb(
         regionId: region.id,
         villageId,
         placeType: toPlaceType(input.placeType as PlaceType),
+        status: toListingStatus(input.status as ListingStatus),
         categories: { set: (input.categories as ListingCategory[]).map(toCategory) },
         price: input.price,
         capacity: input.capacity,
@@ -346,6 +373,8 @@ export async function listVillagesByRegionSlug(
 
 export type DeleteListingResult = {
   deleted: boolean;
+  /** Slug of the removed listing, so callers can revalidate its detail pages. */
+  slug: string | null;
   storageRemoved: number;
   storageFailed: number;
 };
@@ -363,7 +392,7 @@ export async function deleteListingFromDb(
   });
 
   // Throws (P2025) if the listing doesn't exist — the route handler maps that to 404.
-  await db.listing.delete({ where: { id } });
+  const removed = await db.listing.delete({ where: { id }, select: { slug: true } });
 
   let storageRemoved = 0;
   let storageFailed = 0;
@@ -373,5 +402,5 @@ export async function deleteListingFromDb(
     else storageFailed += 1;
   }
 
-  return { deleted: true, storageRemoved, storageFailed };
+  return { deleted: true, slug: removed.slug, storageRemoved, storageFailed };
 }

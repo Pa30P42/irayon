@@ -266,7 +266,9 @@
   },
   "admin": {
     "appName": "iRayon · Admin",
-    "localeSwitcher": { "label": "Admin language" },
+    "localeSwitcher": {
+      "label": "Admin language"
+    },
     "nav": {
       "listings": "Listings",
       "regions": "Regions",
@@ -333,7 +335,15 @@
       "editPage": {
         "title": "Edit listing",
         "description": "Update fields and tap <strong>Save changes</strong>. Removing or adding photos applies immediately; everything else is saved together."
-      }
+      },
+      "statusFilter": "Filter by status",
+      "statusAll": "All",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "archive": "Archive",
+      "publishAria": "Publish {title}",
+      "unpublishAria": "Unpublish {title}",
+      "archiveAria": "Archive {title}"
     },
     "regions": {
       "title": "Regions",
@@ -357,7 +367,9 @@
       "breadcrumbRoot": "Regions",
       "breadcrumbNew": "New",
       "breadcrumbEdit": "Edit",
-      "newPage": { "title": "New region" },
+      "newPage": {
+        "title": "New region"
+      },
       "editPage": {
         "title": "Edit region",
         "notFound": "Region not found"
@@ -418,7 +430,9 @@
         "categoriesDescription": "Pick every category this place fits. A forest cabin near a river can be both.",
         "amenitiesTitle": "Amenities",
         "amenitiesDescription": "Tap each amenity that this place offers.",
-        "mealsActivitiesTitle": "Meals & activities"
+        "mealsActivitiesTitle": "Meals & activities",
+        "statusTitle": "Status",
+        "statusDescription": "Drafts and archived listings are hidden from the public site. Only published listings appear in the catalogue, search, and sitemap."
       },
       "fields": {
         "titleEn": "Title (English)",
@@ -560,6 +574,11 @@
         "quad": "Quad bike",
         "horse": "Horseback riding",
         "fishing": "Fishing"
+      },
+      "status": {
+        "draft": "Draft",
+        "published": "Published",
+        "archived": "Archived"
       }
     }
   }

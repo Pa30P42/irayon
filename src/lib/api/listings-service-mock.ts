@@ -5,6 +5,7 @@ import type {
   Amenity,
   Listing,
   ListingsFilterState,
+  ListingStatus,
   Meal,
   PlaceType,
   RegionSummary,
@@ -38,9 +39,13 @@ function queryToFilterState(query: ListingsQuery): ListingsFilterState {
   };
 }
 
-export function listListingsFromMock(query: ListingsQuery): ListListingsResult {
+export function listListingsFromMock(
+  query: ListingsQuery,
+  status: ListingStatus | 'all' = 'published',
+): ListListingsResult {
   const filterState = queryToFilterState(query);
-  let results = applyListingsFilter(mockListings, filterState);
+  const visible = status === 'all' ? mockListings : mockListings.filter((l) => l.status === status);
+  let results = applyListingsFilter(visible, filterState);
 
   if (query.category.length > 0) {
     const wanted = new Set(query.category);
@@ -77,7 +82,8 @@ export function listListingsFromMock(query: ListingsQuery): ListListingsResult {
 }
 
 export function getListingFromMock(slug: string): Listing | null {
-  return mockListings.find((l) => l.slug === slug) ?? null;
+  // Public read: mirror the DB path's visibility gate.
+  return mockListings.find((l) => l.slug === slug && l.status === 'published') ?? null;
 }
 
 export function listRegionsFromMock(): RegionSummary[] {

@@ -266,7 +266,9 @@
   },
   "admin": {
     "appName": "iRayon · Admin",
-    "localeSwitcher": { "label": "Язык админ-панели" },
+    "localeSwitcher": {
+      "label": "Язык админ-панели"
+    },
     "nav": {
       "listings": "Объявления",
       "regions": "Регионы",
@@ -333,7 +335,15 @@
       "editPage": {
         "title": "Редактировать объявление",
         "description": "Обновите поля и нажмите <strong>Сохранить изменения</strong>. Добавление и удаление фото применяется сразу; остальное сохраняется вместе."
-      }
+      },
+      "statusFilter": "Фильтр по статусу",
+      "statusAll": "Все",
+      "publish": "Опубликовать",
+      "unpublish": "Снять с публикации",
+      "archive": "В архив",
+      "publishAria": "Опубликовать {title}",
+      "unpublishAria": "Снять с публикации {title}",
+      "archiveAria": "Архивировать {title}"
     },
     "regions": {
       "title": "Регионы",
@@ -357,7 +367,9 @@
       "breadcrumbRoot": "Регионы",
       "breadcrumbNew": "Новый",
       "breadcrumbEdit": "Изменить",
-      "newPage": { "title": "Новый регион" },
+      "newPage": {
+        "title": "Новый регион"
+      },
       "editPage": {
         "title": "Редактировать регион",
         "notFound": "Регион не найден"
@@ -418,7 +430,9 @@
         "categoriesDescription": "Выберите все категории, подходящие к этому месту. Лесной домик у реки может быть и тем, и другим.",
         "amenitiesTitle": "Удобства",
         "amenitiesDescription": "Отметьте каждое удобство, которое есть в этом месте.",
-        "mealsActivitiesTitle": "Питание и активности"
+        "mealsActivitiesTitle": "Питание и активности",
+        "statusTitle": "Статус",
+        "statusDescription": "Черновики и архивные объявления скрыты с сайта. В каталоге, поиске и sitemap показываются только опубликованные."
       },
       "fields": {
         "titleEn": "Название (английский)",
@@ -560,6 +574,11 @@
         "quad": "Квадроцикл",
         "horse": "Верховая езда",
         "fishing": "Рыбалка"
+      },
+      "status": {
+        "draft": "Черновик",
+        "published": "Опубликовано",
+        "archived": "В архиве"
       }
     }
   }

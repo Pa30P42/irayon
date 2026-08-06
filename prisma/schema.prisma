@@ -48,6 +48,14 @@ enum Activity {
   @@map("activity")
 }
 
+enum ListingStatus {
+  DRAFT     @map("draft")
+  PUBLISHED @map("published")
+  ARCHIVED  @map("archived")
+
+  @@map("listing_status")
+}
+
 model Region {
   id         String    @id @default(cuid())
   slug       String    @unique
@@ -111,6 +119,9 @@ model Listing {
   villageId   String?
   village     Village?        @relation(fields: [villageId], references: [id], onDelete: SetNull)
   placeType   PlaceType
+  /// Draft/publish/archive workflow. PUBLISHED is the default so existing
+  /// rows (and the pre-status admin flow) keep their current visibility.
+  status      ListingStatus   @default(PUBLISHED)
   /// One or more category tags. A listing can belong to multiple categories
   /// (e.g. a mountain forest cabin near a river).
   categories  ListingCategory[]

@@ -78,6 +78,9 @@ export type Meal = 'breakfast' | 'on-request';
 
 export type Activity = 'quad' | 'horse' | 'fishing';
 
+/** Draft/publish/archive workflow. Only `published` listings are publicly visible. */
+export type ListingStatus = 'draft' | 'published' | 'archived';
+
 export type Listing = {
   id: string;
   slug: string;
@@ -93,6 +96,7 @@ export type Listing = {
   /** Localized village name; null when the listing has no village. */
   villageName: LocalizedText | null;
   placeType: PlaceType;
+  status: ListingStatus;
   price: number;
   images: string[];
   amenities: Amenity[];
@@ -102,8 +106,8 @@ export type Listing = {
   reviewCount: number;
   capacity: number;
   bedrooms: number;
-  /** E.164-formatted phone number used by the "Call" CTA. */
-  phone: string;
+  /** E.164-formatted phone number used by the "Call" CTA. Null hides the CTA. */
+  phone: string | null;
   meals: Meal[];
   activities: Activity[];
   location: ListingLocation;

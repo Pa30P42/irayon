@@ -10,6 +10,10 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 
+// ISR safety net: admin edits revalidate detail pages on-demand; this bounds
+// staleness to 10 minutes if a path is ever missed.
+export const revalidate = 600;
+
 type ListingDetailProps = {
   params: Promise<{ locale: Locale; slug: string }>;
 };

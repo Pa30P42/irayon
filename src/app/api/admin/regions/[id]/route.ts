@@ -10,6 +10,7 @@ import {
 } from '@/lib/api/api-response';
 import { parseLocalized } from '@/lib/api/localized-text';
 import { regionUpdateSchema } from '@/lib/api/regions-validator';
+import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import type { RegionWithVillages } from '@/types';
@@ -110,6 +111,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
     });
     if (!row) return apiNotFound(`Region "${id}" not found`);
     await recordAdminLog({ action: 'region.update', target: id });
+    revalidateListingSurfaces();
     return apiOk(toDto(row));
   } catch (err) {
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2025') {
@@ -149,6 +151,7 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
 
     await prisma.region.delete({ where: { id } });
     await recordAdminLog({ action: 'region.delete', target: id });
+    revalidateListingSurfaces();
     return apiOk({ deleted: true });
   } catch (err) {
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2025') {

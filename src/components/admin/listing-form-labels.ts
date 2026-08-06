@@ -26,6 +26,7 @@ export const DEFAULT_VALUES: CreateListingInput = {
   amenities: [],
   meals: [],
   activities: [],
+  status: 'published',
 };
 
 /**
@@ -50,4 +51,5 @@ export const listingToFormValues = (listing: Listing): Partial<CreateListingInpu
   amenities: listing.amenities,
   meals: listing.meals,
   activities: listing.activities,
+  status: listing.status,
 });

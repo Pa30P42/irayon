@@ -9,6 +9,7 @@ import {
 } from '@/lib/api/api-response';
 import { createListingSchema } from '@/lib/api/listings-create-validator';
 import { deleteListing, getListingById, updateListing } from '@/lib/api/listings-service';
+import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
 import { logger } from '@/lib/logger';
 
 type Context = { params: Promise<{ id: string }> };
@@ -62,7 +63,12 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
   try {
     const updated = await updateListing(id, parsed.data);
     if (!updated) return apiNotFound(`Listing "${id}" not found`);
-    await recordAdminLog({ action: 'listing.update', target: id });
+    await recordAdminLog({
+      action: 'listing.update',
+      target: id,
+      metadata: { slug: updated.slug, status: parsed.data.status },
+    });
+    revalidateListingSurfaces(updated.slug);
     return apiOk(updated);
   } catch (err) {
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2025') {
@@ -90,8 +96,13 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
     await recordAdminLog({
       action: 'listing.delete',
       target: id,
-      metadata: { storageRemoved: result.storageRemoved, storageFailed: result.storageFailed },
+      metadata: {
+        slug: result.slug,
+        storageRemoved: result.storageRemoved,
+        storageFailed: result.storageFailed,
+      },
     });
+    revalidateListingSurfaces(result.slug ?? undefined);
     return apiOk(result);
   } catch (err) {
     // Prisma raises P2025 when the row to delete doesn't exist.

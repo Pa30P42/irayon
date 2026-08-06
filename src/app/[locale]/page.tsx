@@ -14,6 +14,11 @@ import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { Suspense } from 'react';
 
+// ISR safety net: admin mutations revalidate these pages on-demand
+// (`revalidateListingSurfaces`), but a missed path or failed call self-heals
+// within 5 minutes instead of waiting for the next deploy.
+export const revalidate = 300;
+
 type HomePageProps = {
   params: Promise<{ locale: Locale }>;
 };

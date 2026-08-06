@@ -18,10 +18,17 @@ import { NoResults } from './no-results';
 type ListingsViewProps = {
   initialListings: Listing[];
   initialMeta: Paginated<Listing>['meta'];
+  /** Server timestamp (ms) of the SSR fetch, so react-query knows the seed's true age. */
+  initialFetchedAt?: number;
   locale: Locale;
 };
 
-export function ListingsView({ initialListings, initialMeta, locale }: ListingsViewProps) {
+export function ListingsView({
+  initialListings,
+  initialMeta,
+  initialFetchedAt,
+  locale,
+}: ListingsViewProps) {
   const t = useTranslations('listings');
   const { state, sort, view, setState, commit, reset, setSort, setView } = useListingsFilter();
 
@@ -31,8 +38,24 @@ export function ListingsView({ initialListings, initialMeta, locale }: ListingsV
   // the query, swaps the cache key, and TanStack fetches the new page.
   const query = useMemo(() => queryFromFilterState(state, sort, { limit: 100 }), [state, sort]);
 
+  // The SSR payload corresponds ONLY to the initial query key. Seeding
+  // whatever key is current would poison a changed filter's cache entry with
+  // the old page — and with staleTime 60s react-query would then skip the
+  // refetch and show wrong results.
+  const initialKey = useRef(JSON.stringify(query));
+  const isInitialKey = JSON.stringify(query) === initialKey.current;
+
   const { data, isFetching } = useListings(query, {
-    initialData: { data: initialListings, meta: initialMeta },
+    ...(isInitialKey
+      ? {
+          initialData: { data: initialListings, meta: initialMeta },
+          // Date the seed by its server fetch time (clamped to the client
+          // clock so a slow client clock can't make it look fresh forever).
+          ...(initialFetchedAt != null
+            ? { initialDataUpdatedAt: Math.min(initialFetchedAt, Date.now()) }
+            : {}),
+        }
+      : {}),
   });
   const listings = data?.data ?? initialListings;
 

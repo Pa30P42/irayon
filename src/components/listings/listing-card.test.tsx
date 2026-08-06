@@ -40,6 +40,7 @@ const baseListing: Listing = {
   reviewCount: 150,
   capacity: 6,
   bedrooms: 3,
+  status: 'published',
   phone: '+994500000000',
   meals: ['breakfast'],
   activities: [],

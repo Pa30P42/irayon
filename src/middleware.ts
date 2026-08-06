@@ -32,6 +32,10 @@ const misconfigured = (message: string): NextResponse => new NextResponse(messag
  */
 const withNoIndex = (response: NextResponse): NextResponse => {
   response.headers.set('x-robots-tag', 'noindex, nofollow, noarchive');
+  // Admin responses must never land in a shared cache (CDN or browser back/
+  // forward cache) — they carry drafts and session-scoped data. Set centrally
+  // here so individual /api/admin handlers can't forget it.
+  response.headers.set('cache-control', 'private, no-store');
   return response;
 };
 

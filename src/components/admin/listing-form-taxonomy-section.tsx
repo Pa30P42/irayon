@@ -4,8 +4,8 @@ import { ChipGroup } from '@/components/ui/chip-group';
 import { Field } from '@/components/ui/form-field';
 import { SectionCard } from '@/components/ui/section-card';
 import type { CreateListingInput } from '@/lib/api/listings-create-validator';
-import { ACTIVITIES, AMENITIES, CATEGORIES, MEALS } from '@/lib/constants';
-import type { Activity, Amenity, ListingCategory, Meal } from '@/types';
+import { ACTIVITIES, AMENITIES, CATEGORIES, LISTING_STATUSES, MEALS } from '@/lib/constants';
+import type { Activity, Amenity, ListingCategory, ListingStatus, Meal } from '@/types';
 import { useTranslations } from 'next-intl';
 import { Controller, useFormContext } from 'react-hook-form';
 
@@ -16,6 +16,7 @@ export function ListingFormTaxonomySection() {
   const tAmenity = useTranslations('admin.labels.amenity');
   const tMeal = useTranslations('admin.labels.meal');
   const tActivity = useTranslations('admin.labels.activity');
+  const tStatus = useTranslations('admin.labels.status');
 
   const {
     control,
@@ -101,6 +102,25 @@ export function ListingFormTaxonomySection() {
             )}
           />
         </Field>
+      </SectionCard>
+
+      <SectionCard title={tSections('statusTitle')} description={tSections('statusDescription')}>
+        <Controller
+          control={control}
+          name="status"
+          render={({ field }) => (
+            <ChipGroup
+              single
+              ariaLabel={tSections('statusTitle')}
+              selected={[field.value as ListingStatus]}
+              onChange={(next) => field.onChange(next[0] ?? 'published')}
+              options={LISTING_STATUSES.map((s) => ({
+                value: s,
+                label: tStatus(s),
+              }))}
+            />
+          )}
+        />
       </SectionCard>
     </>
   );

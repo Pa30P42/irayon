@@ -120,7 +120,12 @@ export default async function ListingsPage({ params, searchParams }: ListingsPag
         <p className="text-foreground-muted mt-2">{t('subtitle')}</p>
       </header>
       <Suspense fallback={<div className="text-foreground-muted">Loading…</div>}>
-        <ListingsView initialListings={listings} initialMeta={meta} locale={locale} />
+        <ListingsView
+          initialListings={listings}
+          initialMeta={meta}
+          initialFetchedAt={Date.now()}
+          locale={locale}
+        />
       </Suspense>
       <JsonLd data={[breadcrumbs, itemList]} />
     </section>

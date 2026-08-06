@@ -19,9 +19,26 @@ export type ApiError = {
   };
 };
 
+/**
+ * Cache-Control values for public GET handlers. `export const revalidate` is
+ * inert on these routes (they read the request URL, which forces dynamic
+ * rendering) — explicit CDN headers are what actually caches them. Admin
+ * routes are stamped `private, no-store` centrally in `src/middleware.ts`.
+ */
+export const CACHE_PUBLIC_LIST = 'public, s-maxage=60, stale-while-revalidate=300';
+export const CACHE_PUBLIC_DETAIL = 'public, s-maxage=300, stale-while-revalidate=600';
+
 export const apiOk = <T>(data: T, init?: ResponseInit) => NextResponse.json(data, init);
 
-export const apiPaginated = <T>(payload: Paginated<T>) => NextResponse.json(payload);
+/** apiOk + a public CDN cache header. Use only on unauthenticated GETs. */
+export const apiOkCached = <T>(data: T, cacheControl: string) =>
+  NextResponse.json(data, { headers: { 'Cache-Control': cacheControl } });
+
+export const apiPaginated = <T>(payload: Paginated<T>, cacheControl?: string) =>
+  NextResponse.json(
+    payload,
+    cacheControl ? { headers: { 'Cache-Control': cacheControl } } : undefined,
+  );
 
 export const apiNotFound = (message = 'Not found') =>
   NextResponse.json<ApiError>({ error: { message } }, { status: 404 });

@@ -10,10 +10,14 @@ const VILLAGE_NAME_BY_KEY: Record<string, LocalizedText> = Object.fromEntries(
   VILLAGE_SEED.map((v) => [`${v.regionSlug}:${v.slug}`, v.name]),
 );
 
-type MockListingDraft = Omit<Listing, 'regionName' | 'villageName'>;
+type MockListingDraft = Omit<Listing, 'regionName' | 'villageName' | 'status'> & {
+  /** Defaults to 'published' so the mock catalogue stays fully visible. */
+  status?: Listing['status'];
+};
 
 const fillNames = (draft: MockListingDraft): Listing => ({
   ...draft,
+  status: draft.status ?? 'published',
   regionName: REGION_NAME_BY_SLUG[draft.region] ?? {
     az: draft.region,
     ru: draft.region,

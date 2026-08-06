@@ -1,10 +1,12 @@
-// 60s edge cache: catalog can lag a minute behind the admin without anyone noticing.
-export const revalidate = 60;
+// NOTE: no `export const revalidate` here — the handler reads the request URL,
+// which makes the route dynamic and the directive inert. CDN caching happens
+// via the Cache-Control header on the response instead.
 
 import {
   apiBadRequest,
   apiPaginated,
   apiServerError,
+  CACHE_PUBLIC_LIST,
   type Paginated,
 } from '@/lib/api/api-response';
 import { listListings } from '@/lib/api/listings-service';
@@ -19,7 +21,7 @@ export async function GET(request: Request): Promise<Response> {
 
   try {
     const result = await listListings(parsed.data);
-    return apiPaginated<Listing>(result satisfies Paginated<Listing>);
+    return apiPaginated<Listing>(result satisfies Paginated<Listing>, CACHE_PUBLIC_LIST);
   } catch (err) {
     logger.error('GET /api/listings failed', { err });
     return apiServerError();

@@ -266,7 +266,9 @@
   },
   "admin": {
     "appName": "iRayon · Admin",
-    "localeSwitcher": { "label": "Admin paneli dili" },
+    "localeSwitcher": {
+      "label": "Admin paneli dili"
+    },
     "nav": {
       "listings": "Elanlar",
       "regions": "Regionlar",
@@ -333,7 +335,15 @@
       "editPage": {
         "title": "Elanı redaktə et",
         "description": "Sahələri yeniləyin və <strong>Dəyişiklikləri saxla</strong> düyməsinə vurun. Şəkillərin əlavə edilməsi və ya silinməsi dərhal tətbiq olunur; qalan hər şey birlikdə saxlanılır."
-      }
+      },
+      "statusFilter": "Statusa görə filtr",
+      "statusAll": "Hamısı",
+      "publish": "Dərc et",
+      "unpublish": "Dərcdən çıxar",
+      "archive": "Arxivlə",
+      "publishAria": "{title} dərc et",
+      "unpublishAria": "{title} dərcdən çıxar",
+      "archiveAria": "{title} arxivlə"
     },
     "regions": {
       "title": "Regionlar",
@@ -357,7 +367,9 @@
       "breadcrumbRoot": "Regionlar",
       "breadcrumbNew": "Yeni",
       "breadcrumbEdit": "Redaktə",
-      "newPage": { "title": "Yeni region" },
+      "newPage": {
+        "title": "Yeni region"
+      },
       "editPage": {
         "title": "Regionu redaktə et",
         "notFound": "Region tapılmadı"
@@ -418,7 +430,9 @@
         "categoriesDescription": "Bu yerin uyğun olduğu hər kateqoriyanı seçin. Çayın yaxınlığındakı meşə evi həm biri, həm də digəri ola bilər.",
         "amenitiesTitle": "Şərait",
         "amenitiesDescription": "Bu yerin təklif etdiyi hər bir şəraitə toxunun.",
-        "mealsActivitiesTitle": "Yemək və əyləncələr"
+        "mealsActivitiesTitle": "Yemək və əyləncələr",
+        "statusTitle": "Status",
+        "statusDescription": "Qaralama və arxivlənmiş elanlar saytda görünmür. Kataloqda, axtarışda və sitemap-də yalnız dərc olunmuş elanlar göstərilir."
       },
       "fields": {
         "titleEn": "Başlıq (İngilis)",
@@ -560,6 +574,11 @@
         "quad": "Kvadrosikl",
         "horse": "At sürmə",
         "fishing": "Balıq tutmaq"
+      },
+      "status": {
+        "draft": "Qaralama",
+        "published": "Dərc olunub",
+        "archived": "Arxivdə"
       }
     }
   }

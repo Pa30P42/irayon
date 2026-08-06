@@ -24,6 +24,11 @@ export const createListingSchema = z.object({
   categories: z
     .array(z.enum(CATEGORIES as readonly [string, ...string[]]))
     .min(1, 'Pick at least one category'),
+  /**
+   * Draft/publish/archive workflow. Defaults to `published` so payloads from
+   * before the status field (and quick admin creates) keep today's behavior.
+   */
+  status: z.enum(['draft', 'published', 'archived']).default('published'),
   price: z.coerce.number().int().positive().max(100_000),
   capacity: z.coerce.number().int().positive().max(50),
   bedrooms: z.coerce.number().int().nonnegative().max(20),

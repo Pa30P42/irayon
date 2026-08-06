@@ -3,6 +3,7 @@ import { recordAdminLog } from '@/lib/admin-log';
 import { apiBadRequest, apiBadRequestRaw, apiOk, apiServerError } from '@/lib/api/api-response';
 import { listRegionsWithVillages } from '@/lib/api/listings-service';
 import { regionCreateSchema } from '@/lib/api/regions-validator';
+import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { slugify, uniqueSlug } from '@/lib/slug';
@@ -77,6 +78,7 @@ export async function POST(request: Request): Promise<Response> {
       target: created.id,
       metadata: { slug: created.slug },
     });
+    revalidateListingSurfaces();
     return apiOk(created, { status: 201 });
   } catch (err) {
     logger.error('POST /api/admin/regions failed', { err });

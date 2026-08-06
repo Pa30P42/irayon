@@ -1,4 +1,12 @@
-import type { Activity, Amenity, Listing, ListingCategory, Meal, PlaceType } from '@/types';
+import type {
+  Activity,
+  Amenity,
+  Listing,
+  ListingCategory,
+  ListingStatus,
+  Meal,
+  PlaceType,
+} from '@/types';
 import type { Prisma } from '@prisma/client';
 import { parseLocalized } from './localized-text';
 
@@ -42,6 +50,12 @@ const PRISMA_TO_DTO_ACTIVITY: Record<string, Activity> = {
   FISHING: 'fishing',
 };
 
+const PRISMA_TO_DTO_STATUS: Record<string, ListingStatus> = {
+  DRAFT: 'draft',
+  PUBLISHED: 'published',
+  ARCHIVED: 'archived',
+};
+
 export function rowToDto(row: ListingRow): Listing {
   return {
     id: row.id,
@@ -54,6 +68,7 @@ export function rowToDto(row: ListingRow): Listing {
     villageSlug: row.village?.slug ?? null,
     villageName: row.village ? parseLocalized(row.village.name) : null,
     placeType: PRISMA_TO_DTO_PLACE_TYPE[row.placeType] ?? 'villa-cottage',
+    status: PRISMA_TO_DTO_STATUS[row.status] ?? 'published',
     categories: row.categories.map((c) => PRISMA_TO_DTO_CATEGORY[c] ?? 'mountain'),
     price: row.price,
     rating: row.rating,
@@ -65,7 +80,7 @@ export function rowToDto(row: ListingRow): Listing {
     meals: row.meals.map((m) => PRISMA_TO_DTO_MEAL[m] ?? 'breakfast'),
     activities: row.activities.map((a) => PRISMA_TO_DTO_ACTIVITY[a] ?? 'fishing'),
     location: { lat: row.lat, lng: row.lng, address: row.address },
-    phone: row.phone ?? '',
+    phone: row.phone,
     createdAt: row.createdAt.toISOString(),
   };
 }

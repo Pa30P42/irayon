@@ -1,4 +1,4 @@
-import { apiOk, apiServerError } from '@/lib/api/api-response';
+import { apiOkCached, apiServerError, CACHE_PUBLIC_LIST } from '@/lib/api/api-response';
 import { listRegions, listRegionsWithVillages } from '@/lib/api/listings-service';
 import { logger } from '@/lib/logger';
 
@@ -14,7 +14,7 @@ export async function GET(request: Request): Promise<Response> {
 
   try {
     const data = includeVillages ? await listRegionsWithVillages() : await listRegions();
-    return apiOk({ data });
+    return apiOkCached({ data }, CACHE_PUBLIC_LIST);
   } catch (err) {
     logger.error('GET /api/regions failed', { err });
     return apiServerError();

@@ -1,4 +1,9 @@
-import { apiNotFound, apiOk, apiServerError } from '@/lib/api/api-response';
+import {
+  apiNotFound,
+  apiOkCached,
+  apiServerError,
+  CACHE_PUBLIC_LIST,
+} from '@/lib/api/api-response';
 import { listVillagesByRegionSlug } from '@/lib/api/listings-service';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
@@ -22,7 +27,7 @@ export async function GET(_request: Request, { params }: Context): Promise<Respo
     if (!region) return apiNotFound(`Region "${slug}" not found`);
 
     const data = await listVillagesByRegionSlug(slug);
-    return apiOk({ data });
+    return apiOkCached({ data }, CACHE_PUBLIC_LIST);
   } catch (err) {
     logger.error(`GET /api/regions/${slug}/villages failed`, { err });
     return apiServerError('Fetch failed');

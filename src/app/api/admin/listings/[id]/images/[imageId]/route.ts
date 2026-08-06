@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/lib/admin-auth';
 import { recordAdminLog } from '@/lib/admin-log';
 import { apiNotFound, apiOk, apiServerError } from '@/lib/api/api-response';
+import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { deleteListingImageByUrl } from '@/lib/storage';
@@ -22,7 +23,7 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
 
   const image = await prisma.image.findFirst({
     where: { id: imageId, listingId: id },
-    select: { id: true, url: true },
+    select: { id: true, url: true, listing: { select: { slug: true } } },
   });
   if (!image) return apiNotFound('Image not found for this listing');
 
@@ -34,6 +35,7 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
       target: `${id}/${imageId}`,
       metadata: { storageDeleted: storage.deleted },
     });
+    revalidateListingSurfaces(image.listing.slug);
     return apiOk({ deleted: true, storage });
   } catch (err) {
     logger.error(`DELETE /api/admin/listings/${id}/images/${imageId} failed`, { err });

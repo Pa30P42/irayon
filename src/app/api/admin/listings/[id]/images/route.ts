@@ -7,6 +7,7 @@ import {
   apiOk,
   apiServerError,
 } from '@/lib/api/api-response';
+import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import {
@@ -37,7 +38,7 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
 
   const { id } = await params;
 
-  const listing = await prisma.listing.findUnique({ where: { id }, select: { id: true } });
+  const listing = await prisma.listing.findUnique({ where: { id }, select: { slug: true } });
   if (!listing) return apiNotFound(`Listing "${id}" not found`);
 
   let form: FormData;
@@ -111,6 +112,7 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
       target: id,
       metadata: { count: created.length },
     });
+    revalidateListingSurfaces(listing.slug);
     return apiOk({ data: created }, { status: 201 });
   } catch (err) {
     logger.error(`POST /api/admin/listings/${id}/images failed`, { err });
