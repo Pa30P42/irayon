@@ -126,11 +126,10 @@ export function isOptionSelected(
  * selected, plus a `compatible` flag (count > 0). Used to render the
  * strikethrough state in the filter modal.
  *
- * TODO(perf): O(groups × options × listings) per modal render. Fine for
- * mock data (~12) but will jank with 1k+. Two faster approaches once we
- * outgrow this:
- *  - Filter once with state minus the current group, then bucket counts.
- *  - Maintain an inverted index Map<group, Map<option, Set<listingId>>>.
+ * Single pass: the expensive all-dimensions match is evaluated once per
+ * listing; each option then only pays its own cheap predicate. Equivalent to
+ * running `applyListingsFilter(withOption(state, group, opt))` per option
+ * (the old O(options × listings × groups) version), but ~options× faster.
  */
 export function computeCompatibility(
   listings: FilterableListing[],
@@ -138,10 +137,95 @@ export function computeCompatibility(
   group: FilterGroupName,
   options: readonly string[],
 ): FilterCompatibility {
+  const counts = new Map<string, number>();
+  for (const opt of options) counts.set(opt, 0);
+
+  const hasRegionFilter = state.region.length > 0;
+  const hasVillageFilter = state.village.length > 0;
+  const hasLocationFilter = hasRegionFilter || hasVillageFilter;
+  // `withOption` ADDS to a multi-select, so AND-semantics groups keep their
+  // current selection in the base match — an added option only narrows.
+  const isAndGroup = group === 'food' || group === 'extra' || group === 'basic' || group === 'fun';
+
+  for (const l of listings) {
+    if (!matchesSearch(l, state.q)) continue;
+
+    const locationMatch = !hasLocationFilter
+      ? true
+      : (hasRegionFilter && state.region.includes(l.region)) ||
+        (hasVillageFilter && l.villageSlug !== null && state.village.includes(l.villageSlug));
+
+    // Current-selection match per dimension.
+    const dims: Record<FilterGroupName, boolean> = {
+      region: locationMatch,
+      village: locationMatch,
+      type: state.type.length === 0 || state.type.includes(l.placeType),
+      guests: matchesGuests(l, state.guests),
+      placement: matchesPlacement(l, state.placement),
+      food: state.food.every((m) => l.meals.includes(m)),
+      extra: state.extra.every((a) => l.amenities.includes(a)),
+      basic: state.basic.every((a) => l.amenities.includes(a)),
+      fun: state.fun.every((a) => l.activities.includes(a)),
+    };
+
+    // Base: every dimension except the counted group's own (which the
+    // per-option predicate below re-enters). Counting region or village
+    // excludes the combined location dimension, since the two OR together.
+    let base = true;
+    for (const name of Object.keys(dims) as FilterGroupName[]) {
+      if (!isAndGroup) {
+        if (name === group) continue;
+        if (
+          (group === 'region' || group === 'village') &&
+          (name === 'region' || name === 'village')
+        )
+          continue;
+      }
+      if (!dims[name]) {
+        base = false;
+        break;
+      }
+    }
+    if (!base) continue;
+
+    for (const opt of options) {
+      let ok: boolean;
+      switch (group) {
+        case 'region':
+          ok = l.region === opt || (hasLocationFilter && locationMatch);
+          break;
+        case 'village':
+          ok = l.villageSlug === opt || (hasLocationFilter && locationMatch);
+          break;
+        case 'type':
+          ok = l.placeType === opt || (state.type.length > 0 && dims.type);
+          break;
+        case 'guests':
+          ok = isGuestRange(opt) && matchesGuests(l, opt);
+          break;
+        case 'placement':
+          ok =
+            matchesPlacement(l, [opt as Placement]) ||
+            (state.placement.length > 0 && dims.placement);
+          break;
+        case 'food':
+          ok = l.meals.includes(opt as (typeof l.meals)[number]);
+          break;
+        case 'fun':
+          ok = l.activities.includes(opt as (typeof l.activities)[number]);
+          break;
+        case 'extra':
+        case 'basic':
+          ok = l.amenities.includes(opt as (typeof l.amenities)[number]);
+          break;
+      }
+      if (ok) counts.set(opt, (counts.get(opt) ?? 0) + 1);
+    }
+  }
+
   const result: FilterCompatibility = {};
   for (const opt of options) {
-    const trial = withOption(state, group, opt);
-    const count = applyListingsFilter(listings, trial).length;
+    const count = counts.get(opt) ?? 0;
     result[opt] = { count, compatible: count > 0 };
   }
   return result;

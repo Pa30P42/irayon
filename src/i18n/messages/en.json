@@ -99,7 +99,8 @@
       "empty": "No spots match these filters",
       "showList": "Show list",
       "showMap": "Show map"
-    }
+    },
+    "loadMore": "Show more ({shown} of {total})"
   },
   "detail": {
     "share": "Share",

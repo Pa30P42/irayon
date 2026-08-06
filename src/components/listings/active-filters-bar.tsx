@@ -25,7 +25,10 @@ export function ActiveFiltersBar({ state, onChange, onReset }: ActiveFiltersBarP
   const t = useTranslations('filter');
   const tOptions = useTranslations('filter.options');
   const { locale } = useLocale();
-  const { data: regions } = useRegionsWithVillages();
+  // The region/village catalogue is only needed to label LOCATION chips —
+  // don't fetch it when no location filter is active.
+  const hasLocationChips = state.region.length > 0 || state.village.length > 0;
+  const { data: regions } = useRegionsWithVillages({ enabled: hasLocationChips });
 
   // Build region/village slug → localized label so chips show readable names
   // instead of slugs. Falls back to the slug while regions are loading.

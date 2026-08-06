@@ -67,9 +67,14 @@ export function useUpdateRegion(id: string) {
       });
       return (await okOrThrow(res)) as RegionWithVillages;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ADMIN_REGIONS_KEY });
-      queryClient.invalidateQueries({ queryKey: adminRegionKey(id) });
+    onSuccess: (updated) => {
+      // The PATCH response IS the fresh row — patch both admin caches
+      // directly instead of refetching the whole list.
+      queryClient.setQueryData(adminRegionKey(id), updated);
+      queryClient.setQueryData<RegionWithVillages[]>(ADMIN_REGIONS_KEY, (prev) =>
+        prev ? prev.map((r) => (r.id === updated.id ? updated : r)) : prev,
+      );
+      // Public region caches still need a refetch (different DTO shape).
       queryClient.invalidateQueries({ queryKey: ['regions'] });
     },
   });
@@ -82,8 +87,12 @@ export function useDeleteRegion() {
       const res = await fetch(`/api/admin/regions/${id}`, { method: 'DELETE' });
       return (await okOrThrow(res)) as { deleted: true };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ADMIN_REGIONS_KEY });
+    onSuccess: (_result, id) => {
+      // Drop the row from the cached list directly; no refetch needed.
+      queryClient.setQueryData<RegionWithVillages[]>(ADMIN_REGIONS_KEY, (prev) =>
+        prev ? prev.filter((r) => r.id !== id) : prev,
+      );
+      queryClient.removeQueries({ queryKey: adminRegionKey(id) });
       queryClient.invalidateQueries({ queryKey: ['regions'] });
     },
   });

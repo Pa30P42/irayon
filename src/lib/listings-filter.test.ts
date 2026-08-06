@@ -184,6 +184,55 @@ describe('computeCompatibility', () => {
   });
 });
 
+describe('computeCompatibility — single-pass equals per-option reference', () => {
+  const reference = (
+    ls: Parameters<typeof computeCompatibility>[0],
+    state: Parameters<typeof computeCompatibility>[1],
+    group: Parameters<typeof computeCompatibility>[2],
+    options: readonly string[],
+  ) => {
+    const out: Record<string, { count: number; compatible: boolean }> = {};
+    for (const opt of options) {
+      const count = applyListingsFilter(ls, withOption(state, group, opt)).length;
+      out[opt] = { count, compatible: count > 0 };
+    }
+    return out;
+  };
+
+  const scenarios: Array<[string, ReturnType<typeof makeFilterState>]> = [
+    ['empty state', makeFilterState()],
+    ['region selected', makeFilterState({ region: ['gabala'] })],
+    ['village + extra', makeFilterState({ village: ['vandam'], extra: ['pool'] })],
+    ['guests + fun', makeFilterState({ guests: '5to10', fun: ['fishing'] })],
+    [
+      'placement + type + q',
+      makeFilterState({ placement: ['forest'], type: ['villa-cottage'], q: 't' }),
+    ],
+  ];
+
+  const groupOptions: Array<[Parameters<typeof computeCompatibility>[2], string[]]> = [
+    ['region', ['gabala', 'guba', 'none']],
+    ['village', ['vandam', 'laza']],
+    ['type', ['villa-cottage', 'a-frame']],
+    ['guests', ['lt5', '5to10', 'gt10']],
+    ['placement', ['forest', 'water']],
+    ['food', ['breakfast', 'on-request']],
+    ['extra', ['pool', 'fireplace']],
+    ['basic', ['wifi', 'kitchen']],
+    ['fun', ['quad', 'fishing']],
+  ];
+
+  for (const [label, state] of scenarios) {
+    it(`matches the reference for every group (${label})`, () => {
+      for (const [group, options] of groupOptions) {
+        expect(computeCompatibility(listings, state, group, options), `group=${group}`).toEqual(
+          reference(listings, state, group, options),
+        );
+      }
+    });
+  }
+});
+
 describe('sortListings', () => {
   it('sorts by price ascending and descending', () => {
     expect(sortListings(listings, 'price-asc').map((l) => l.id)).toEqual(['2', '4', '1', '3']);

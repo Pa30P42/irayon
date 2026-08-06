@@ -1,14 +1,16 @@
 'use client';
-// Client component: wires URL filters to a server-fetched listings query
-// (TanStack-cached, refetches when the URL filter slice changes).
+// Client component: wires URL filters to a server-fetched infinite listings
+// query (TanStack-cached; each filter change refetches page 1, "Load more"
+// appends the next page).
 
-import { useListings } from '@/hooks/use-listings';
+import { Button } from '@/components/ui/button';
 import { useListingsFilter } from '@/hooks/use-listings-filter';
+import { useListingsInfinite } from '@/hooks/use-listings-infinite';
 import type { Paginated } from '@/lib/api/api-response';
-import { queryFromFilterState } from '@/lib/api/listings-query-from-state';
 import type { ListingCardDto, Locale } from '@/types';
+import { IconLoader2 } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { ActiveFiltersBar } from './active-filters-bar';
 import { ListingGrid } from './listing-grid';
 import { ListingsTopBar } from './listings-top-bar';
@@ -32,32 +34,19 @@ export function ListingsView({
   const t = useTranslations('listings');
   const { state, sort, view, setState, commit, reset, setSort, setView } = useListingsFilter();
 
-  // Server already filtered/sorted by the URL on first render. The same query
-  // input gets rebuilt here so the SSR payload populates the TanStack cache
-  // for that key; any subsequent URL change (filter toggle, sort flip) re-derives
-  // the query, swaps the cache key, and TanStack fetches the new page.
-  const query = useMemo(() => queryFromFilterState(state, sort, { limit: 100 }), [state, sort]);
-
-  // The SSR payload corresponds ONLY to the initial query key. Seeding
-  // whatever key is current would poison a changed filter's cache entry with
-  // the old page — and with staleTime 60s react-query would then skip the
-  // refetch and show wrong results.
-  const initialKey = useRef(JSON.stringify(query));
-  const isInitialKey = JSON.stringify(query) === initialKey.current;
-
-  const { data, isFetching } = useListings(query, {
-    ...(isInitialKey
-      ? {
-          initialData: { data: initialListings, meta: initialMeta },
-          // Date the seed by its server fetch time (clamped to the client
-          // clock so a slow client clock can't make it look fresh forever).
-          ...(initialFetchedAt != null
-            ? { initialDataUpdatedAt: Math.min(initialFetchedAt, Date.now()) }
-            : {}),
-        }
-      : {}),
+  const {
+    items: listings,
+    total,
+    isFetching,
+    hasMore,
+    isFetchingMore,
+    loadMore,
+  } = useListingsInfinite({
+    filters: state,
+    sort,
+    initialPage: { data: initialListings, meta: initialMeta },
+    ...(initialFetchedAt != null ? { initialFetchedAt } : {}),
   });
-  const listings = data?.data ?? initialListings;
 
   const onSearch = useCallback((q: string) => setState({ q: q || '' }), [setState]);
 
@@ -90,6 +79,7 @@ export function ListingsView({
         state={state}
         sort={sort}
         view={view}
+        listings={listings}
         onSearch={onSearch}
         onApplyFilters={commit}
         onSortChange={setSort}
@@ -102,7 +92,7 @@ export function ListingsView({
         <p className="text-foreground-muted py-3 text-sm" aria-live="polite">
           {isFetching && listings.length === 0
             ? t('loadingResults')
-            : t('foundCount', { count: listings.length })}
+            : t('foundCount', { count: total })}
         </p>
 
         {listings.length === 0 ? (
@@ -110,7 +100,24 @@ export function ListingsView({
         ) : view === 'map' ? (
           <ListingsMapView listings={listings} locale={locale} />
         ) : (
-          <ListingGrid listings={listings} locale={locale} view={view} />
+          <>
+            <ListingGrid listings={listings} locale={locale} view={view} />
+            {hasMore ? (
+              <div className="flex justify-center pt-8">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="lg"
+                  onClick={loadMore}
+                  disabled={isFetchingMore}
+                  className="gap-2"
+                >
+                  {isFetchingMore ? <IconLoader2 size={16} className="animate-spin" /> : null}
+                  {t('loadMore', { shown: listings.length, total })}
+                </Button>
+              </div>
+            ) : null}
+          </>
         )}
       </div>
     </>

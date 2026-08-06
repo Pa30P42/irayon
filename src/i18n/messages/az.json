@@ -99,7 +99,8 @@
       "empty": "Bu filtrlərə uyğun məkan tapılmadı",
       "showList": "Siyahını göstər",
       "showMap": "Xəritəni göstər"
-    }
+    },
+    "loadMore": "Daha çox göstər ({shown} / {total})"
   },
   "detail": {
     "share": "Paylaş",

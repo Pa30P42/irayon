@@ -66,9 +66,25 @@ export function useUpdateVillage(regionId: string) {
       });
       return (await okOrThrow(res)) as Village;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: adminVillagesByRegionKey(regionId) });
-      queryClient.invalidateQueries({ queryKey: ['admin', 'regions'] });
+    onSuccess: (updated) => {
+      // The PATCH response IS the fresh row — patch the cached village list
+      // in place. If the village moved to ANOTHER region, drop it from this
+      // region's list and refetch the target's (we may not have it cached).
+      queryClient.setQueryData<Village[]>(adminVillagesByRegionKey(regionId), (prev) => {
+        if (!prev) return prev;
+        return updated.regionId === regionId
+          ? prev.map((v) => (v.id === updated.id ? updated : v))
+          : prev.filter((v) => v.id !== updated.id);
+      });
+      if (updated.regionId !== regionId) {
+        queryClient.invalidateQueries({ queryKey: adminVillagesByRegionKey(updated.regionId) });
+      }
+      // Region list + detail carry village counts/embeds — but NOT the
+      // per-region villages keys we just patched (key length 4).
+      queryClient.invalidateQueries({
+        predicate: (q) =>
+          q.queryKey[0] === 'admin' && q.queryKey[1] === 'regions' && q.queryKey.length <= 3,
+      });
       queryClient.invalidateQueries({ queryKey: ['regions'] });
     },
   });
@@ -81,9 +97,17 @@ export function useDeleteVillage(regionId: string) {
       const res = await fetch(`/api/admin/villages/${id}`, { method: 'DELETE' });
       return (await okOrThrow(res)) as { deleted: true };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: adminVillagesByRegionKey(regionId) });
-      queryClient.invalidateQueries({ queryKey: ['admin', 'regions'] });
+    onSuccess: (_result, id) => {
+      // Drop the row from the cached list directly; no refetch needed.
+      queryClient.setQueryData<Village[]>(adminVillagesByRegionKey(regionId), (prev) =>
+        prev ? prev.filter((v) => v.id !== id) : prev,
+      );
+      // Region list + detail carry village counts — but NOT the per-region
+      // villages keys we just patched (key length 4).
+      queryClient.invalidateQueries({
+        predicate: (q) =>
+          q.queryKey[0] === 'admin' && q.queryKey[1] === 'regions' && q.queryKey.length <= 3,
+      });
       queryClient.invalidateQueries({ queryKey: ['regions'] });
     },
   });

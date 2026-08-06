@@ -395,11 +395,11 @@ respond, i.e. the project is **paused or deleted**. All DB-dependent metrics
 Live-DB apply steps pending restore: `prisma migrate resolve --applied 0_init`,
 then `prisma migrate deploy` for the status + index migrations.
 
-| Metric                                | Baseline (mock) | After P2 | After P3 | Final |
-| ------------------------------------- | --------------- | -------- | -------- | ----- |
-| /az/listings local TTFB               | 0.073s          |          |          |       |
-| /az/listings/<slug> local TTFB        | 0.114s          |          |          |       |
-| Queries per catalogue request         | N/A (DB down)   |          |          |       |
-| Queries per detail request            | N/A (DB down)   |          |          |       |
+| Metric                                | Baseline (mock) | After P2        | After P3 | Final |
+| ------------------------------------- | --------------- | --------------- | -------- | ----- |
+| /az/listings local TTFB               | 0.073s          |                 |          |       |
+| /az/listings/<slug> local TTFB        | 0.114s          |                 |          |       |
+| Queries per catalogue request         | N/A (DB down)   |                 |          |       |
+| Queries per detail request            | N/A (DB down)   |                 |          |       |
 | /api/listings?limit=24 content-length | 16,859 B        | 10,675 B (−37%) |          |       |
-| Admin create w/ 8 photos (wall time)  | N/A (DB down)   |          |          |       |
+| Admin create w/ 8 photos (wall time)  | N/A (DB down)   |                 |          |       |
