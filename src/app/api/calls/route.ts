@@ -1,3 +1,6 @@
+import { isUsingMockData } from '@/lib/api/listings-service';
+import { logger } from '@/lib/logger';
+import { prisma } from '@/lib/prisma';
 import { checkRateLimit, getClientIp, rateLimitHeaders } from '@/lib/rate-limit';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -5,6 +8,7 @@ import { z } from 'zod';
 const callEventSchema = z.object({
   listingId: z.string().min(1).max(64),
   source: z.enum(['detail', 'card']).optional(),
+  locale: z.string().max(8).optional(),
 });
 
 export async function POST(request: Request) {
@@ -28,7 +32,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
   }
 
-  // MVP: log to stderr. Swap with Prisma write once a CallEvent table exists.
+  // Structured event log stays — it's the fallback stream when the DB write
+  // fails (and the only record in mock mode).
   console.warn(
     JSON.stringify({
       type: 'call_click',
@@ -37,6 +42,29 @@ export async function POST(request: Request) {
       source: parsed.data.source ?? 'detail',
     }),
   );
+
+  if (!isUsingMockData()) {
+    try {
+      await prisma.callEvent.create({
+        data: {
+          // Guard against junk ids: connect-by-id would throw; a raw FK write
+          // would too. Verify existence cheaply and store null if unknown so
+          // the tap still counts toward totals.
+          listingId: (await prisma.listing.findUnique({
+            where: { id: parsed.data.listingId },
+            select: { id: true },
+          }))
+            ? parsed.data.listingId
+            : null,
+          source: parsed.data.source ?? 'detail',
+          locale: parsed.data.locale ?? null,
+        },
+      });
+    } catch (err) {
+      // Analytics must never fail the response.
+      logger.error('POST /api/calls persist failed', { err });
+    }
+  }
 
   return NextResponse.json({ ok: true });
 }

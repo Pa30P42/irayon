@@ -29,6 +29,10 @@ export type ListListingsResult = {
 function queryToFilterState(query: ListingsQuery): ListingsFilterState {
   return {
     q: query.q ?? '',
+    category: query.category as ListingsFilterState['category'],
+    price_min: typeof query.price_min === 'number' ? query.price_min : null,
+    price_max: typeof query.price_max === 'number' ? query.price_max : null,
+    capacity: typeof query.capacity === 'number' ? query.capacity : null,
     region: query.region,
     village: query.village,
     type: query.type as PlaceType[],
@@ -49,19 +53,9 @@ export function listListingsFromMock(
   const visible = status === 'all' ? mockListings : mockListings.filter((l) => l.status === status);
   let results = applyListingsFilter(visible, filterState);
 
-  if (query.category.length > 0) {
-    const wanted = new Set(query.category);
-    results = results.filter((l) => l.categories.some((c) => wanted.has(c)));
-  }
-  if (typeof query.price_min === 'number') {
-    results = results.filter((l) => l.price >= query.price_min!);
-  }
-  if (typeof query.price_max === 'number') {
-    results = results.filter((l) => l.price <= query.price_max!);
-  }
-  if (typeof query.capacity === 'number') {
-    results = results.filter((l) => l.capacity >= query.capacity!);
-  }
+  // category/price/capacity now live in the filter state itself
+  // (applyListingsFilter handles them); only the flat amenities list from the
+  // API query shape still needs a separate pass.
   if (query.amenities.length > 0) {
     results = results.filter((l) =>
       (query.amenities as Amenity[]).every((a) => l.amenities.includes(a)),

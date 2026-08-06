@@ -1,5 +1,6 @@
 'use client';
 
+import { useAmenities } from '@/hooks/use-amenities';
 import { useLocale } from '@/hooks/use-locale';
 import { useRegionsWithVillages } from '@/hooks/use-public-regions';
 import { toggleOption } from '@/lib/listings-filter';
@@ -29,6 +30,17 @@ export function ActiveFiltersBar({ state, onChange, onReset }: ActiveFiltersBarP
   // don't fetch it when no location filter is active.
   const hasLocationChips = state.region.length > 0 || state.village.length > 0;
   const { data: regions } = useRegionsWithVillages({ enabled: hasLocationChips });
+  // Amenity catalogue only when amenity chips need labels (data-driven slugs
+  // may have no static i18n entry).
+  const hasAmenityChips = state.extra.length > 0 || state.basic.length > 0;
+  const { data: amenityCatalogue } = useAmenities({ enabled: hasAmenityChips });
+  const amenityLabel = useMemo(() => {
+    const bySlug = new Map(
+      (amenityCatalogue ?? []).map((a) => [a.slug, pickLocalized(a.name, locale)]),
+    );
+    return (slug: string, group: 'extra' | 'basic') =>
+      bySlug.get(slug) ?? (tOptions.has(`${group}.${slug}`) ? tOptions(`${group}.${slug}`) : slug);
+  }, [amenityCatalogue, locale, tOptions]);
 
   // Build region/village slug → localized label so chips show readable names
   // instead of slugs. Falls back to the slug while regions are loading.
@@ -46,6 +58,11 @@ export function ActiveFiltersBar({ state, onChange, onReset }: ActiveFiltersBarP
   }, [regions, locale]);
 
   const chips: Chip[] = [
+    ...state.category.map((o) => ({
+      group: 'category' as const,
+      option: o,
+      label: tOptions(`category.${o}`),
+    })),
     ...state.region.map((o) => ({
       group: 'region' as const,
       option: o,
@@ -83,12 +100,12 @@ export function ActiveFiltersBar({ state, onChange, onReset }: ActiveFiltersBarP
     ...state.extra.map((o) => ({
       group: 'extra' as const,
       option: o,
-      label: tOptions(`extra.${o}`),
+      label: amenityLabel(o, 'extra'),
     })),
     ...state.basic.map((o) => ({
       group: 'basic' as const,
       option: o,
-      label: tOptions(`basic.${o}`),
+      label: amenityLabel(o, 'basic'),
     })),
     ...state.fun.map((o) => ({
       group: 'fun' as const,
@@ -97,7 +114,9 @@ export function ActiveFiltersBar({ state, onChange, onReset }: ActiveFiltersBarP
     })),
   ];
 
-  if (chips.length === 0) return null;
+  const hasScalarChips =
+    state.price_min !== null || state.price_max !== null || state.capacity !== null;
+  if (chips.length === 0 && !hasScalarChips) return null;
 
   return (
     <div className="space-y-2 py-3">
@@ -114,6 +133,33 @@ export function ActiveFiltersBar({ state, onChange, onReset }: ActiveFiltersBarP
             <IconX size={14} aria-hidden />
           </button>
         ))}
+        {state.price_min !== null || state.price_max !== null ? (
+          <button
+            type="button"
+            onClick={() => onChange({ ...state, price_min: null, price_max: null })}
+            className="border-border hover:bg-accent inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors"
+            aria-label={t('removePrice')}
+          >
+            <span>
+              {t('priceChip', {
+                min: state.price_min ?? '…',
+                max: state.price_max ?? '…',
+              })}
+            </span>
+            <IconX size={14} aria-hidden />
+          </button>
+        ) : null}
+        {state.capacity !== null ? (
+          <button
+            type="button"
+            onClick={() => onChange({ ...state, capacity: null })}
+            className="border-border hover:bg-accent inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm transition-colors"
+            aria-label={t('removeCapacity')}
+          >
+            <span>{t('capacityChip', { count: state.capacity })}</span>
+            <IconX size={14} aria-hidden />
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={onReset}

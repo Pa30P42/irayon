@@ -1,4 +1,4 @@
-import { ACTIVITIES, AMENITIES, CATEGORIES, MEALS, PLACE_TYPES } from '@/lib/constants';
+import { ACTIVITIES, CATEGORIES, MEALS, PLACE_TYPES } from '@/lib/constants';
 import { z } from 'zod';
 import { localizedTextSchema } from './localized-text';
 
@@ -39,7 +39,12 @@ export const createListingSchema = z.object({
     .string()
     .trim()
     .regex(/^\+?[0-9 ()-]{6,20}$/, 'Phone must be 6–20 digits, optional +/spaces/dashes/parens'),
-  amenities: z.array(z.enum(AMENITIES as readonly [string, ...string[]])).default([]),
+  /**
+   * Amenity slugs are data-driven (admin CRUD) — validated against the DB at
+   * write time (unknown slugs are dropped by the amenity lookup), so no
+   * static enum here.
+   */
+  amenities: z.array(z.string().trim().min(1).max(64)).default([]),
   meals: z.array(z.enum(MEALS as readonly [string, ...string[]])).default([]),
   activities: z.array(z.enum(ACTIVITIES as readonly [string, ...string[]])).default([]),
 });

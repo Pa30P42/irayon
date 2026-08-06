@@ -1,6 +1,7 @@
 import { ListingDetailContent } from '@/components/listings/listing-detail-content';
 import { JsonLd } from '@/components/shared/json-ld';
 import { routing, type Locale } from '@/i18n/routing';
+import { listAmenities } from '@/lib/api/amenities-service';
 import { emptyListingsQuery } from '@/lib/api/listings-query-defaults';
 import { getListingBySlug, listListingSlugs, listListings } from '@/lib/api/listings-service';
 import { SITE } from '@/lib/constants';
@@ -73,10 +74,11 @@ export default async function ListingDetailPage({ params }: ListingDetailProps) 
 
   // Listing + translations have no inter-dependencies — fan them out so the
   // server's TTFB is bounded by the slowest of the three, not their sum.
-  const [listing, t, tAmenity] = await Promise.all([
+  const [listing, t, tAmenity, amenityCatalogue] = await Promise.all([
     cachedGetListingBySlug(slug),
     getTranslations({ locale, namespace: 'listings' }),
     getTranslations({ locale, namespace: 'amenity' }),
+    listAmenities(),
   ]);
   if (!listing) notFound();
 
@@ -99,8 +101,18 @@ export default async function ListingDetailPage({ params }: ListingDetailProps) 
   ]);
   // Localized labels for amenities + region — drives richer SERP rendering of
   // the Accommodation block (instead of raw slugs like "ev-charger").
+  const amenityNameBySlug = new Map(
+    amenityCatalogue.map((a) => [a.slug, a.name[seoLocale]] as const),
+  );
   const amenityLabels = Object.fromEntries(
-    listing.amenities.map((slug) => [slug, tAmenity(slug)] as const),
+    listing.amenities.map(
+      (amenitySlug) =>
+        [
+          amenitySlug,
+          amenityNameBySlug.get(amenitySlug) ??
+            (tAmenity.has(amenitySlug) ? tAmenity(amenitySlug) : amenitySlug),
+        ] as const,
+    ),
   );
   const accommodation = accommodationLd({
     listing,

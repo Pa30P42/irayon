@@ -17,25 +17,22 @@ export type ListingLocation = Coordinates & {
   address: string;
 };
 
-export type Amenity =
-  | 'wifi'
-  | 'parking'
-  | 'pool'
-  | 'sauna'
-  | 'jacuzzi'
-  | 'fireplace'
-  | 'kitchen'
-  | 'bbq'
-  | 'pets'
-  | 'heating'
-  | 'ac'
-  | 'tv'
-  | 'washer'
-  | 'iron'
-  | 'hairdryer'
-  | 'crib'
-  | 'kids'
-  | 'ev-charger';
+/**
+ * Amenity slugs are data-driven (admin CRUD at /admin/amenities). Plain
+ * string so a new amenity doesn't require a code change; the DB is the
+ * source of truth (see `AmenityOption`).
+ */
+export type Amenity = string;
+
+/** Catalogue entry served by /api/amenities. */
+export type AmenityOption = {
+  id: string;
+  slug: Amenity;
+  icon: string | null;
+  /** Group key: essentials | outdoor | kitchen | family | extras */
+  category: string;
+  name: LocalizedText;
+};
 
 /**
  * Region slugs are now data-driven (admin can add/edit/remove). This is a
@@ -140,6 +137,13 @@ export type HomeCategory =
 
 export type ListingsFilterState = {
   q: string;
+  /** Category tags (OR-combined, matches the API's `hasSome`). */
+  category: ListingCategory[];
+  /** Price bounds in AZN/night; null = unbounded. URL keys match the API's. */
+  price_min: number | null;
+  price_max: number | null;
+  /** Minimum guest capacity (the homepage hero's guests input). */
+  capacity: number | null;
   /**
    * Selected region slugs (multi). OR-combined with `village` at the service
    * layer: a listing matches if its region is in `region` OR its village is in
@@ -158,6 +162,7 @@ export type ListingsFilterState = {
 };
 
 export type FilterGroupName =
+  | 'category'
   | 'region'
   | 'village'
   | 'type'

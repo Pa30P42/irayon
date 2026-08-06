@@ -111,26 +111,26 @@ model Amenity {
 }
 
 model Listing {
-  id          String          @id @default(cuid())
-  slug        String          @unique
+  id          String            @id @default(cuid())
+  slug        String            @unique
   /// Localized title: { az, ru, en }
   title       Json
   /// Localized description: { az, ru, en }
   description Json
   regionId    String
-  region      Region          @relation(fields: [regionId], references: [id])
+  region      Region            @relation(fields: [regionId], references: [id])
   villageId   String?
-  village     Village?        @relation(fields: [villageId], references: [id], onDelete: SetNull)
+  village     Village?          @relation(fields: [villageId], references: [id], onDelete: SetNull)
   placeType   PlaceType
   /// Draft/publish/archive workflow. PUBLISHED is the default so existing
   /// rows (and the pre-status admin flow) keep their current visibility.
-  status      ListingStatus   @default(PUBLISHED)
+  status      ListingStatus     @default(PUBLISHED)
   /// One or more category tags. A listing can belong to multiple categories
   /// (e.g. a mountain forest cabin near a river).
   categories  ListingCategory[]
   price       Int
-  rating      Float           @default(0)
-  reviewCount Int             @default(0)
+  rating      Float             @default(0)
+  reviewCount Int               @default(0)
   capacity    Int
   bedrooms    Int
   lat         Float
@@ -143,10 +143,11 @@ model Listing {
   /// locales + address, maintained by the service write paths (see
   /// `buildListingSearchText`). Backfilled + trigram-GIN-indexed in raw SQL
   /// (migration 20260806000200) — Prisma can't express gin_trgm_ops.
-  searchText  String          @default("") @map("search_text")
+  searchText  String            @default("") @map("search_text")
 
-  amenities ListingAmenity[]
-  images    Image[]
+  amenities  ListingAmenity[]
+  images     Image[]
+  callEvents CallEvent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -194,6 +195,24 @@ model Image {
 
   @@index([listingId, order])
   @@map("images")
+}
+
+/// One row per phone-CTA tap — the business's only conversion event.
+/// `listingId` is SetNull (not Cascade) so deleting a listing keeps the
+/// historical call volume.
+model CallEvent {
+  id        String   @id @default(cuid())
+  listingId String?
+  listing   Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  /// UI locale the tap happened in (az/ru/en); null for legacy clients.
+  locale    String?
+  /// Where the CTA lived: `detail` or `card`.
+  source    String   @default("detail")
+  createdAt DateTime @default(now())
+
+  @@index([listingId, createdAt])
+  @@index([createdAt])
+  @@map("call_events")
 }
 
 /// Audit trail for state-changing admin actions. Read-only after insert;

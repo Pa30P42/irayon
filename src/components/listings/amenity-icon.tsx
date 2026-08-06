@@ -12,6 +12,7 @@ import {
   IconIroning,
   IconMoodKid,
   IconPaw,
+  IconSparkles,
   IconSwimming,
   IconTemperature,
   IconToolsKitchen2,
@@ -21,7 +22,8 @@ import {
   type Icon,
 } from '@tabler/icons-react';
 
-const ICONS: Record<Amenity, Icon> = {
+// Known slugs get a dedicated icon; data-driven newcomers fall back below.
+const ICONS: Record<string, Icon> = {
   wifi: IconWifi,
   parking: IconCar,
   pool: IconSwimming,
@@ -55,7 +57,7 @@ type AmenityIconProps = {
 };
 
 export function AmenityIcon({ amenity, className, size = 16, label }: AmenityIconProps) {
-  const Icon = ICONS[amenity];
+  const Icon = ICONS[amenity] ?? IconSparkles;
   return label ? (
     <Icon size={size} className={className} aria-label={label} />
   ) : (

@@ -14,9 +14,18 @@ export function SiteFooter() {
           <SiteLogo />
           <p className="text-foreground-muted mt-3 max-w-xs text-sm">{tCommon('tagline')}</p>
         </div>
-        <FooterColumn title={t('company')} items={['About', 'Press', 'Careers']} />
-        <FooterColumn title={t('support')} items={['Help center', 'Safety', 'Cancellations']} />
-        <FooterColumn title={t('legal')} items={['Privacy', 'Terms', 'Cookies']} />
+        <FooterColumn
+          title={t('company')}
+          items={[t('links.about'), t('links.press'), t('links.careers')]}
+        />
+        <FooterColumn
+          title={t('support')}
+          items={[t('links.helpCenter'), t('links.safety'), t('links.cancellations')]}
+        />
+        <FooterColumn
+          title={t('legal')}
+          items={[t('links.privacy'), t('links.terms'), t('links.cookies')]}
+        />
       </div>
       <div className="container-wide text-foreground-muted pb-8 text-xs">
         © {year} iRayon. {t('rights')}.

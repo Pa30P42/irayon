@@ -22,6 +22,24 @@ export function useAdminListings(input: AdminListingsQueryInput = {}) {
   });
 }
 
+export type AdminCallStats = {
+  total30d: number;
+  byListing: Record<string, number>;
+};
+
+/** 30-day call-tap summary shown in the admin list header + per row. */
+export function useAdminCallStats() {
+  return useQuery({
+    queryKey: ['admin-call-stats'],
+    queryFn: async ({ signal }): Promise<AdminCallStats> => {
+      const res = await fetch('/api/admin/calls', { signal });
+      if (!res.ok) throw new Error(`Call stats failed (${res.status})`);
+      return (await res.json()) as AdminCallStats;
+    },
+    staleTime: 60_000,
+  });
+}
+
 /** Status flip for the admin list's publish/unpublish/archive quick actions. */
 export function useListingStatusMutation() {
   const queryClient = useQueryClient();

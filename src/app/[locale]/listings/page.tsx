@@ -87,6 +87,7 @@ export default async function ListingsPage({ params, searchParams }: ListingsPag
   setRequestLocale(locale);
 
   const t = await getTranslations('listings');
+  const tCommon = await getTranslations('common');
 
   // Parse the URL filters server-side so the SSR payload already matches the
   // user's request (e.g. `?region=gabala` SSRs only Gabala listings, not the
@@ -120,7 +121,7 @@ export default async function ListingsPage({ params, searchParams }: ListingsPag
         </Heading>
         <p className="text-foreground-muted mt-2">{t('subtitle')}</p>
       </header>
-      <Suspense fallback={<div className="text-foreground-muted">Loading…</div>}>
+      <Suspense fallback={<div className="text-foreground-muted">{tCommon('loading')}</div>}>
         <ListingsView
           initialListings={listings}
           initialMeta={meta}

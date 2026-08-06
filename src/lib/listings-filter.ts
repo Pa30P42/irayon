@@ -69,6 +69,11 @@ export function applyListingsFilter<T extends FilterableListing>(
       if (!regionOk && !villageOk) return false;
     }
     if (filters.type.length > 0 && !filters.type.includes(l.placeType)) return false;
+    if (filters.category.length > 0 && !filters.category.some((c) => l.categories.includes(c)))
+      return false;
+    if (filters.price_min !== null && l.price < filters.price_min) return false;
+    if (filters.price_max !== null && l.price > filters.price_max) return false;
+    if (filters.capacity !== null && l.capacity < filters.capacity) return false;
     if (!matchesGuests(l, filters.guests)) return false;
     if (!matchesPlacement(l, filters.placement)) return false;
     if (filters.food.length > 0 && !filters.food.every((m) => l.meals.includes(m))) return false;
@@ -149,6 +154,10 @@ export function computeCompatibility(
 
   for (const l of listings) {
     if (!matchesSearch(l, state.q)) continue;
+    // Scalar constraints apply to every trial unchanged.
+    if (state.price_min !== null && l.price < state.price_min) continue;
+    if (state.price_max !== null && l.price > state.price_max) continue;
+    if (state.capacity !== null && l.capacity < state.capacity) continue;
 
     const locationMatch = !hasLocationFilter
       ? true
@@ -157,6 +166,7 @@ export function computeCompatibility(
 
     // Current-selection match per dimension.
     const dims: Record<FilterGroupName, boolean> = {
+      category: state.category.length === 0 || state.category.some((c) => l.categories.includes(c)),
       region: locationMatch,
       village: locationMatch,
       type: state.type.length === 0 || state.type.includes(l.placeType),
@@ -191,6 +201,11 @@ export function computeCompatibility(
     for (const opt of options) {
       let ok: boolean;
       switch (group) {
+        case 'category':
+          ok =
+            l.categories.includes(opt as (typeof l.categories)[number]) ||
+            (state.category.length > 0 && dims.category);
+          break;
         case 'region':
           ok = l.region === opt || (hasLocationFilter && locationMatch);
           break;
@@ -251,6 +266,9 @@ export function sortListings<T extends FilterableListing>(
 
 export function countActiveFilters(state: ListingsFilterState): number {
   let n = 0;
+  n += state.category.length;
+  n += state.price_min !== null || state.price_max !== null ? 1 : 0;
+  n += state.capacity !== null ? 1 : 0;
   n += state.region.length;
   n += state.village.length;
   n += state.type.length;

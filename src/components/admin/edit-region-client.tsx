@@ -37,6 +37,7 @@ export function EditRegionClient({ regionId }: EditRegionClientProps) {
       <RegionForm
         mode="edit"
         slug={data.slug}
+        regionId={regionId}
         initialValues={{
           name: data.name,
           coverImage: data.coverImage,

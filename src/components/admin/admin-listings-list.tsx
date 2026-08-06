@@ -6,7 +6,11 @@ import { Button } from '@/components/ui/button';
 import { ChipGroup } from '@/components/ui/chip-group';
 import { EmptyState as UiEmptyState } from '@/components/ui/empty-state';
 import { Heading } from '@/components/ui/typography';
-import { useAdminListings, useListingStatusMutation } from '@/hooks/use-admin-listings';
+import {
+  useAdminCallStats,
+  useAdminListings,
+  useListingStatusMutation,
+} from '@/hooks/use-admin-listings';
 import { LISTING_STATUSES } from '@/lib/constants';
 import { formatPrice } from '@/lib/utils';
 import type { ListingCardDto, ListingStatus } from '@/types';
@@ -18,6 +22,7 @@ import {
   IconEyeOff,
   IconLoader2,
   IconPencil,
+  IconPhoneCall,
   IconPhoto,
   IconPlus,
   IconRefresh,
@@ -52,6 +57,7 @@ export function AdminListingsList() {
     status: statusScope,
   });
   const statusMutation = useListingStatusMutation();
+  const { data: callStats } = useAdminCallStats();
 
   const listings = useMemo(() => data?.data ?? [], [data]);
 
@@ -64,6 +70,13 @@ export function AdminListingsList() {
           </Heading>
           <p className="text-foreground-muted mt-1 text-sm">
             {data ? t('totalCount', { count: data.meta.total }) : t('loadingCount')}
+            {callStats ? (
+              <>
+                {' '}
+                {' · '}
+                {t('calls30d', { count: callStats.total30d })}
+              </>
+            ) : null}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -156,6 +169,11 @@ export function AdminListingsList() {
                       </span>
                       {' · '}
                       <span>{t('photoCount', { count: listing.imageCount })}</span>
+                      {' · '}
+                      <span className="inline-flex items-center gap-1">
+                        <IconPhoneCall size={12} aria-hidden />
+                        {t('callCount', { count: callStats?.byListing[listing.id] ?? 0 })}
+                      </span>
                     </p>
                   </div>
                   <div className="flex items-center gap-1.5">

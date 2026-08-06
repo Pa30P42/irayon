@@ -10,8 +10,6 @@
     "viewAll": "Hamısına bax",
     "currency": "AZN",
     "perNight": "gecə",
-    "favorite": "Sevimlilərə əlavə et",
-    "unfavorite": "Sevimlilərdən sil",
     "breadcrumb": "Səhifə yolu",
     "skipToContent": "Əsas məzmuna keç"
   },
@@ -31,8 +29,6 @@
     "search": {
       "placeholder": "Hara getmək istəyirsən?",
       "location": "Məkan",
-      "checkIn": "Giriş tarixi",
-      "checkOut": "Çıxış tarixi",
       "guests": "Qonaqlar",
       "guestCount": "{count, plural, one {# qonaq} other {# qonaq}}",
       "selectDate": "Tarix seç",
@@ -105,14 +101,12 @@
   "detail": {
     "share": "Paylaş",
     "save": "Yadda saxla",
-    "saved": "Yadda saxlandı",
     "showAllPhotos": "Bütün şəkillər",
     "photoCount": "{current} / {total}",
     "previousPhoto": "Əvvəlki şəkil",
     "nextPhoto": "Növbəti şəkil",
     "closePhoto": "Bağla",
     "memberSince": "{year}-dən üzv",
-    "host": "Ev sahibi: {name}",
     "highlights": {
       "guests": "{count, plural, one {# qonağa qədər} other {# qonağa qədər}}",
       "bedrooms": "{count, plural, one {# yataq otağı} other {# yataq otağı}}",
@@ -145,14 +139,11 @@
     },
     "booking": {
       "perNight": "/ gecə",
-      "checkIn": "Giriş",
-      "checkOut": "Çıxış",
       "selectDates": "Tarix seç",
       "guests": "Qonaqlar",
       "nightsX": "{nights, plural, one {# gecə} other {# gecə}} × {price}",
       "cleaningFee": "Təmizlik haqqı",
       "total": "Cəmi",
-      "contactHost": "Ev sahibi ilə əlaqə",
       "selectDatesFirst": "Hesablamanı görmək üçün tarixləri seçin"
     },
     "similar": {
@@ -178,7 +169,10 @@
       "food": "Yemək xidmətləri",
       "extra": "Əlavələr",
       "basic": "Əsas ehtiyaclar",
-      "fun": "Əyləncələr"
+      "fun": "Əyləncələr",
+      "category": "Kateqoriya",
+      "price": "Gecəlik qiymət (AZN)",
+      "capacity": "Qonaq sayı (minimum)"
     },
     "options": {
       "type": {
@@ -222,8 +216,22 @@
         "quad": "Kvadrosikl",
         "horse": "at sürmə",
         "fishing": "balıq tutmaq"
+      },
+      "category": {
+        "mountain": "Dağlar",
+        "forest": "Meşə",
+        "river": "Çay kənarı",
+        "sea": "Dəniz kənarı",
+        "lake": "Göl kənarı"
       }
-    }
+    },
+    "priceMin": "Min",
+    "priceMax": "Maks",
+    "capacityHint": "0 = istənilən qonaq sayı",
+    "priceChip": "{min}–{max} AZN",
+    "capacityChip": "{count}+ qonaq",
+    "removePrice": "Qiymət filtrini sil",
+    "removeCapacity": "Qonaq filtrini sil"
   },
   "categories": {
     "mountain": "Dağ",
@@ -257,7 +265,18 @@
     "company": "Şirkət",
     "support": "Dəstək",
     "legal": "Hüquqi",
-    "follow": "Bizi izləyin"
+    "follow": "Bizi izləyin",
+    "links": {
+      "about": "Haqqımızda",
+      "press": "Mətbuat",
+      "careers": "Karyera",
+      "helpCenter": "Yardım mərkəzi",
+      "safety": "Təhlükəsizlik",
+      "cancellations": "Ləğvetmə",
+      "privacy": "Məxfilik",
+      "terms": "Şərtlər",
+      "cookies": "Cookies"
+    }
   },
   "language": {
     "label": "Dil",
@@ -274,7 +293,9 @@
       "listings": "Elanlar",
       "regions": "Regionlar",
       "new": "Yeni",
-      "signOut": "Çıxış"
+      "signOut": "Çıxış",
+      "amenities": "Şərait",
+      "logs": "Fəaliyyət jurnalı"
     },
     "login": {
       "eyebrow": "iRayon · Admin",
@@ -344,7 +365,9 @@
       "archive": "Arxivlə",
       "publishAria": "{title} dərc et",
       "unpublishAria": "{title} dərcdən çıxar",
-      "archiveAria": "{title} arxivlə"
+      "archiveAria": "{title} arxivlə",
+      "calls30d": "30 gündə {count} zəng",
+      "callCount": "{count, plural, =0 {zəng yoxdur} one {# zəng} other {# zəng}}"
     },
     "regions": {
       "title": "Regionlar",
@@ -506,7 +529,8 @@
         "sortOrder": "Sıralama",
         "sortOrderHint": "Daha aşağı rəqəm əvvəl görünür. Standart 0.",
         "featured": "Ana səhifədə seçilmiş",
-        "featuredHint": "Seçilmiş regionlar ana səhifədəki Regionlar şəbəkəsində görünür."
+        "featuredHint": "Seçilmiş regionlar ana səhifədəki Regionlar şəbəkəsində görünür.",
+        "coverImageUpload": "Üz qabığı yüklə"
       },
       "createSubmit": "Regionu yarat",
       "editSubmit": "Dəyişiklikləri saxla",
@@ -530,7 +554,11 @@
       "remove": "Sil",
       "removeFailed": "Şəkli silmək alınmadı",
       "cover": "Üz qabığı",
-      "photoAlt": "Şəkil {index}"
+      "photoAlt": "Şəkil {index}",
+      "makeCover": "Üz qabığı et",
+      "moveEarlier": "Əvvələ keçir",
+      "moveLater": "Sona keçir",
+      "reorderFailed": "Fotoların sırasını dəyişmək alınmadı"
     },
     "labels": {
       "placeType": {
@@ -581,6 +609,56 @@
         "published": "Dərc olunub",
         "archived": "Arxivdə"
       }
+    },
+    "logs": {
+      "title": "Fəaliyyət jurnalı",
+      "totalCount": "{count} qeyd",
+      "loading": "Yüklənir…",
+      "filterPlaceholder": "Əməliyyata görə filtr (məs. listing.)",
+      "emptyTitle": "Qeyd yoxdur",
+      "emptyDescription": "Admin əməliyyatları burada görünəcək.",
+      "columns": {
+        "time": "Vaxt",
+        "action": "Əməliyyat",
+        "target": "Obyekt",
+        "details": "Detallar"
+      },
+      "previous": "Geri",
+      "next": "İrəli",
+      "pageOf": "Səhifə {page} / {pages}"
+    },
+    "amenities": {
+      "title": "Şərait",
+      "subtitle": "Elan şəraiti və açıq filtrlər üçün kataloq. Slaqlar dəyişməzdir; adlar və qruplar redaktə oluna bilər.",
+      "createTitle": "Yeni şərait",
+      "create": "Yarat",
+      "edit": "Redaktə et",
+      "delete": "Sil",
+      "cancel": "Ləğv et",
+      "save": "Yadda saxla",
+      "saveFailed": "Yadda saxlamaq alınmadı",
+      "deleteFailed": "Silmək alınmadı",
+      "namePlaceholder": {
+        "en": "Ad (ingiliscə)",
+        "ru": "Ad (rusca)",
+        "az": "Ad (azərbaycanca)"
+      },
+      "categoryLabel": "Qrup"
+    },
+    "amenityCategories": {
+      "essentials": "Əsas",
+      "outdoor": "Həyətdə",
+      "kitchen": "Mətbəx",
+      "family": "Ailə üçün",
+      "extras": "Əlavə"
     }
+  },
+  "notFound": {
+    "title": "Səhifə tapılmadı",
+    "home": "Ana səhifə"
+  },
+  "errorPage": {
+    "title": "Nəsə səhv getdi",
+    "retry": "Yenidən cəhd et"
   }
 }

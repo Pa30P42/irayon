@@ -3,6 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Heading } from '@/components/ui/typography';
+import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 
 export default function LocaleErrorBoundary({
@@ -12,16 +13,17 @@ export default function LocaleErrorBoundary({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useTranslations('errorPage');
   useEffect(() => {
     console.error(error);
   }, [error]);
 
   return (
     <div className="container-wide py-20 text-center">
-      <Heading level="errorTitle">Something went wrong</Heading>
+      <Heading level="errorTitle">{t('title')}</Heading>
       <p className="text-foreground-muted mt-2">{error.message}</p>
       <Button className="mt-6" onClick={reset}>
-        Try again
+        {t('retry')}
       </Button>
     </div>
   );

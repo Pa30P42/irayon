@@ -2,7 +2,14 @@
 
 import { Button } from '@/components/ui/button';
 import { useDeleteListingImage } from '@/hooks/use-delete-listing-image';
-import { IconLoader2, IconTrash } from '@tabler/icons-react';
+import { useReorderListingImages } from '@/hooks/use-reorder-listing-images';
+import {
+  IconArrowLeft,
+  IconArrowRight,
+  IconLoader2,
+  IconStar,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -23,6 +30,7 @@ export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImag
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const deleteImage = useDeleteListingImage();
+  const reorder = useReorderListingImages();
 
   if (images.length === 0) return null;
 
@@ -38,6 +46,41 @@ export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImag
         onSettled: () => setDeletingId(null),
       },
     );
+  };
+
+  // Optimistic reorder: apply locally, revert on server failure.
+  const commitOrder = (next: ExistingImage[]) => {
+    if (reorder.isPending) return;
+    setError(null);
+    const previous = images;
+    onChange(next);
+    reorder.mutate(
+      { listingId, order: next.map((i) => i.id) },
+      {
+        onError: (err) => {
+          onChange(previous);
+          setError(err instanceof Error ? err.message : t('reorderFailed'));
+        },
+      },
+    );
+  };
+
+  const makeCover = (index: number) => {
+    if (index === 0) return;
+    const next = [...images];
+    const [img] = next.splice(index, 1);
+    next.unshift(img!);
+    commitOrder(next);
+  };
+
+  const move = (index: number, delta: -1 | 1) => {
+    const target = index + delta;
+    if (target < 0 || target >= images.length) return;
+    const next = [...images];
+    const a = next[index]!;
+    next[index] = next[target]!;
+    next[target] = a;
+    commitOrder(next);
   };
 
   return (
@@ -76,7 +119,43 @@ export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImag
                   </div>
                 ) : null}
               </div>
-              <div className="p-2">
+              <div className="space-y-1.5 p-2">
+                <div className="flex items-center justify-between gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => move(idx, -1)}
+                    disabled={idx === 0 || reorder.isPending}
+                    aria-label={t('moveEarlier')}
+                    className="h-8 w-8 p-0"
+                  >
+                    <IconArrowLeft size={14} />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => makeCover(idx)}
+                    disabled={idx === 0 || reorder.isPending}
+                    aria-label={t('makeCover')}
+                    className="h-8 flex-1 gap-1 px-1 text-xs"
+                  >
+                    <IconStar size={13} />
+                    {t('makeCover')}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => move(idx, 1)}
+                    disabled={idx === images.length - 1 || reorder.isPending}
+                    aria-label={t('moveLater')}
+                    className="h-8 w-8 p-0"
+                  >
+                    <IconArrowRight size={14} />
+                  </Button>
+                </div>
                 <Button
                   type="button"
                   variant="destructiveGhost"

@@ -10,8 +10,6 @@
     "viewAll": "View all",
     "currency": "AZN",
     "perNight": "night",
-    "favorite": "Add to favorites",
-    "unfavorite": "Remove from favorites",
     "breadcrumb": "Breadcrumb",
     "skipToContent": "Skip to content"
   },
@@ -31,8 +29,6 @@
     "search": {
       "placeholder": "Where do you want to go?",
       "location": "Location",
-      "checkIn": "Check-in",
-      "checkOut": "Check-out",
       "guests": "Guests",
       "guestCount": "{count, plural, one {# guest} other {# guests}}",
       "selectDate": "Select date",
@@ -105,14 +101,12 @@
   "detail": {
     "share": "Share",
     "save": "Save",
-    "saved": "Saved",
     "showAllPhotos": "Show all photos",
     "photoCount": "{current} / {total}",
     "previousPhoto": "Previous photo",
     "nextPhoto": "Next photo",
     "closePhoto": "Close",
     "memberSince": "Member since {year}",
-    "host": "Hosted by {name}",
     "highlights": {
       "guests": "{count, plural, one {Up to # guest} other {Up to # guests}}",
       "bedrooms": "{count, plural, one {# bedroom} other {# bedrooms}}",
@@ -145,14 +139,11 @@
     },
     "booking": {
       "perNight": "/ night",
-      "checkIn": "Check-in",
-      "checkOut": "Check-out",
       "selectDates": "Select dates",
       "guests": "Guests",
       "nightsX": "{nights, plural, one {# night} other {# nights}} × {price}",
       "cleaningFee": "Cleaning fee",
       "total": "Total",
-      "contactHost": "Contact host",
       "selectDatesFirst": "Select dates to see the breakdown"
     },
     "similar": {
@@ -178,7 +169,10 @@
       "food": "Meals",
       "extra": "Extras",
       "basic": "Basic needs",
-      "fun": "Activities"
+      "fun": "Activities",
+      "category": "Category",
+      "price": "Price per night (AZN)",
+      "capacity": "Guests (minimum)"
     },
     "options": {
       "type": {
@@ -222,8 +216,22 @@
         "quad": "Quad bike",
         "horse": "Horseback riding",
         "fishing": "Fishing"
+      },
+      "category": {
+        "mountain": "Mountains",
+        "forest": "Forest",
+        "river": "Riverside",
+        "sea": "Seaside",
+        "lake": "Lakeside"
       }
-    }
+    },
+    "priceMin": "From",
+    "priceMax": "To",
+    "capacityHint": "0 = any number of guests",
+    "priceChip": "{min}–{max} AZN",
+    "capacityChip": "{count}+ guests",
+    "removePrice": "Remove price filter",
+    "removeCapacity": "Remove guests filter"
   },
   "categories": {
     "mountain": "Mountain",
@@ -257,7 +265,18 @@
     "company": "Company",
     "support": "Support",
     "legal": "Legal",
-    "follow": "Follow us"
+    "follow": "Follow us",
+    "links": {
+      "about": "About",
+      "press": "Press",
+      "careers": "Careers",
+      "helpCenter": "Help center",
+      "safety": "Safety",
+      "cancellations": "Cancellations",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "cookies": "Cookies"
+    }
   },
   "language": {
     "label": "Language",
@@ -274,7 +293,9 @@
       "listings": "Listings",
       "regions": "Regions",
       "new": "New",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "amenities": "Amenities",
+      "logs": "Activity log"
     },
     "login": {
       "eyebrow": "iRayon · Admin",
@@ -344,7 +365,9 @@
       "archive": "Archive",
       "publishAria": "Publish {title}",
       "unpublishAria": "Unpublish {title}",
-      "archiveAria": "Archive {title}"
+      "archiveAria": "Archive {title}",
+      "calls30d": "{count} calls / 30 days",
+      "callCount": "{count, plural, =0 {no calls} one {# call} other {# calls}}"
     },
     "regions": {
       "title": "Regions",
@@ -506,7 +529,8 @@
         "sortOrder": "Sort order",
         "sortOrderHint": "Lower numbers appear first. Defaults to 0.",
         "featured": "Featured on homepage",
-        "featuredHint": "Featured regions appear in the homepage Regions grid."
+        "featuredHint": "Featured regions appear in the homepage Regions grid.",
+        "coverImageUpload": "Upload cover photo"
       },
       "createSubmit": "Create region",
       "editSubmit": "Save changes",
@@ -530,7 +554,11 @@
       "remove": "Remove",
       "removeFailed": "Could not delete photo",
       "cover": "Cover",
-      "photoAlt": "Photo {index}"
+      "photoAlt": "Photo {index}",
+      "makeCover": "Make cover",
+      "moveEarlier": "Move earlier",
+      "moveLater": "Move later",
+      "reorderFailed": "Couldn't reorder photos"
     },
     "labels": {
       "placeType": {
@@ -581,6 +609,56 @@
         "published": "Published",
         "archived": "Archived"
       }
+    },
+    "logs": {
+      "title": "Activity log",
+      "totalCount": "{count} entries",
+      "loading": "Loading…",
+      "filterPlaceholder": "Filter by action (e.g. listing.)",
+      "emptyTitle": "No log entries",
+      "emptyDescription": "Admin actions will appear here.",
+      "columns": {
+        "time": "Time",
+        "action": "Action",
+        "target": "Target",
+        "details": "Details"
+      },
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {page} of {pages}"
+    },
+    "amenities": {
+      "title": "Amenities",
+      "subtitle": "The catalogue behind listing amenities and public filters. Slugs are permanent; names and grouping are editable.",
+      "createTitle": "New amenity",
+      "create": "Create",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saveFailed": "Couldn't save amenity",
+      "deleteFailed": "Couldn't delete amenity",
+      "namePlaceholder": {
+        "en": "Name (English)",
+        "ru": "Name (Russian)",
+        "az": "Name (Azerbaijani)"
+      },
+      "categoryLabel": "Group"
+    },
+    "amenityCategories": {
+      "essentials": "Essentials",
+      "outdoor": "Outdoor",
+      "kitchen": "Kitchen",
+      "family": "Family",
+      "extras": "Extras"
     }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "home": "Home"
+  },
+  "errorPage": {
+    "title": "Something went wrong",
+    "retry": "Try again"
   }
 }

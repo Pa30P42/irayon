@@ -91,9 +91,16 @@ describe('createListingSchema', () => {
     expect(parsed.lat).toBe(40.5);
   });
 
-  it('rejects unknown amenities', () => {
+  it('accepts arbitrary amenity slugs (catalogue is data-driven; DB gates them at write time)', () => {
+    const parsed = createListingSchema.parse({
+      ...validBase,
+      amenities: ['wifi', 'helicopter-pad'],
+    });
+    expect(parsed.amenities).toEqual(['wifi', 'helicopter-pad']);
+    // Still bounded: empty and oversized slugs are rejected.
+    expect(() => createListingSchema.parse({ ...validBase, amenities: [''] })).toThrow();
     expect(() =>
-      createListingSchema.parse({ ...validBase, amenities: ['wifi', 'helicopter'] }),
+      createListingSchema.parse({ ...validBase, amenities: ['x'.repeat(65)] }),
     ).toThrow();
   });
 });

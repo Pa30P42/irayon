@@ -45,6 +45,10 @@ export function useListingsFilter(): UseListingsFilterResult {
   const state = useMemo<ListingsFilterState>(
     () => ({
       q: raw.q,
+      category: raw.category,
+      price_min: raw.price_min,
+      price_max: raw.price_max,
+      capacity: raw.capacity,
       region: raw.region,
       village: raw.village,
       type: raw.type,
