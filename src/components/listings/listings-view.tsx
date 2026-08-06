@@ -6,7 +6,7 @@ import { useListings } from '@/hooks/use-listings';
 import { useListingsFilter } from '@/hooks/use-listings-filter';
 import type { Paginated } from '@/lib/api/api-response';
 import { queryFromFilterState } from '@/lib/api/listings-query-from-state';
-import type { Listing, Locale } from '@/types';
+import type { ListingCardDto, Locale } from '@/types';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ActiveFiltersBar } from './active-filters-bar';
@@ -16,8 +16,8 @@ import { ListingsMapView } from './map/listings-map-view';
 import { NoResults } from './no-results';
 
 type ListingsViewProps = {
-  initialListings: Listing[];
-  initialMeta: Paginated<Listing>['meta'];
+  initialListings: ListingCardDto[];
+  initialMeta: Paginated<ListingCardDto>['meta'];
   /** Server timestamp (ms) of the SSR fetch, so react-query knows the seed's true age. */
   initialFetchedAt?: number;
   locale: Locale;

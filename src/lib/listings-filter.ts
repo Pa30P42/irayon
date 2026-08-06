@@ -12,14 +12,20 @@ import type {
 const isGuestRange = (value: string): value is GuestRange =>
   (GUEST_RANGES as readonly string[]).includes(value);
 
-const matchesGuests = (listing: Listing, range: GuestRange | null): boolean => {
+/**
+ * Structural subset the filter/sort helpers actually read. Both the full
+ * `Listing` DTO (mock path) and the slim `ListingCardDto` (client) satisfy it.
+ */
+export type FilterableListing = Omit<Listing, 'description' | 'images'>;
+
+const matchesGuests = (listing: FilterableListing, range: GuestRange | null): boolean => {
   if (range === null) return true;
   if (range === 'lt5') return listing.capacity < 5;
   if (range === '5to10') return listing.capacity >= 5 && listing.capacity <= 10;
   return listing.capacity > 10;
 };
 
-const matchesPlacement = (listing: Listing, placements: Placement[]): boolean => {
+const matchesPlacement = (listing: FilterableListing, placements: Placement[]): boolean => {
   if (placements.length === 0) return true;
   const cats = listing.categories;
   return placements.some((p) =>
@@ -29,7 +35,7 @@ const matchesPlacement = (listing: Listing, placements: Placement[]): boolean =>
   );
 };
 
-const matchesSearch = (listing: Listing, q: string): boolean => {
+const matchesSearch = (listing: FilterableListing, q: string): boolean => {
   if (!q) return true;
   const needle = q.trim().toLowerCase();
   if (!needle) return true;
@@ -46,7 +52,10 @@ const matchesSearch = (listing: Listing, q: string): boolean => {
   return haystack.includes(needle);
 };
 
-export function applyListingsFilter(listings: Listing[], filters: ListingsFilterState): Listing[] {
+export function applyListingsFilter<T extends FilterableListing>(
+  listings: T[],
+  filters: ListingsFilterState,
+): T[] {
   return listings.filter((l) => {
     // Location: OR-combine region and village. A listing matches if its region
     // is in the region filter OR its village is in the village filter. Empty
@@ -124,7 +133,7 @@ export function isOptionSelected(
  *  - Maintain an inverted index Map<group, Map<option, Set<listingId>>>.
  */
 export function computeCompatibility(
-  listings: Listing[],
+  listings: FilterableListing[],
   state: ListingsFilterState,
   group: FilterGroupName,
   options: readonly string[],
@@ -138,7 +147,10 @@ export function computeCompatibility(
   return result;
 }
 
-export function sortListings(listings: Listing[], sort: SortOption | null): Listing[] {
+export function sortListings<T extends FilterableListing>(
+  listings: T[],
+  sort: SortOption | null,
+): T[] {
   if (!sort) return listings;
   const copy = [...listings];
   switch (sort) {

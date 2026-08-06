@@ -1,17 +1,22 @@
 'use client';
 
 import { filterByHomeCategory } from '@/lib/listing-filters';
-import type { HomeCategory, Listing } from '@/types';
+import type { FilterableListing } from '@/lib/listings-filter';
+import type { HomeCategory } from '@/types';
 import { useMemo } from 'react';
 
-type UseFilteredListingsArgs = {
-  listings: Listing[];
+type UseFilteredListingsArgs<T extends FilterableListing> = {
+  listings: T[];
   category: HomeCategory;
   limit?: number;
 };
 
-export function useFilteredListings({ listings, category, limit }: UseFilteredListingsArgs): {
-  listings: Listing[];
+export function useFilteredListings<T extends FilterableListing>({
+  listings,
+  category,
+  limit,
+}: UseFilteredListingsArgs<T>): {
+  listings: T[];
   total: number;
 } {
   return useMemo(() => {

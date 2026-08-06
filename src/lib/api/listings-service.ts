@@ -6,6 +6,7 @@ import {
   getListingByIdFromDb,
   getListingFromDb,
   getListingImagesById as getListingImagesByIdFromDb,
+  listListingSlugsFromDb,
   listListingsFromDb,
   listRegionsFromDb,
   listRegionsWithVillagesFromDb,
@@ -13,6 +14,7 @@ import {
   updateListingFromDb,
   type DeleteListingResult,
   type ListingImageRef,
+  type ListingSlugRef,
   type ListingStatusScope,
 } from './listings-service-db';
 import {
@@ -58,6 +60,21 @@ export async function getListingBySlug(slug: string): Promise<Listing | null> {
   return isUsingMockData() ? getListingFromMock(slug) : getListingFromDb(slug);
 }
 
+/**
+ * Newest-first slugs of published listings (slug + createdAt only). Use for
+ * generateStaticParams / sitemap instead of hydrating full rows.
+ */
+export async function listListingSlugs(limit?: number): Promise<ListingSlugRef[]> {
+  if (isUsingMockData()) {
+    return mockListings
+      .filter((l) => l.status === 'published')
+      .map((l) => ({ slug: l.slug, createdAt: new Date(l.createdAt) }))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit ?? Infinity);
+  }
+  return listListingSlugsFromDb(limit);
+}
+
 export async function getListingById(id: string): Promise<Listing | null> {
   if (isUsingMockData()) return mockListings.find((l) => l.id === id) ?? null;
   return getListingByIdFromDb(id);
@@ -83,10 +100,14 @@ export async function getListingImagesById(id: string): Promise<ListingImageRef[
   return getListingImagesByIdFromDb(id, undefined, isUsingMockData());
 }
 
+/** Returns `null` when the region doesn't exist (route maps that to 404). */
 export async function listVillagesByRegionSlug(regionSlug: string) {
-  // Mock path returns an empty array — `listRegionsFromMock` doesn't carry
-  // villages either, so the cascade hides on the public filter modal.
-  if (isUsingMockData()) return [];
+  // Mock path: report empty villages for known mock regions, null otherwise,
+  // so the route's 404 semantics hold without a DB.
+  if (isUsingMockData()) {
+    const exists = listRegionsFromMock().some((r) => r.slug === regionSlug);
+    return exists ? [] : null;
+  }
   return listVillagesByRegionSlugFromDb(regionSlug);
 }
 

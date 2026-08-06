@@ -1,4 +1,4 @@
-import { makeListing } from '@/test/factories';
+import { makeListing, makeListingCard } from '@/test/factories';
 import { renderWithProviders, screen } from '@/test/test-utils';
 import type { ComponentProps } from 'react';
 import { describe, expect, it, vi } from 'vitest';
@@ -40,7 +40,7 @@ const listing = makeListing({
 });
 
 const similar = [
-  makeListing({
+  makeListingCard({
     id: 'lst_sim_1',
     slug: 'gabala-nohur',
     title: { az: 'A', ru: 'B', en: 'Nohur Lake Villa' },

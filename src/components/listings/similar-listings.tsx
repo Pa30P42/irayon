@@ -1,10 +1,10 @@
 import { Heading } from '@/components/ui/typography';
-import type { Listing, Locale } from '@/types';
+import type { ListingCardDto, Locale } from '@/types';
 import { useTranslations } from 'next-intl';
 import { ListingCard } from './listing-card';
 
 type SimilarListingsProps = {
-  listings: Listing[];
+  listings: ListingCardDto[];
   locale: Locale;
 };
 

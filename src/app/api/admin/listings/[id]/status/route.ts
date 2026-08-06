@@ -12,6 +12,7 @@ import { toListingStatus } from '@/lib/api/prisma-enums';
 import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
+import { after } from 'next/server';
 import { z } from 'zod';
 
 type Context = { params: Promise<{ id: string }> };
@@ -53,11 +54,13 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
       data: { status: toListingStatus(status) },
       select: { id: true, slug: true, status: true },
     });
-    await recordAdminLog({
-      action: 'listing.status',
-      target: id,
-      metadata: { slug: updated.slug, status },
-    });
+    after(() =>
+      recordAdminLog({
+        action: 'listing.status',
+        target: id,
+        metadata: { slug: updated.slug, status },
+      }),
+    );
     revalidateListingSurfaces(updated.slug);
     return apiOk({ id: updated.id, slug: updated.slug, status });
   } catch (err) {

@@ -115,6 +115,18 @@ export type Listing = {
   createdAt: string;
 };
 
+/**
+ * Slim listing shape for list/card surfaces (catalogue grid, map, home,
+ * admin list). Same as `Listing` minus the 3-locale `description`, with
+ * `images` truncated to the cover and a real `imageCount` alongside.
+ * A full `Listing` is NOT assignable here (it lacks `imageCount`) — use
+ * `listingToCard` to project one.
+ */
+export type ListingCardDto = Omit<Listing, 'description'> & {
+  /** Total image count (images itself carries only the cover URL). */
+  imageCount: number;
+};
+
 export type HomeCategory =
   | 'all'
   | 'mountain'

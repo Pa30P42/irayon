@@ -12,7 +12,7 @@ import {
 import { listListings } from '@/lib/api/listings-service';
 import { listingsQuerySchema, searchParamsToObject } from '@/lib/api/listings-validator';
 import { logger } from '@/lib/logger';
-import type { Listing } from '@/types';
+import type { ListingCardDto } from '@/types';
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
@@ -21,7 +21,10 @@ export async function GET(request: Request): Promise<Response> {
 
   try {
     const result = await listListings(parsed.data);
-    return apiPaginated<Listing>(result satisfies Paginated<Listing>, CACHE_PUBLIC_LIST);
+    return apiPaginated<ListingCardDto>(
+      result satisfies Paginated<ListingCardDto>,
+      CACHE_PUBLIC_LIST,
+    );
   } catch (err) {
     logger.error('GET /api/listings failed', { err });
     return apiServerError();

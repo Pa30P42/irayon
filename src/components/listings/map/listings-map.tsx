@@ -5,7 +5,7 @@ import 'react-leaflet-cluster/dist/assets/MarkerCluster.css';
 import 'react-leaflet-cluster/dist/assets/MarkerCluster.Default.css';
 
 import { formatPrice } from '@/lib/utils';
-import type { Listing, Locale } from '@/types';
+import type { ListingCardDto, Locale } from '@/types';
 import L from 'leaflet';
 import { useCallback, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
@@ -20,7 +20,7 @@ import {
 import { ListingMapMarker } from './listings-map-marker';
 
 type ListingsMapProps = {
-  listings: Listing[];
+  listings: ListingCardDto[];
   locale: Locale;
   /** Drives fly-to + popup + selected marker style. */
   selectedId?: string | null;
@@ -55,7 +55,7 @@ function clusterIcon(cluster: { getChildCount(): number }): L.DivIcon {
   });
 }
 
-function FitToBounds({ listings }: { listings: Listing[] }) {
+function FitToBounds({ listings }: { listings: ListingCardDto[] }) {
   const map = useMap();
   useEffect(() => {
     if (listings.length === 0) return;
@@ -74,7 +74,7 @@ function PanToSelected({
   listings,
   selectedId,
 }: {
-  listings: Listing[];
+  listings: ListingCardDto[];
   selectedId: string | null | undefined;
 }) {
   const map = useMap();

@@ -1,5 +1,6 @@
+import { listingToCard } from '@/lib/api/listing-dto';
 import { emptyFilterState } from '@/lib/constants';
-import type { Listing, ListingsFilterState } from '@/types';
+import type { Listing, ListingCardDto, ListingsFilterState } from '@/types';
 
 export const makeListing = (overrides: Partial<Listing> & Pick<Listing, 'id'>): Listing => ({
   slug: overrides.id,
@@ -34,3 +35,8 @@ export const makeFilterState = (
   ...emptyFilterState(),
   ...overrides,
 });
+
+/** Card-shaped fixture: same overrides API as `makeListing`, projected. */
+export const makeListingCard = (
+  overrides: Partial<Listing> & Pick<Listing, 'id'>,
+): ListingCardDto => listingToCard(makeListing(overrides));

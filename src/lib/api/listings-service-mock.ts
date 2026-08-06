@@ -4,6 +4,7 @@ import type {
   Activity,
   Amenity,
   Listing,
+  ListingCardDto,
   ListingsFilterState,
   ListingStatus,
   Meal,
@@ -12,6 +13,7 @@ import type {
   RegionWithVillages,
   SortOption,
 } from '@/types';
+import { listingToCard } from './listing-dto';
 import type { ListingsQuery } from './listings-validator';
 
 /**
@@ -20,7 +22,7 @@ import type { ListingsQuery } from './listings-validator';
  */
 
 export type ListListingsResult = {
-  data: Listing[];
+  data: ListingCardDto[];
   meta: { total: number; page: number; limit: number; hasMore: boolean };
 };
 
@@ -69,7 +71,8 @@ export function listListingsFromMock(
   const total = results.length;
   const sorted = sortListings(results, (query.sort as SortOption | undefined) ?? null);
   const start = (query.page - 1) * query.limit;
-  const data = sorted.slice(start, start + query.limit);
+  // Mirror the DB path's card projection (no description, cover-only images).
+  const data = sorted.slice(start, start + query.limit).map(listingToCard);
   return {
     data,
     meta: {

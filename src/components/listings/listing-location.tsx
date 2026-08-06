@@ -1,5 +1,6 @@
 import { ListingsMapLoader } from '@/components/listings/map/listings-map-loader';
 import { Heading } from '@/components/ui/typography';
+import { listingToCard } from '@/lib/api/listing-dto';
 import type { Listing, Locale } from '@/types';
 import { IconMapPin } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
@@ -19,7 +20,7 @@ export function ListingLocation({ listing, locale }: ListingLocationProps) {
 
       <div className="border-border relative aspect-16/9 w-full overflow-hidden rounded-2xl border">
         <ListingsMapLoader
-          listings={[listing]}
+          listings={[listingToCard(listing)]}
           locale={locale}
           scrollWheelZoom={false}
           cluster={false}

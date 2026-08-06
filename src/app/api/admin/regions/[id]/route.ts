@@ -15,6 +15,7 @@ import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import type { RegionWithVillages } from '@/types';
 import type { Prisma } from '@prisma/client';
+import { after } from 'next/server';
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -104,13 +105,13 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
   if (input.sortOrder !== undefined) data.sortOrder = input.sortOrder;
 
   try {
-    await prisma.region.update({ where: { id }, data });
-    const row = await prisma.region.findUnique({
+    // The update returns the fresh row itself — no follow-up read.
+    const row = await prisma.region.update({
       where: { id },
+      data,
       include: { villages: true, _count: { select: { listings: true, villages: true } } },
     });
-    if (!row) return apiNotFound(`Region "${id}" not found`);
-    await recordAdminLog({ action: 'region.update', target: id });
+    after(() => recordAdminLog({ action: 'region.update', target: id }));
     revalidateListingSurfaces();
     return apiOk(toDto(row));
   } catch (err) {
@@ -150,7 +151,7 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
     }
 
     await prisma.region.delete({ where: { id } });
-    await recordAdminLog({ action: 'region.delete', target: id });
+    after(() => recordAdminLog({ action: 'region.delete', target: id }));
     revalidateListingSurfaces();
     return apiOk({ deleted: true });
   } catch (err) {

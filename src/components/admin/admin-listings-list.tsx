@@ -9,7 +9,7 @@ import { Heading } from '@/components/ui/typography';
 import { useAdminListings, useListingStatusMutation } from '@/hooks/use-admin-listings';
 import { LISTING_STATUSES } from '@/lib/constants';
 import { formatPrice } from '@/lib/utils';
-import type { Listing, ListingStatus } from '@/types';
+import type { ListingCardDto, ListingStatus } from '@/types';
 import {
   IconAlertCircle,
   IconArchive,
@@ -155,7 +155,7 @@ export function AdminListingsList() {
                         <span className="text-foreground-muted">{t('perNight')}</span>
                       </span>
                       {' · '}
-                      <span>{t('photoCount', { count: listing.images.length })}</span>
+                      <span>{t('photoCount', { count: listing.imageCount })}</span>
                     </p>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -191,7 +191,7 @@ export function AdminListingsList() {
                         setToDelete({
                           id: listing.id,
                           title: listing.title.en,
-                          photoCount: listing.images.length,
+                          photoCount: listing.imageCount,
                         })
                       }
                       className="gap-1.5"
@@ -229,7 +229,7 @@ function StatusActions({
   disabled,
   onFlip,
 }: {
-  listing: Listing;
+  listing: ListingCardDto;
   disabled: boolean;
   onFlip: (status: ListingStatus) => void;
 }) {

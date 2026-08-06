@@ -216,10 +216,13 @@ describe('listListingsFromDb', () => {
     db = mockDeep<PrismaClient>();
   });
 
-  it('returns mapped data + meta from a single $transaction call', async () => {
-    const rows = [mkRow(), mkRow({ id: 'lst_db_2', slug: 'second' })];
-    // db.$transaction takes either a callback or an array; here we pass the array.
-    db.$transaction.mockResolvedValueOnce([rows, 50] as never);
+  it('returns mapped data + meta from parallel findMany + count', async () => {
+    const rows = [mkRow(), mkRow({ id: 'lst_db_2', slug: 'second' })].map((r) => ({
+      ...r,
+      _count: { images: r.images.length },
+    }));
+    db.listing.findMany.mockResolvedValueOnce(rows as never);
+    db.listing.count.mockResolvedValueOnce(50 as never);
 
     const query = listingsQuerySchema.parse({ page: '2', limit: '10' });
     const result = await listListingsFromDb(query, db);
@@ -234,15 +237,12 @@ describe('listListingsFromDb', () => {
   });
 
   it('applies category filter on Prisma (kebab → SCREAMING_SNAKE_CASE)', async () => {
-    db.$transaction.mockResolvedValueOnce([[], 0] as never);
+    db.listing.findMany.mockResolvedValueOnce([] as never);
+    db.listing.count.mockResolvedValueOnce(0 as never);
 
     const query = listingsQuerySchema.parse({ category: 'forest' });
     await listListingsFromDb(query, db);
 
-    // The first transaction arg is the array of operations. We want the findMany call.
-    const txArgs = db.$transaction.mock.calls[0]?.[0];
-    expect(Array.isArray(txArgs)).toBe(true);
-    // We can also inspect calls to listing.findMany via mockDeep:
     expect(db.listing.findMany).toHaveBeenCalled();
     const findManyArgs = db.listing.findMany.mock.calls[0]?.[0];
     const cat = findManyArgs?.where?.categories as { hasSome: string[] };
@@ -250,7 +250,8 @@ describe('listListingsFromDb', () => {
   });
 
   it('builds a placement filter that maps "water" to RIVER/SEA/LAKE', async () => {
-    db.$transaction.mockResolvedValueOnce([[], 0] as never);
+    db.listing.findMany.mockResolvedValueOnce([] as never);
+    db.listing.count.mockResolvedValueOnce(0 as never);
 
     const query = listingsQuerySchema.parse({ placement: 'water' });
     await listListingsFromDb(query, db);

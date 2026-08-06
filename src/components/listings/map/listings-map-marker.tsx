@@ -2,7 +2,7 @@
 
 import { Link } from '@/i18n/navigation';
 import { formatPrice, pickLocalized } from '@/lib/utils';
-import type { Listing, Locale } from '@/types';
+import type { ListingCardDto, Locale } from '@/types';
 import type L from 'leaflet';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
@@ -10,7 +10,7 @@ import { memo, useMemo } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 
 type ListingMapMarkerProps = {
-  listing: Listing;
+  listing: ListingCardDto;
   locale: Locale;
   isSelected: boolean;
   iconUnselected: L.DivIcon;

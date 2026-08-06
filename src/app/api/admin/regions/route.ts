@@ -8,6 +8,7 @@ import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { slugify, uniqueSlug } from '@/lib/slug';
 import type { Prisma } from '@prisma/client';
+import { after } from 'next/server';
 
 /**
  * GET /api/admin/regions
@@ -73,11 +74,13 @@ export async function POST(request: Request): Promise<Response> {
       },
       select: { id: true, slug: true },
     });
-    await recordAdminLog({
-      action: 'region.create',
-      target: created.id,
-      metadata: { slug: created.slug },
-    });
+    after(() =>
+      recordAdminLog({
+        action: 'region.create',
+        target: created.id,
+        metadata: { slug: created.slug },
+      }),
+    );
     revalidateListingSurfaces();
     return apiOk(created, { status: 201 });
   } catch (err) {

@@ -48,7 +48,7 @@ type AmenityIconProps = {
   size?: number;
   /**
    * Accessible label. Defaults to `aria-hidden` so the icon is decorative —
-   * the parent (e.g. ListingCard's amenities list) is responsible for naming
+   * the parent (e.g. ListingCardDto's amenities list) is responsible for naming
    * the visible item with a localized string.
    */
   label?: string;

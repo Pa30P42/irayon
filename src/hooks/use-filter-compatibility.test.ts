@@ -1,12 +1,12 @@
-import { makeFilterState, makeListing } from '@/test/factories';
+import { makeFilterState, makeListingCard } from '@/test/factories';
 import { renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { useFilterCompatibility } from './use-filter-compatibility';
 
 const listings = [
-  makeListing({ id: '1', amenities: ['pool', 'sauna'] }),
-  makeListing({ id: '2', amenities: ['pool', 'fireplace'] }),
-  makeListing({ id: '3', amenities: ['fireplace'] }),
+  makeListingCard({ id: '1', amenities: ['pool', 'sauna'] }),
+  makeListingCard({ id: '2', amenities: ['pool', 'fireplace'] }),
+  makeListingCard({ id: '3', amenities: ['fireplace'] }),
 ];
 
 describe('useFilterCompatibility', () => {

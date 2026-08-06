@@ -2,16 +2,16 @@
 
 import { fetchListings, type ListingsQueryInput } from '@/lib/api/api-client';
 import type { Paginated } from '@/lib/api/api-response';
-import type { Listing } from '@/types';
+import type { ListingCardDto } from '@/types';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 
 export const listingsQueryKey = (input: ListingsQueryInput = {}) => ['listings', input] as const;
 
 type Options = Omit<
   UseQueryOptions<
-    Paginated<Listing>,
+    Paginated<ListingCardDto>,
     Error,
-    Paginated<Listing>,
+    Paginated<ListingCardDto>,
     ReturnType<typeof listingsQueryKey>
   >,
   'queryKey' | 'queryFn'

@@ -3,14 +3,14 @@
 import { CardTitle } from '@/components/ui/typography';
 import { Link } from '@/i18n/navigation';
 import { formatPrice, pickLocalized } from '@/lib/utils';
-import type { Listing, Locale } from '@/types';
+import type { ListingCardDto, Locale } from '@/types';
 import { IconStarFilled } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { memo } from 'react';
 
 type Props = {
-  listing: Listing;
+  listing: ListingCardDto;
   locale: Locale;
   isSelected: boolean;
   isHovered: boolean;

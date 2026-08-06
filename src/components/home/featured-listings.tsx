@@ -6,11 +6,11 @@ import { Heading } from '@/components/ui/typography';
 import { useCategoryFilter } from '@/hooks/use-category-filter';
 import { useFilteredListings } from '@/hooks/use-filtered-listings';
 import { HOME_FEATURED_LIMIT } from '@/lib/constants';
-import type { Listing, Locale } from '@/types';
+import type { ListingCardDto, Locale } from '@/types';
 import { useTranslations } from 'next-intl';
 
 type FeaturedListingsProps = {
-  initialListings: Listing[];
+  initialListings: ListingCardDto[];
   locale: Locale;
 };
 

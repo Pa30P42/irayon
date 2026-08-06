@@ -1,6 +1,13 @@
 import type { Paginated } from '@/lib/api/api-response';
 import type { ListingsQuery } from '@/lib/api/listings-validator';
-import type { Listing, ListingStatus, RegionSummary, RegionWithVillages, Village } from '@/types';
+import type {
+  Listing,
+  ListingCardDto,
+  ListingStatus,
+  RegionSummary,
+  RegionWithVillages,
+  Village,
+} from '@/types';
 
 /**
  * Browser-side fetcher used by TanStack Query hooks. Throws on non-2xx so
@@ -53,10 +60,10 @@ export const buildListingsParams = (input: ListingsQueryInput = {}): URLSearchPa
 export async function fetchListings(
   input: ListingsQueryInput,
   init?: RequestInit,
-): Promise<Paginated<Listing>> {
+): Promise<Paginated<ListingCardDto>> {
   const params = buildListingsParams(input);
   const res = await fetch(buildUrl('/api/listings', params), init);
-  return okJson<Paginated<Listing>>(res);
+  return okJson<Paginated<ListingCardDto>>(res);
 }
 
 export type AdminListingsQueryInput = ListingsQueryInput & {
@@ -68,10 +75,10 @@ export type AdminListingsQueryInput = ListingsQueryInput & {
 export async function fetchAdminListings(
   input: AdminListingsQueryInput,
   init?: RequestInit,
-): Promise<Paginated<Listing>> {
+): Promise<Paginated<ListingCardDto>> {
   const params = buildListingsParams(input);
   const res = await fetch(buildUrl('/api/admin/listings', params), init);
-  return okJson<Paginated<Listing>>(res);
+  return okJson<Paginated<ListingCardDto>>(res);
 }
 
 /** Flip only a listing's status (admin list quick action). */

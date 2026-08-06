@@ -401,5 +401,5 @@ then `prisma migrate deploy` for the status + index migrations.
 | /az/listings/<slug> local TTFB        | 0.114s          |          |          |       |
 | Queries per catalogue request         | N/A (DB down)   |          |          |       |
 | Queries per detail request            | N/A (DB down)   |          |          |       |
-| /api/listings?limit=24 content-length | 16,859 B        |          |          |       |
+| /api/listings?limit=24 content-length | 16,859 B        | 10,675 B (−37%) |          |       |
 | Admin create w/ 8 photos (wall time)  | N/A (DB down)   |          |          |       |

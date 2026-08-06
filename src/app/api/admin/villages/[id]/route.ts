@@ -15,6 +15,7 @@ import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import type { Village } from '@/types';
 import type { Prisma } from '@prisma/client';
+import { after } from 'next/server';
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -92,13 +93,13 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
   }
 
   try {
-    await prisma.village.update({ where: { id }, data });
-    const row = await prisma.village.findUnique({
+    // The update returns the fresh row itself — no follow-up read.
+    const row = await prisma.village.update({
       where: { id },
+      data,
       include: { region: { select: { slug: true } } },
     });
-    if (!row) return apiNotFound(`Village "${id}" not found`);
-    await recordAdminLog({ action: 'village.update', target: id });
+    after(() => recordAdminLog({ action: 'village.update', target: id }));
     revalidateListingSurfaces();
     return apiOk(toDto(row));
   } catch (err) {
@@ -141,7 +142,7 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
     }
 
     await prisma.village.delete({ where: { id } });
-    await recordAdminLog({ action: 'village.delete', target: id });
+    after(() => recordAdminLog({ action: 'village.delete', target: id }));
     revalidateListingSurfaces();
     return apiOk({ deleted: true });
   } catch (err) {

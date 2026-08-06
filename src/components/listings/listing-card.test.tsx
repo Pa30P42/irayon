@@ -1,5 +1,5 @@
 import { renderWithProviders, screen } from '@/test/test-utils';
-import type { Listing } from '@/types';
+import type { ListingCardDto } from '@/types';
 import type { ComponentProps } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { ListingCard } from './listing-card';
@@ -21,11 +21,10 @@ vi.mock('next/image', () => ({
   ),
 }));
 
-const baseListing: Listing = {
+const baseListing: ListingCardDto = {
   id: 'lst_test',
   slug: 'test-villa',
   title: { az: 'AZ', ru: 'RU', en: 'Test Villa' },
-  description: { az: 'd', ru: 'd', en: 'd' },
   region: 'gabala',
   regionName: { az: 'Qəbələ', ru: 'Габала', en: 'Gabala' },
   villageId: null,
@@ -46,9 +45,10 @@ const baseListing: Listing = {
   activities: [],
   location: { lat: 0, lng: 0, address: 'Vandam' },
   createdAt: '2025-01-01T00:00:00.000Z',
+  imageCount: 1,
 };
 
-describe('ListingCard', () => {
+describe('ListingCardDto', () => {
   it('renders title, region, price, and rating', () => {
     renderWithProviders(<ListingCard listing={baseListing} locale="en" />);
     expect(screen.getByRole('heading', { name: 'Test Villa' })).toBeInTheDocument();

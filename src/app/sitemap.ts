@@ -1,6 +1,5 @@
 import { routing } from '@/i18n/routing';
-import { emptyListingsQuery } from '@/lib/api/listings-query-defaults';
-import { listListings, listRegions } from '@/lib/api/listings-service';
+import { listListingSlugs, listRegions } from '@/lib/api/listings-service';
 import { IS_PRODUCTION_DOMAIN, SITE } from '@/lib/constants';
 import type { MetadataRoute } from 'next';
 
@@ -43,16 +42,17 @@ export default async function sitemap({ id }: { id: SitemapId }): Promise<Metada
   }
 
   if (id === 'listings') {
-    // High limit: we don't yet paginate sitemaps. Crank to several batches
-    // (per Google's 50k cap) once the catalog grows past ~5k.
-    const { data } = await listListings(emptyListingsQuery({ sort: 'newest', limit: 1000 }));
-    return data.flatMap((listing) =>
+    // Slug-only feed (published rows only) — the sitemap never needed 1000
+    // fully-hydrated listings. Split into batches (per Google's 50k cap)
+    // once the catalog grows past ~5k.
+    const slugs = await listListingSlugs();
+    return slugs.flatMap((listing) =>
       locales.map((locale) => ({
         url: `${base}/${locale}/listings/${listing.slug}`,
         // CRITICAL: real updatedAt drives Google's recrawl scheduling. We
-        // serialize createdAt ISO strings; if updatedAt is exposed later,
-        // swap to that without changing this shape.
-        lastModified: new Date(listing.createdAt),
+        // serialize createdAt; if updatedAt is exposed later, swap to that
+        // without changing this shape.
+        lastModified: listing.createdAt,
         priority: 0.8,
       })),
     );

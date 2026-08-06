@@ -1,4 +1,4 @@
-import type { Listing, Locale } from '@/types';
+import type { Listing, ListingCardDto, Locale } from '@/types';
 import { BookingCard } from './booking-card';
 import { ListingAmenities } from './listing-amenities';
 import { ListingDescription } from './listing-description';
@@ -10,7 +10,7 @@ import { SimilarListings } from './similar-listings';
 
 type ListingDetailContentProps = {
   listing: Listing;
-  similar: Listing[];
+  similar: ListingCardDto[];
   locale: Locale;
 };
 

@@ -22,7 +22,7 @@ import {
   PLACE_TYPES,
 } from '@/lib/constants';
 import { applyListingsFilter, countActiveFilters } from '@/lib/listings-filter';
-import type { Listing, ListingsFilterState } from '@/types';
+import type { ListingCardDto, ListingsFilterState } from '@/types';
 import { IconAdjustmentsHorizontal } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
@@ -38,7 +38,7 @@ type FilterModalProps = {
    * first open. Use this from places like the home hero where the modal may
    * never be opened — the page shouldn't pay for the fetch upfront.
    */
-  listings?: Listing[];
+  listings?: ListingCardDto[];
   onApply: (next: ListingsFilterState) => void;
   trigger?: ReactNode;
 };

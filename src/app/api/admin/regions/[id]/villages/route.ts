@@ -16,6 +16,7 @@ import { prisma } from '@/lib/prisma';
 import { slugify, uniqueSlug } from '@/lib/slug';
 import type { Village } from '@/types';
 import type { Prisma } from '@prisma/client';
+import { after } from 'next/server';
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -107,11 +108,13 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
       },
       select: { id: true, slug: true, regionId: true },
     });
-    await recordAdminLog({
-      action: 'village.create',
-      target: created.id,
-      metadata: { regionId: created.regionId, slug: created.slug },
-    });
+    after(() =>
+      recordAdminLog({
+        action: 'village.create',
+        target: created.id,
+        metadata: { regionId: created.regionId, slug: created.slug },
+      }),
+    );
     revalidateListingSurfaces();
     return apiOk(created, { status: 201 });
   } catch (err) {
