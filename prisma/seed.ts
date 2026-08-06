@@ -10,6 +10,7 @@ import azMessages from '../src/i18n/messages/az.json' with { type: 'json' };
 import enMessages from '../src/i18n/messages/en.json' with { type: 'json' };
 import ruMessages from '../src/i18n/messages/ru.json' with { type: 'json' };
 import { groupAmenities } from '../src/lib/amenity-groups';
+import { buildListingSearchText } from '../src/lib/api/listing-search-text';
 import { AMENITIES } from '../src/lib/constants';
 import type { Amenity } from '../src/types';
 
@@ -157,6 +158,7 @@ async function seedListings(
           lat: listing.location.lat,
           lng: listing.location.lng,
           address: listing.location.address,
+          searchText: buildListingSearchText(listing.title, listing.location.address),
           phone: listing.phone,
           meals: listing.meals.map(toEnumValue) as NonNullable<Prisma.ListingCreateInput['meals']>,
           activities: listing.activities.map(toEnumValue) as NonNullable<
@@ -182,6 +184,7 @@ async function seedListings(
           lat: listing.location.lat,
           lng: listing.location.lng,
           address: listing.location.address,
+          searchText: buildListingSearchText(listing.title, listing.location.address),
           phone: listing.phone,
           meals: listing.meals.map(toEnumValue) as NonNullable<Prisma.ListingUpdateInput['meals']>,
           activities: listing.activities.map(toEnumValue) as NonNullable<

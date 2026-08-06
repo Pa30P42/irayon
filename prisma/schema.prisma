@@ -88,6 +88,9 @@ model Village {
 
   @@unique([regionId, slug])
   @@index([regionId])
+  // Slug-only lookups (public filter modal / villages-by-slug) can't use the
+  // composite [regionId, slug] unique — slug isn't its leading column.
+  @@index([slug])
   @@map("villages")
 }
 
@@ -136,6 +139,11 @@ model Listing {
   phone       String?
   meals       Meal[]
   activities  Activity[]
+  /// Denormalized lowercase haystack for the `q` search: all three title
+  /// locales + address, maintained by the service write paths (see
+  /// `buildListingSearchText`). Backfilled + trigram-GIN-indexed in raw SQL
+  /// (migration 20260806000200) — Prisma can't express gin_trgm_ops.
+  searchText  String          @default("") @map("search_text")
 
   amenities ListingAmenity[]
   images    Image[]
@@ -150,6 +158,17 @@ model Listing {
   @@index([price])
   @@index([rating])
   @@index([createdAt])
+  // Composite indexes for the actual buildWhere/buildOrderBy shapes: the
+  // default catalogue scan (published, newest-first) and the hot
+  // filter+sort combos — without these PG filters then sorts.
+  @@index([status, createdAt(sort: Desc)])
+  @@index([regionId, createdAt(sort: Desc)])
+  @@index([placeType, createdAt(sort: Desc)])
+  // Hero search filters on capacity (gte/lt/between).
+  @@index([capacity])
+  // `hasEvery` array queries on meals/activities translate to @> — GIN-able.
+  @@index([meals], type: Gin)
+  @@index([activities], type: Gin)
   @@map("listings")
 }
 

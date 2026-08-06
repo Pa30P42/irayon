@@ -9,6 +9,7 @@ import {
   apiPaginated,
   apiServerError,
 } from '@/lib/api/api-response';
+import { buildListingSearchText } from '@/lib/api/listing-search-text';
 import { createListingSchema, type CreateListingInput } from '@/lib/api/listings-create-validator';
 import { listListings } from '@/lib/api/listings-service';
 import { listingsQuerySchema, searchParamsToObject } from '@/lib/api/listings-validator';
@@ -115,14 +116,16 @@ export async function POST(request: Request): Promise<Response> {
   const slug = uniqueSlug(baseSlug, new Set(existing.map((l) => l.slug)));
 
   try {
+    const storedTitle = {
+      az: input.title.az || input.title.en,
+      ru: input.title.ru || input.title.en,
+      en: input.title.en,
+    };
     const created = await prisma.listing.create({
       data: {
         slug,
-        title: {
-          az: input.title.az || input.title.en,
-          ru: input.title.ru || input.title.en,
-          en: input.title.en,
-        } as Prisma.InputJsonValue,
+        title: storedTitle as Prisma.InputJsonValue,
+        searchText: buildListingSearchText(storedTitle, input.address),
         description: {
           az: input.description.az || input.description.en,
           ru: input.description.ru || input.description.en,

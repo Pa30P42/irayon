@@ -14,6 +14,7 @@ import type {
 } from '@/types';
 import { $Enums, type Prisma, type PrismaClient } from '@prisma/client';
 import { LISTING_CARD_SELECT, LISTING_DETAIL_SELECT, rowToCardDto, rowToDto } from './listing-dto';
+import { buildListingSearchText } from './listing-search-text';
 import type { CreateListingInput } from './listings-create-validator';
 import type { ListListingsResult } from './listings-service-mock';
 import type { ListingsQuery } from './listings-validator';
@@ -126,12 +127,10 @@ function buildWhere(
     else where.capacity = { gt: 10 };
   }
   if (query.q) {
-    where.OR = [
-      { address: { contains: query.q, mode: 'insensitive' } },
-      { title: { path: ['en'], string_contains: query.q } },
-      { title: { path: ['ru'], string_contains: query.q } },
-      { title: { path: ['az'], string_contains: query.q } },
-    ];
+    // Single ILIKE over the denormalized search_text (titles ×3 + address),
+    // served by its trigram GIN index — replaces the old 4-arm OR that
+    // seq-scanned three JSONB paths per request.
+    where.searchText = { contains: query.q.toLowerCase() };
   }
   return where;
 }
@@ -278,6 +277,14 @@ export async function updateListingFromDb(
           ru: input.title.ru || input.title.en,
           en: input.title.en,
         } as Prisma.InputJsonValue,
+        searchText: buildListingSearchText(
+          {
+            az: input.title.az || input.title.en,
+            ru: input.title.ru || input.title.en,
+            en: input.title.en,
+          },
+          input.address,
+        ),
         description: {
           az: input.description.az || input.description.en,
           ru: input.description.ru || input.description.en,
