@@ -50,6 +50,7 @@ export function useListingStatusMutation() {
       // Status changes what both the admin and public lists should show.
       void queryClient.invalidateQueries({ queryKey: ['admin-listings'] });
       void queryClient.invalidateQueries({ queryKey: ['listings'] });
+      void queryClient.invalidateQueries({ queryKey: ['listings-grid'] });
     },
   });
 }
