@@ -27,7 +27,7 @@ export function AdminLogoutButton() {
       type="button"
       onClick={onClick}
       disabled={logout.isPending}
-      className="text-foreground-muted hover:text-foreground inline-flex items-center gap-1.5 disabled:opacity-50"
+      className="text-foreground-muted hover:text-foreground inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap disabled:opacity-50"
     >
       {logout.isPending ? (
         <IconLoader2 size={14} className="animate-spin" aria-hidden />

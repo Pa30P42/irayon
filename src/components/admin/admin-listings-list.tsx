@@ -38,6 +38,12 @@ type DialogState = { id: string; title: string; photoCount: number } | null;
 
 type StatusScope = ListingStatus | 'all';
 
+/**
+ * Row actions collapse to icon-only below `lg` — five labelled buttons plus the
+ * thumbnail don't fit inside the card at tablet widths and used to overflow it.
+ */
+const ACTION_BUTTON_CLASS = 'shrink-0 gap-1.5 px-2 lg:px-3';
+
 const STATUS_BADGE_CLASS: Record<ListingStatus, string> = {
   draft: 'bg-amber-100 text-amber-800',
   published: 'bg-emerald-100 text-emerald-800',
@@ -150,13 +156,13 @@ export function AdminListingsList() {
                     </div>
                   )}
                 </div>
-                <div className="flex flex-1 flex-col justify-between gap-2 p-3 sm:flex-row sm:items-center sm:p-4">
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
+                <div className="flex min-w-0 flex-1 flex-col justify-between gap-2 p-3 sm:flex-row sm:items-center sm:p-4">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex min-w-0 items-center gap-2">
                       <h2 className="truncate text-sm font-medium sm:text-base">
                         {listing.title.en}
                       </h2>
-                      <Badge className={STATUS_BADGE_CLASS[listing.status]}>
+                      <Badge className={`${STATUS_BADGE_CLASS[listing.status]} shrink-0`}>
                         {tStatus(listing.status)}
                       </Badge>
                     </div>
@@ -176,29 +182,32 @@ export function AdminListingsList() {
                       </span>
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex shrink-0 flex-wrap items-center gap-1 sm:justify-end lg:gap-1.5">
                     <StatusActions
                       listing={listing}
                       disabled={statusMutation.isPending}
                       onFlip={(status) => statusMutation.mutate({ id: listing.id, status })}
                     />
-                    <Button asChild variant="ghost" size="sm" className="gap-1.5">
+                    <Button asChild variant="ghost" size="sm" className={ACTION_BUTTON_CLASS}>
                       <Link
                         href={`/${locale}/listings/${listing.slug}`}
                         target="_blank"
                         rel="noreferrer"
+                        title={t('view')}
+                        aria-label={t('viewAria', { title: listing.title.en })}
                       >
                         <IconExternalLink size={14} />
-                        <span className="hidden sm:inline">{t('view')}</span>
+                        <span className="hidden lg:inline">{t('view')}</span>
                       </Link>
                     </Button>
-                    <Button asChild variant="ghost" size="sm" className="gap-1.5">
+                    <Button asChild variant="ghost" size="sm" className={ACTION_BUTTON_CLASS}>
                       <Link
                         href={`/admin/listings/${listing.id}/edit`}
+                        title={t('edit')}
                         aria-label={t('editAria', { title: listing.title.en })}
                       >
                         <IconPencil size={14} />
-                        <span className="hidden sm:inline">{t('edit')}</span>
+                        <span className="hidden lg:inline">{t('edit')}</span>
                       </Link>
                     </Button>
                     <Button
@@ -212,11 +221,12 @@ export function AdminListingsList() {
                           photoCount: listing.imageCount,
                         })
                       }
-                      className="gap-1.5"
+                      className={ACTION_BUTTON_CLASS}
+                      title={t('delete')}
                       aria-label={t('deleteAria', { title: listing.title.en })}
                     >
                       <IconTrash size={14} />
-                      <span className="hidden sm:inline">{t('delete')}</span>
+                      <span className="hidden lg:inline">{t('delete')}</span>
                     </Button>
                   </div>
                 </div>
@@ -262,11 +272,12 @@ function StatusActions({
           size="sm"
           disabled={disabled}
           onClick={() => onFlip('draft')}
-          className="gap-1.5"
+          className={ACTION_BUTTON_CLASS}
+          title={t('unpublish')}
           aria-label={t('unpublishAria', { title: listing.title.en })}
         >
           <IconEyeOff size={14} />
-          <span className="hidden sm:inline">{t('unpublish')}</span>
+          <span className="hidden lg:inline">{t('unpublish')}</span>
         </Button>
       ) : (
         <Button
@@ -275,11 +286,12 @@ function StatusActions({
           size="sm"
           disabled={disabled}
           onClick={() => onFlip('published')}
-          className="gap-1.5"
+          className={ACTION_BUTTON_CLASS}
+          title={t('publish')}
           aria-label={t('publishAria', { title: listing.title.en })}
         >
           <IconEye size={14} />
-          <span className="hidden sm:inline">{t('publish')}</span>
+          <span className="hidden lg:inline">{t('publish')}</span>
         </Button>
       )}
       {listing.status !== 'archived' ? (
@@ -289,11 +301,12 @@ function StatusActions({
           size="sm"
           disabled={disabled}
           onClick={() => onFlip('archived')}
-          className="gap-1.5"
+          className={ACTION_BUTTON_CLASS}
+          title={t('archive')}
           aria-label={t('archiveAria', { title: listing.title.en })}
         >
           <IconArchive size={14} />
-          <span className="hidden sm:inline">{t('archive')}</span>
+          <span className="hidden lg:inline">{t('archive')}</span>
         </Button>
       ) : null}
     </>

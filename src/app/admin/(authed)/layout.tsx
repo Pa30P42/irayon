@@ -13,27 +13,40 @@ export default async function AdminAuthedLayout({ children }: { children: ReactN
         <div className="container-wide flex h-14 items-center justify-between gap-3">
           <Link
             href="/admin/listings"
-            className="text-primary flex items-center gap-2 text-sm font-semibold tracking-wide uppercase"
+            className="text-primary flex shrink-0 items-center gap-2 text-sm font-semibold tracking-wide uppercase"
           >
             <Image src="/logo.svg" alt="" aria-hidden width={28} height={28} priority />
-            {t('appName')}
+            <span className="hidden sm:inline">{t('appName')}</span>
           </Link>
-          <nav className="flex items-center gap-4 text-sm">
-            <Link href="/admin/listings" className="text-foreground-muted hover:text-foreground">
+          {/* Scrolls sideways on narrow screens instead of pushing the bar wider. */}
+          <nav className="flex min-w-0 items-center gap-4 overflow-x-auto text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <Link
+              href="/admin/listings"
+              className="text-foreground-muted hover:text-foreground shrink-0"
+            >
               {t('nav.listings')}
             </Link>
-            <Link href="/admin/regions" className="text-foreground-muted hover:text-foreground">
+            <Link
+              href="/admin/regions"
+              className="text-foreground-muted hover:text-foreground shrink-0"
+            >
               {t('nav.regions')}
             </Link>
-            <Link href="/admin/amenities" className="text-foreground-muted hover:text-foreground">
+            <Link
+              href="/admin/amenities"
+              className="text-foreground-muted hover:text-foreground shrink-0"
+            >
               {t('nav.amenities')}
             </Link>
-            <Link href="/admin/logs" className="text-foreground-muted hover:text-foreground">
+            <Link
+              href="/admin/logs"
+              className="text-foreground-muted hover:text-foreground shrink-0"
+            >
               {t('nav.logs')}
             </Link>
             <Link
               href="/admin/listings/new"
-              className="text-foreground-muted hover:text-foreground"
+              className="text-foreground-muted hover:text-foreground shrink-0"
             >
               {t('nav.new')}
             </Link>
