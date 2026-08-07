@@ -1,6 +1,12 @@
 import { requireAdmin } from '@/lib/admin-auth';
 import { recordAdminLog } from '@/lib/admin-log';
-import { apiBadRequestRaw, apiNotFound, apiOk, apiServerError } from '@/lib/api/api-response';
+import {
+  apiBadRequestRaw,
+  apiNotFound,
+  apiOk,
+  apiServerError,
+  apiServiceUnavailable,
+} from '@/lib/api/api-response';
 import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
@@ -11,6 +17,7 @@ import {
   isAllowedMime,
   uploadListingImage,
 } from '@/lib/storage';
+import { StorageConfigError } from '@/lib/supabase-admin';
 import { after } from 'next/server';
 
 type Context = { params: Promise<{ id: string }> };
@@ -95,6 +102,11 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
     return apiOk({ coverImage: uploaded.publicUrl });
   } catch (err) {
     logger.error(`POST /api/admin/regions/${id}/cover failed`, { err });
-    return apiServerError('Cover upload failed');
+    if (err instanceof StorageConfigError) {
+      return apiServiceUnavailable(`Image storage is not configured: ${err.message}`);
+    }
+    return apiServerError(
+      `Cover upload failed: ${err instanceof Error ? err.message : 'unknown error'}`,
+    );
   }
 }

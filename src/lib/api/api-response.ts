@@ -76,3 +76,11 @@ export const apiUnauthorized = (message = 'Authentication required') =>
 
 export const apiServerError = (message = 'Internal server error') =>
   NextResponse.json<ApiError>({ error: { message } }, { status: 500 });
+
+/**
+ * 503 — the server is missing configuration (e.g. storage env vars). Distinct
+ * from 500 so the operator knows it's a deployment problem to fix, not a bug
+ * to retry. Mirrors how the admin-auth middleware reports missing creds.
+ */
+export const apiServiceUnavailable = (message: string) =>
+  NextResponse.json<ApiError>({ error: { message } }, { status: 503 });

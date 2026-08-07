@@ -6,6 +6,7 @@ import {
   apiNotFound,
   apiOk,
   apiServerError,
+  apiServiceUnavailable,
 } from '@/lib/api/api-response';
 import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
 import { logger } from '@/lib/logger';
@@ -16,6 +17,7 @@ import {
   isAllowedMime,
   uploadListingImage,
 } from '@/lib/storage';
+import { StorageConfigError } from '@/lib/supabase-admin';
 import { after } from 'next/server';
 import { z } from 'zod';
 
@@ -120,6 +122,11 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
     return apiOk({ data: created }, { status: 201 });
   } catch (err) {
     logger.error(`POST /api/admin/listings/${id}/images failed`, { err });
-    return apiServerError('Upload failed');
+    // Admin-only endpoint behind auth — surface the real reason. A bare
+    // "Upload failed" turned a missing env var into a blind investigation.
+    if (err instanceof StorageConfigError) {
+      return apiServiceUnavailable(`Image storage is not configured: ${err.message}`);
+    }
+    return apiServerError(`Upload failed: ${err instanceof Error ? err.message : 'unknown error'}`);
   }
 }
