@@ -9,11 +9,14 @@ import {
   apiServerError,
 } from '@/lib/api/api-response';
 import { parseLocalized } from '@/lib/api/localized-text';
+import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
 import { villageCreateSchema } from '@/lib/api/villages-validator';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { slugify, uniqueSlug } from '@/lib/slug';
 import type { Village } from '@/types';
 import type { Prisma } from '@prisma/client';
+import { after } from 'next/server';
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -48,7 +51,7 @@ export async function GET(request: Request, { params }: Context): Promise<Respon
     }));
     return apiOk({ data });
   } catch (err) {
-    console.error(`GET /api/admin/regions/${id}/villages failed`, err);
+    logger.error(`GET /api/admin/regions/${id}/villages failed`, { err });
     return apiServerError('Fetch failed');
   }
 }
@@ -105,17 +108,20 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
       },
       select: { id: true, slug: true, regionId: true },
     });
-    await recordAdminLog({
-      action: 'village.create',
-      target: created.id,
-      metadata: { regionId: created.regionId, slug: created.slug },
-    });
+    after(() =>
+      recordAdminLog({
+        action: 'village.create',
+        target: created.id,
+        metadata: { regionId: created.regionId, slug: created.slug },
+      }),
+    );
+    revalidateListingSurfaces();
     return apiOk(created, { status: 201 });
   } catch (err) {
     if (err instanceof Error && 'code' in err && (err as { code: string }).code === 'P2002') {
       return apiConflict(`Village "${slug}" already exists in this region`);
     }
-    console.error(`POST /api/admin/regions/${regionId}/villages failed`, err);
+    logger.error(`POST /api/admin/regions/${regionId}/villages failed`, { err });
     return apiServerError('Create failed');
   }
 }

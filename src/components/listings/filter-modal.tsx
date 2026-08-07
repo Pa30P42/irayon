@@ -10,19 +10,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Stepper } from '@/components/ui/stepper';
+import { useAmenities } from '@/hooks/use-amenities';
 import { useFilterModal } from '@/hooks/use-filter-modal';
 import { useListings } from '@/hooks/use-listings';
+import { useLocale } from '@/hooks/use-locale';
 import {
   ACTIVITIES,
   BASIC_AMENITIES,
+  CATEGORIES,
   EXTRA_AMENITIES,
   GUEST_RANGES,
   MEALS,
   PLACEMENTS,
   PLACE_TYPES,
+  PRICE_BOUNDS,
 } from '@/lib/constants';
 import { applyListingsFilter, countActiveFilters } from '@/lib/listings-filter';
-import type { Listing, ListingsFilterState } from '@/types';
+import { pickLocalized } from '@/lib/utils';
+import type { ListingCardDto, ListingsFilterState } from '@/types';
 import { IconAdjustmentsHorizontal } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
@@ -38,7 +45,7 @@ type FilterModalProps = {
    * first open. Use this from places like the home hero where the modal may
    * never be opened — the page shouldn't pay for the fetch upfront.
    */
-  listings?: Listing[];
+  listings?: ListingCardDto[];
   onApply: (next: ListingsFilterState) => void;
   trigger?: ReactNode;
 };
@@ -51,6 +58,31 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
     initial: state,
     onApply,
   });
+  const { locale } = useLocale();
+
+  // DB-driven amenity catalogue: an amenity created in /admin/amenities shows
+  // up here without a code change. Legacy "basic" slugs keep their group; new
+  // ones land under "extra". Fetch only while the modal is open; the static
+  // constants serve as the fallback while loading.
+  const { data: amenityCatalogue } = useAmenities({ enabled: open });
+  const { basicOptions, extraOptions, amenityLabel } = useMemo(() => {
+    if (!amenityCatalogue || amenityCatalogue.length === 0) {
+      return {
+        basicOptions: BASIC_AMENITIES,
+        extraOptions: EXTRA_AMENITIES,
+        amenityLabel: null as Map<string, string> | null,
+      };
+    }
+    const basicSet = new Set<string>(BASIC_AMENITIES);
+    const labels = new Map<string, string>();
+    const basic: string[] = [];
+    const extra: string[] = [];
+    for (const a of amenityCatalogue) {
+      labels.set(a.slug, pickLocalized(a.name, locale));
+      (basicSet.has(a.slug) ? basic : extra).push(a.slug);
+    }
+    return { basicOptions: basic, extraOptions: extra, amenityLabel: labels };
+  }, [amenityCatalogue, locale]);
 
   // Lazy-fetch only when the caller didn't pass listings AND the modal is
   // open. Once fetched, TanStack Query caches the result so re-opening is
@@ -100,6 +132,15 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
             onChange={({ region, village }) => setDraft({ ...draft, region, village })}
           />
           <FilterGroup
+            title={t('groups.category')}
+            group="category"
+            options={CATEGORIES}
+            labelFor={(o) => tOptions(`category.${o}`)}
+            state={draft}
+            listings={effectiveListings}
+            onToggle={(opt) => toggle('category', opt)}
+          />
+          <FilterGroup
             title={t('groups.type')}
             group="type"
             options={PLACE_TYPES}
@@ -138,8 +179,8 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
           <FilterGroup
             title={t('groups.extra')}
             group="extra"
-            options={EXTRA_AMENITIES}
-            labelFor={(o) => tOptions(`extra.${o}`)}
+            options={extraOptions}
+            labelFor={(o) => amenityLabel?.get(o) ?? tOptions(`extra.${o}`)}
             state={draft}
             listings={effectiveListings}
             onToggle={(opt) => toggle('extra', opt)}
@@ -147,8 +188,8 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
           <FilterGroup
             title={t('groups.basic')}
             group="basic"
-            options={BASIC_AMENITIES}
-            labelFor={(o) => tOptions(`basic.${o}`)}
+            options={basicOptions}
+            labelFor={(o) => amenityLabel?.get(o) ?? tOptions(`basic.${o}`)}
             state={draft}
             listings={effectiveListings}
             onToggle={(opt) => toggle('basic', opt)}
@@ -162,6 +203,61 @@ export function FilterModal({ state, listings, onApply, trigger }: FilterModalPr
             listings={effectiveListings}
             onToggle={(opt) => toggle('fun', opt)}
           />
+
+          <section className="space-y-3">
+            <h3 className="text-sm font-semibold">{t('groups.price')}</h3>
+            <div className="flex items-center gap-2">
+              <label className="flex-1">
+                <span className="text-foreground-muted text-xs">{t('priceMin')}</span>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={PRICE_BOUNDS.min}
+                  max={PRICE_BOUNDS.max}
+                  step={PRICE_BOUNDS.step}
+                  placeholder={String(PRICE_BOUNDS.min)}
+                  value={draft.price_min ?? ''}
+                  onChange={(e) =>
+                    setDraft({
+                      ...draft,
+                      price_min: e.target.value === '' ? null : Number(e.target.value),
+                    })
+                  }
+                />
+              </label>
+              <span className="text-foreground-muted mt-4">–</span>
+              <label className="flex-1">
+                <span className="text-foreground-muted text-xs">{t('priceMax')}</span>
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  min={PRICE_BOUNDS.min}
+                  max={PRICE_BOUNDS.max}
+                  step={PRICE_BOUNDS.step}
+                  placeholder={String(PRICE_BOUNDS.max)}
+                  value={draft.price_max ?? ''}
+                  onChange={(e) =>
+                    setDraft({
+                      ...draft,
+                      price_max: e.target.value === '' ? null : Number(e.target.value),
+                    })
+                  }
+                />
+              </label>
+            </div>
+          </section>
+
+          <section className="space-y-3">
+            <h3 className="text-sm font-semibold">{t('groups.capacity')}</h3>
+            <Stepper
+              value={draft.capacity ?? 0}
+              min={0}
+              max={50}
+              onChange={(next) => setDraft({ ...draft, capacity: next === 0 ? null : next })}
+              ariaLabel={t('groups.capacity')}
+            />
+            <p className="text-foreground-muted text-xs">{t('capacityHint')}</p>
+          </section>
         </div>
 
         <div className="border-border bg-background sticky bottom-0 flex items-center justify-between gap-3 border-t px-6 py-4">

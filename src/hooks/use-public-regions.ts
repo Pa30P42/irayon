@@ -26,8 +26,12 @@ export function useRegions() {
   });
 }
 
-/** Region list with villages — used by the cascade in the public filter modal. */
-export function useRegionsWithVillages() {
+/**
+ * Region list with villages — used by the cascade in the public filter modal.
+ * Pass `enabled: false` to skip the fetch until the data is actually needed
+ * (e.g. the ActiveFiltersBar only needs it when location chips are shown).
+ */
+export function useRegionsWithVillages(options: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: PUBLIC_REGIONS_WITH_VILLAGES_KEY,
     queryFn: async (): Promise<RegionWithVillages[]> => {
@@ -35,6 +39,7 @@ export function useRegionsWithVillages() {
       const json = await okOrThrow<{ data: RegionWithVillages[] }>(res);
       return json.data;
     },
+    enabled: options.enabled ?? true,
   });
 }
 

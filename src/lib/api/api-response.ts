@@ -19,9 +19,26 @@ export type ApiError = {
   };
 };
 
+/**
+ * Cache-Control values for public GET handlers. `export const revalidate` is
+ * inert on these routes (they read the request URL, which forces dynamic
+ * rendering) — explicit CDN headers are what actually caches them. Admin
+ * routes are stamped `private, no-store` centrally in `src/middleware.ts`.
+ */
+export const CACHE_PUBLIC_LIST = 'public, s-maxage=60, stale-while-revalidate=300';
+export const CACHE_PUBLIC_DETAIL = 'public, s-maxage=300, stale-while-revalidate=600';
+
 export const apiOk = <T>(data: T, init?: ResponseInit) => NextResponse.json(data, init);
 
-export const apiPaginated = <T>(payload: Paginated<T>) => NextResponse.json(payload);
+/** apiOk + a public CDN cache header. Use only on unauthenticated GETs. */
+export const apiOkCached = <T>(data: T, cacheControl: string) =>
+  NextResponse.json(data, { headers: { 'Cache-Control': cacheControl } });
+
+export const apiPaginated = <T>(payload: Paginated<T>, cacheControl?: string) =>
+  NextResponse.json(
+    payload,
+    cacheControl ? { headers: { 'Cache-Control': cacheControl } } : undefined,
+  );
 
 export const apiNotFound = (message = 'Not found') =>
   NextResponse.json<ApiError>({ error: { message } }, { status: 404 });
@@ -59,3 +76,11 @@ export const apiUnauthorized = (message = 'Authentication required') =>
 
 export const apiServerError = (message = 'Internal server error') =>
   NextResponse.json<ApiError>({ error: { message } }, { status: 500 });
+
+/**
+ * 503 — the server is missing configuration (e.g. storage env vars). Distinct
+ * from 500 so the operator knows it's a deployment problem to fix, not a bug
+ * to retry. Mirrors how the admin-auth middleware reports missing creds.
+ */
+export const apiServiceUnavailable = (message: string) =>
+  NextResponse.json<ApiError>({ error: { message } }, { status: 503 });

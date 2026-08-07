@@ -5,7 +5,7 @@ import { Select } from '@/components/ui/select';
 import { useDebounce } from '@/hooks/use-debounce';
 import { SORT_OPTIONS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import type { ListingsFilterState, ListingsView, SortOption } from '@/types';
+import type { ListingCardDto, ListingsFilterState, ListingsView, SortOption } from '@/types';
 import { IconLayoutGrid, IconLayoutList, IconMap2, IconSearch } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
@@ -15,6 +15,9 @@ type ListingsTopBarProps = {
   state: ListingsFilterState;
   sort: SortOption | null;
   view: ListingsView;
+  /** Already-loaded grid data, forwarded to the filter modal so it doesn't
+   *  refetch the catalogue just to compute compatibility counts. */
+  listings?: ListingCardDto[];
   onSearch: (q: string) => void;
   onApplyFilters: (next: ListingsFilterState) => void;
   onSortChange: (sort: SortOption | null) => void;
@@ -25,6 +28,7 @@ export function ListingsTopBar({
   state,
   sort,
   view,
+  listings,
   onSearch,
   onApplyFilters,
   onSortChange,
@@ -66,7 +70,7 @@ export function ListingsTopBar({
         />
       </label>
 
-      <FilterModal state={state} onApply={onApplyFilters} />
+      <FilterModal state={state} onApply={onApplyFilters} {...(listings ? { listings } : {})} />
 
       <Select
         aria-label={tSort('label')}

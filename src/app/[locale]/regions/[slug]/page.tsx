@@ -14,6 +14,10 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { cache } from 'react';
 
+// ISR safety net: region CRUD revalidates these pages on-demand; bound the
+// staleness window in case a path is missed.
+export const revalidate = 300;
+
 type RegionPageProps = {
   params: Promise<{ locale: Locale; slug: string }>;
 };

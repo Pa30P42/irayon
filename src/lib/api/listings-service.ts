@@ -6,6 +6,7 @@ import {
   getListingByIdFromDb,
   getListingFromDb,
   getListingImagesById as getListingImagesByIdFromDb,
+  listListingSlugsFromDb,
   listListingsFromDb,
   listRegionsFromDb,
   listRegionsWithVillagesFromDb,
@@ -13,6 +14,8 @@ import {
   updateListingFromDb,
   type DeleteListingResult,
   type ListingImageRef,
+  type ListingSlugRef,
+  type ListingStatusScope,
 } from './listings-service-db';
 import {
   getListingFromMock,
@@ -40,12 +43,36 @@ import type { ListingsQuery } from './listings-validator';
 export const isUsingMockData = (): boolean =>
   !process.env.DATABASE_URL || process.env.DATABASE_URL === '';
 
-export async function listListings(query: ListingsQuery): Promise<ListListingsResult> {
-  return isUsingMockData() ? listListingsFromMock(query) : listListingsFromDb(query);
+/**
+ * Public reads default to `'published'` rows only. The admin API is the only
+ * caller that widens the scope (specific status or `'all'`).
+ */
+export async function listListings(
+  query: ListingsQuery,
+  status: ListingStatusScope = 'published',
+): Promise<ListListingsResult> {
+  return isUsingMockData()
+    ? listListingsFromMock(query, status)
+    : listListingsFromDb(query, undefined, status);
 }
 
 export async function getListingBySlug(slug: string): Promise<Listing | null> {
   return isUsingMockData() ? getListingFromMock(slug) : getListingFromDb(slug);
+}
+
+/**
+ * Newest-first slugs of published listings (slug + createdAt only). Use for
+ * generateStaticParams / sitemap instead of hydrating full rows.
+ */
+export async function listListingSlugs(limit?: number): Promise<ListingSlugRef[]> {
+  if (isUsingMockData()) {
+    return mockListings
+      .filter((l) => l.status === 'published')
+      .map((l) => ({ slug: l.slug, createdAt: new Date(l.createdAt) }))
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice(0, limit ?? Infinity);
+  }
+  return listListingSlugsFromDb(limit);
 }
 
 export async function getListingById(id: string): Promise<Listing | null> {
@@ -73,10 +100,14 @@ export async function getListingImagesById(id: string): Promise<ListingImageRef[
   return getListingImagesByIdFromDb(id, undefined, isUsingMockData());
 }
 
+/** Returns `null` when the region doesn't exist (route maps that to 404). */
 export async function listVillagesByRegionSlug(regionSlug: string) {
-  // Mock path returns an empty array — `listRegionsFromMock` doesn't carry
-  // villages either, so the cascade hides on the public filter modal.
-  if (isUsingMockData()) return [];
+  // Mock path: report empty villages for known mock regions, null otherwise,
+  // so the route's 404 semantics hold without a DB.
+  if (isUsingMockData()) {
+    const exists = listRegionsFromMock().some((r) => r.slug === regionSlug);
+    return exists ? [] : null;
+  }
   return listVillagesByRegionSlugFromDb(regionSlug);
 }
 
@@ -86,7 +117,8 @@ export async function listVillagesByRegionSlug(regionSlug: string) {
  */
 export async function deleteListing(id: string): Promise<DeleteListingResult> {
   if (isUsingMockData()) {
-    return { deleted: true, storageRemoved: 0, storageFailed: 0 };
+    const listing = mockListings.find((l) => l.id === id);
+    return { deleted: true, slug: listing?.slug ?? null, storageRemoved: 0, storageFailed: 0 };
   }
   return deleteListingFromDb(id);
 }
@@ -101,9 +133,11 @@ export {
   listListingsFromDb,
   listRegionsFromDb,
   listRegionsWithVillagesFromDb,
+  publicListingWhere,
   updateListingFromDb,
   type DeleteListingResult,
   type ListingImageRef,
+  type ListingStatusScope,
 } from './listings-service-db';
 export {
   getListingFromMock,

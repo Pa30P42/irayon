@@ -2,7 +2,12 @@
 
 import { useFilterCompatibility } from '@/hooks/use-filter-compatibility';
 import { isOptionSelected } from '@/lib/listings-filter';
-import type { FilterCompatibility, FilterGroupName, Listing, ListingsFilterState } from '@/types';
+import type {
+  FilterCompatibility,
+  FilterGroupName,
+  ListingCardDto,
+  ListingsFilterState,
+} from '@/types';
 import { FilterCheckbox } from './filter-checkbox';
 
 type FilterGroupProps = {
@@ -12,7 +17,7 @@ type FilterGroupProps = {
   /** Localized label for each option key. */
   labelFor: (option: string) => string;
   state: ListingsFilterState;
-  listings: Listing[];
+  listings: ListingCardDto[];
   onToggle: (option: string) => void;
   /** Optional override of compatibility/count — used in tests or when computed externally. */
   compatibility?: FilterCompatibility;

@@ -3,6 +3,7 @@ import {
   SESSION_MAX_AGE_SECONDS,
   signAdminSession,
 } from '@/lib/admin-session';
+import { checkRateLimit, getClientIp, rateLimitHeaders } from '@/lib/rate-limit';
 import { NextResponse } from 'next/server';
 import { timingSafeEqual } from 'node:crypto';
 
@@ -15,19 +16,10 @@ const constantTimeEqual = (a: string, b: string): boolean => {
 
 const json = (status: number, body: unknown): NextResponse => NextResponse.json(body, { status });
 
-/**
- * Best-effort client IP. Vercel sets `x-forwarded-for`; we take the first
- * entry, which is the original client (subsequent entries are intermediate
- * proxies). Falls back to `x-real-ip`, then to `'unknown'` for self-hosted /
- * test contexts.
- */
-const clientIp = (request: Request): string => {
-  const xff = request.headers.get('x-forwarded-for');
-  if (xff) return xff.split(',')[0]!.trim();
-  return request.headers.get('x-real-ip') ?? 'unknown';
-};
-
-const logFailedAuth = (request: Request, reason: 'bad-credentials' | 'invalid-body'): void => {
+const logFailedAuth = (
+  request: Request,
+  reason: 'bad-credentials' | 'invalid-body' | 'rate-limited',
+): void => {
   // Structured single-line JSON so a log aggregator (Vercel logs, Datadog,
   // etc.) can parse and alert on `type === 'admin_auth_failed'` without a
   // grep-the-stream pipeline.
@@ -35,7 +27,7 @@ const logFailedAuth = (request: Request, reason: 'bad-credentials' | 'invalid-bo
     JSON.stringify({
       type: 'admin_auth_failed',
       at: new Date().toISOString(),
-      ip: clientIp(request),
+      ip: getClientIp(request),
       userAgent: request.headers.get('user-agent') ?? null,
       reason,
     }),
@@ -43,6 +35,15 @@ const logFailedAuth = (request: Request, reason: 'bad-credentials' | 'invalid-bo
 };
 
 export async function POST(request: Request): Promise<Response> {
+  const rate = checkRateLimit('adminLogin', getClientIp(request));
+  if (!rate.success) {
+    logFailedAuth(request, 'rate-limited');
+    return NextResponse.json(
+      { error: { message: 'Too many login attempts. Try again shortly.' } },
+      { status: 429, headers: rateLimitHeaders(rate) },
+    );
+  }
+
   const expectedUser = process.env.ADMIN_LOGIN;
   const expectedPass = process.env.ADMIN_PASSWORD;
   if (!expectedUser || !expectedPass) {

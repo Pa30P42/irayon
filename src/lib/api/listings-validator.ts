@@ -1,9 +1,6 @@
 import {
   ACTIVITIES,
-  AMENITIES,
-  BASIC_AMENITIES,
   CATEGORIES,
-  EXTRA_AMENITIES,
   GUEST_RANGES,
   MEALS,
   PLACEMENTS,
@@ -45,9 +42,11 @@ export const listingsQuerySchema = z.object({
   guests: z.enum(GUEST_RANGES as readonly [string, ...string[]]).optional(),
   placement: csvEnum(PLACEMENTS as readonly [string, ...string[]]),
   food: csvEnum(MEALS as readonly [string, ...string[]]),
-  extra: csvEnum(EXTRA_AMENITIES as readonly [string, ...string[]]),
-  basic: csvEnum(BASIC_AMENITIES as readonly [string, ...string[]]),
-  amenities: csvEnum(AMENITIES as readonly [string, ...string[]]),
+  /** Amenity slugs are data-driven (admin CRUD) — no static enum check.
+   *  Unknown slugs simply match nothing at the DB layer. */
+  extra: csvSlugs,
+  basic: csvSlugs,
+  amenities: csvSlugs,
   fun: csvEnum(ACTIVITIES as readonly [string, ...string[]]),
   price_min: z.coerce.number().int().nonnegative().optional(),
   price_max: z.coerce.number().int().positive().optional(),

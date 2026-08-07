@@ -1,7 +1,7 @@
 'use client';
 
-import type { SubmitState } from '@/hooks/use-listing-submit';
 import { Alert } from '@/components/ui/alert';
+import type { SubmitState } from '@/hooks/use-listing-submit';
 import { IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 
@@ -18,9 +18,7 @@ export function ListingFormStatusBanner({ submitState, isEdit }: Props) {
       <Alert variant="error">
         <IconAlertCircle size={18} className="mt-0.5 shrink-0" />
         <div>
-          <p className="font-medium">
-            {isEdit ? t('errorUpdateTitle') : t('errorCreateTitle')}
-          </p>
+          <p className="font-medium">{isEdit ? t('errorUpdateTitle') : t('errorCreateTitle')}</p>
           <p className="text-xs">{submitState.message}</p>
         </div>
       </Alert>

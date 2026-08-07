@@ -2,7 +2,7 @@ import type { Amenity } from '@/types';
 
 export type AmenityGroupKey = 'essentials' | 'outdoor' | 'kitchen' | 'family' | 'extras';
 
-const GROUP_OF: Record<Amenity, AmenityGroupKey> = {
+const GROUP_OF: Record<string, AmenityGroupKey> = {
   wifi: 'essentials',
   tv: 'essentials',
   ac: 'essentials',
@@ -32,7 +32,8 @@ export function groupAmenities(amenities: Amenity[]): Record<AmenityGroupKey, Am
     extras: [],
   };
   for (const a of amenities) {
-    groups[GROUP_OF[a]].push(a);
+    // New (data-driven) amenities without a hardcoded group land in extras.
+    groups[GROUP_OF[a] ?? 'extras'].push(a);
   }
   return groups;
 }

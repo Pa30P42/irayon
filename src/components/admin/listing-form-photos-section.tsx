@@ -25,10 +25,7 @@ export function ListingFormPhotosSection({
   const tSections = useTranslations('admin.listingForm.sections');
   const isEdit = mode === 'edit';
   return (
-    <SectionCard
-      title={tSections('photosTitle')}
-      description={tSections('photosDescription')}
-    >
+    <SectionCard title={tSections('photosTitle')} description={tSections('photosDescription')}>
       {isEdit && listingId ? (
         <ExistingImagesGrid
           listingId={listingId}

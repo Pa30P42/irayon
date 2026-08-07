@@ -1,8 +1,8 @@
-import type { Amenity, Listing } from '@/types';
+import type { Amenity, ListingCardDto } from '@/types';
 
 export type ListingBadge = 'topPick' | 'new' | null;
 
-export function getListingBadge(listing: Listing): ListingBadge {
+export function getListingBadge(listing: ListingCardDto): ListingBadge {
   if (listing.rating >= 4.85 && listing.reviewCount >= 100) return 'topPick';
   if (listing.reviewCount < 60) return 'new';
   return null;

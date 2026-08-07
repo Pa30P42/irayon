@@ -12,14 +12,20 @@ import type {
 const isGuestRange = (value: string): value is GuestRange =>
   (GUEST_RANGES as readonly string[]).includes(value);
 
-const matchesGuests = (listing: Listing, range: GuestRange | null): boolean => {
+/**
+ * Structural subset the filter/sort helpers actually read. Both the full
+ * `Listing` DTO (mock path) and the slim `ListingCardDto` (client) satisfy it.
+ */
+export type FilterableListing = Omit<Listing, 'description' | 'images'>;
+
+const matchesGuests = (listing: FilterableListing, range: GuestRange | null): boolean => {
   if (range === null) return true;
   if (range === 'lt5') return listing.capacity < 5;
   if (range === '5to10') return listing.capacity >= 5 && listing.capacity <= 10;
   return listing.capacity > 10;
 };
 
-const matchesPlacement = (listing: Listing, placements: Placement[]): boolean => {
+const matchesPlacement = (listing: FilterableListing, placements: Placement[]): boolean => {
   if (placements.length === 0) return true;
   const cats = listing.categories;
   return placements.some((p) =>
@@ -29,7 +35,7 @@ const matchesPlacement = (listing: Listing, placements: Placement[]): boolean =>
   );
 };
 
-const matchesSearch = (listing: Listing, q: string): boolean => {
+const matchesSearch = (listing: FilterableListing, q: string): boolean => {
   if (!q) return true;
   const needle = q.trim().toLowerCase();
   if (!needle) return true;
@@ -46,7 +52,10 @@ const matchesSearch = (listing: Listing, q: string): boolean => {
   return haystack.includes(needle);
 };
 
-export function applyListingsFilter(listings: Listing[], filters: ListingsFilterState): Listing[] {
+export function applyListingsFilter<T extends FilterableListing>(
+  listings: T[],
+  filters: ListingsFilterState,
+): T[] {
   return listings.filter((l) => {
     // Location: OR-combine region and village. A listing matches if its region
     // is in the region filter OR its village is in the village filter. Empty
@@ -60,6 +69,11 @@ export function applyListingsFilter(listings: Listing[], filters: ListingsFilter
       if (!regionOk && !villageOk) return false;
     }
     if (filters.type.length > 0 && !filters.type.includes(l.placeType)) return false;
+    if (filters.category.length > 0 && !filters.category.some((c) => l.categories.includes(c)))
+      return false;
+    if (filters.price_min !== null && l.price < filters.price_min) return false;
+    if (filters.price_max !== null && l.price > filters.price_max) return false;
+    if (filters.capacity !== null && l.capacity < filters.capacity) return false;
     if (!matchesGuests(l, filters.guests)) return false;
     if (!matchesPlacement(l, filters.placement)) return false;
     if (filters.food.length > 0 && !filters.food.every((m) => l.meals.includes(m))) return false;
@@ -117,28 +131,125 @@ export function isOptionSelected(
  * selected, plus a `compatible` flag (count > 0). Used to render the
  * strikethrough state in the filter modal.
  *
- * TODO(perf): O(groups × options × listings) per modal render. Fine for
- * mock data (~12) but will jank with 1k+. Two faster approaches once we
- * outgrow this:
- *  - Filter once with state minus the current group, then bucket counts.
- *  - Maintain an inverted index Map<group, Map<option, Set<listingId>>>.
+ * Single pass: the expensive all-dimensions match is evaluated once per
+ * listing; each option then only pays its own cheap predicate. Equivalent to
+ * running `applyListingsFilter(withOption(state, group, opt))` per option
+ * (the old O(options × listings × groups) version), but ~options× faster.
  */
 export function computeCompatibility(
-  listings: Listing[],
+  listings: FilterableListing[],
   state: ListingsFilterState,
   group: FilterGroupName,
   options: readonly string[],
 ): FilterCompatibility {
+  const counts = new Map<string, number>();
+  for (const opt of options) counts.set(opt, 0);
+
+  const hasRegionFilter = state.region.length > 0;
+  const hasVillageFilter = state.village.length > 0;
+  const hasLocationFilter = hasRegionFilter || hasVillageFilter;
+  // `withOption` ADDS to a multi-select, so AND-semantics groups keep their
+  // current selection in the base match — an added option only narrows.
+  const isAndGroup = group === 'food' || group === 'extra' || group === 'basic' || group === 'fun';
+
+  for (const l of listings) {
+    if (!matchesSearch(l, state.q)) continue;
+    // Scalar constraints apply to every trial unchanged.
+    if (state.price_min !== null && l.price < state.price_min) continue;
+    if (state.price_max !== null && l.price > state.price_max) continue;
+    if (state.capacity !== null && l.capacity < state.capacity) continue;
+
+    const locationMatch = !hasLocationFilter
+      ? true
+      : (hasRegionFilter && state.region.includes(l.region)) ||
+        (hasVillageFilter && l.villageSlug !== null && state.village.includes(l.villageSlug));
+
+    // Current-selection match per dimension.
+    const dims: Record<FilterGroupName, boolean> = {
+      category: state.category.length === 0 || state.category.some((c) => l.categories.includes(c)),
+      region: locationMatch,
+      village: locationMatch,
+      type: state.type.length === 0 || state.type.includes(l.placeType),
+      guests: matchesGuests(l, state.guests),
+      placement: matchesPlacement(l, state.placement),
+      food: state.food.every((m) => l.meals.includes(m)),
+      extra: state.extra.every((a) => l.amenities.includes(a)),
+      basic: state.basic.every((a) => l.amenities.includes(a)),
+      fun: state.fun.every((a) => l.activities.includes(a)),
+    };
+
+    // Base: every dimension except the counted group's own (which the
+    // per-option predicate below re-enters). Counting region or village
+    // excludes the combined location dimension, since the two OR together.
+    let base = true;
+    for (const name of Object.keys(dims) as FilterGroupName[]) {
+      if (!isAndGroup) {
+        if (name === group) continue;
+        if (
+          (group === 'region' || group === 'village') &&
+          (name === 'region' || name === 'village')
+        )
+          continue;
+      }
+      if (!dims[name]) {
+        base = false;
+        break;
+      }
+    }
+    if (!base) continue;
+
+    for (const opt of options) {
+      let ok: boolean;
+      switch (group) {
+        case 'category':
+          ok =
+            l.categories.includes(opt as (typeof l.categories)[number]) ||
+            (state.category.length > 0 && dims.category);
+          break;
+        case 'region':
+          ok = l.region === opt || (hasLocationFilter && locationMatch);
+          break;
+        case 'village':
+          ok = l.villageSlug === opt || (hasLocationFilter && locationMatch);
+          break;
+        case 'type':
+          ok = l.placeType === opt || (state.type.length > 0 && dims.type);
+          break;
+        case 'guests':
+          ok = isGuestRange(opt) && matchesGuests(l, opt);
+          break;
+        case 'placement':
+          ok =
+            matchesPlacement(l, [opt as Placement]) ||
+            (state.placement.length > 0 && dims.placement);
+          break;
+        case 'food':
+          ok = l.meals.includes(opt as (typeof l.meals)[number]);
+          break;
+        case 'fun':
+          ok = l.activities.includes(opt as (typeof l.activities)[number]);
+          break;
+        case 'extra':
+        case 'basic':
+          ok = l.amenities.includes(opt as (typeof l.amenities)[number]);
+          break;
+      }
+      if (ok) counts.set(opt, (counts.get(opt) ?? 0) + 1);
+    }
+  }
+
   const result: FilterCompatibility = {};
   for (const opt of options) {
-    const trial = withOption(state, group, opt);
-    const count = applyListingsFilter(listings, trial).length;
+    const count = counts.get(opt) ?? 0;
     result[opt] = { count, compatible: count > 0 };
   }
   return result;
 }
 
-export function sortListings(listings: Listing[], sort: SortOption | null): Listing[] {
+export function sortListings<T extends FilterableListing>(
+  listings: T[],
+  sort: SortOption | null,
+): T[] {
   if (!sort) return listings;
   const copy = [...listings];
   switch (sort) {
@@ -155,6 +266,9 @@ export function sortListings(listings: Listing[], sort: SortOption | null): List
 
 export function countActiveFilters(state: ListingsFilterState): number {
   let n = 0;
+  n += state.category.length;
+  n += state.price_min !== null || state.price_max !== null ? 1 : 0;
+  n += state.capacity !== null ? 1 : 0;
   n += state.region.length;
   n += state.village.length;
   n += state.type.length;

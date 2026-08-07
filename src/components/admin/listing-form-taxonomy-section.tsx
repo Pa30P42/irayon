@@ -3,9 +3,12 @@
 import { ChipGroup } from '@/components/ui/chip-group';
 import { Field } from '@/components/ui/form-field';
 import { SectionCard } from '@/components/ui/section-card';
+import { useAmenities } from '@/hooks/use-amenities';
+import { useLocale } from '@/hooks/use-locale';
 import type { CreateListingInput } from '@/lib/api/listings-create-validator';
-import { ACTIVITIES, AMENITIES, CATEGORIES, MEALS } from '@/lib/constants';
-import type { Activity, Amenity, ListingCategory, Meal } from '@/types';
+import { ACTIVITIES, AMENITIES, CATEGORIES, LISTING_STATUSES, MEALS } from '@/lib/constants';
+import { pickLocalized } from '@/lib/utils';
+import type { Activity, Amenity, ListingCategory, ListingStatus, Meal } from '@/types';
 import { useTranslations } from 'next-intl';
 import { Controller, useFormContext } from 'react-hook-form';
 
@@ -16,11 +19,24 @@ export function ListingFormTaxonomySection() {
   const tAmenity = useTranslations('admin.labels.amenity');
   const tMeal = useTranslations('admin.labels.meal');
   const tActivity = useTranslations('admin.labels.activity');
+  const tStatus = useTranslations('admin.labels.status');
 
   const {
     control,
     formState: { errors },
   } = useFormContext<CreateListingInput>();
+  const { locale } = useLocale();
+
+  // DB-driven amenity catalogue; falls back to the legacy constants + i18n
+  // labels while loading so the form never renders an empty chip group.
+  const { data: amenityCatalogue } = useAmenities();
+  const amenityOptions =
+    amenityCatalogue && amenityCatalogue.length > 0
+      ? amenityCatalogue.map((a) => ({
+          value: a.slug as Amenity,
+          label: pickLocalized(a.name, locale),
+        }))
+      : AMENITIES.map((a) => ({ value: a as Amenity, label: tAmenity(a as Amenity) }));
 
   return (
     <>
@@ -60,10 +76,7 @@ export function ListingFormTaxonomySection() {
               ariaLabel={tSections('amenitiesTitle')}
               selected={field.value as Amenity[]}
               onChange={field.onChange}
-              options={AMENITIES.map((a) => ({
-                value: a as Amenity,
-                label: tAmenity(a as Amenity),
-              }))}
+              options={amenityOptions}
             />
           )}
         />
@@ -101,6 +114,25 @@ export function ListingFormTaxonomySection() {
             )}
           />
         </Field>
+      </SectionCard>
+
+      <SectionCard title={tSections('statusTitle')} description={tSections('statusDescription')}>
+        <Controller
+          control={control}
+          name="status"
+          render={({ field }) => (
+            <ChipGroup
+              single
+              ariaLabel={tSections('statusTitle')}
+              selected={[field.value as ListingStatus]}
+              onChange={(next) => field.onChange(next[0] ?? 'published')}
+              options={LISTING_STATUSES.map((s) => ({
+                value: s,
+                label: tStatus(s),
+              }))}
+            />
+          )}
+        />
       </SectionCard>
     </>
   );

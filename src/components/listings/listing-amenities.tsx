@@ -1,7 +1,13 @@
+'use client';
+
 import { Eyebrow, Heading } from '@/components/ui/typography';
+import { useAmenities } from '@/hooks/use-amenities';
+import { useLocale } from '@/hooks/use-locale';
 import { groupAmenities, type AmenityGroupKey } from '@/lib/amenity-groups';
+import { pickLocalized } from '@/lib/utils';
 import type { Amenity, Listing } from '@/types';
 import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 import { AmenityIcon } from './amenity-icon';
 
 type ListingAmenitiesProps = {
@@ -19,6 +25,14 @@ const GROUP_ORDER: readonly AmenityGroupKey[] = [
 export function ListingAmenities({ listing }: ListingAmenitiesProps) {
   const t = useTranslations('detail.amenities');
   const tAmenity = useTranslations('amenity');
+  const { locale } = useLocale();
+  // DB-driven names for data-driven amenities; static i18n covers the legacy
+  // set (and the loading window), the slug itself is the last resort.
+  const { data: catalogue } = useAmenities();
+  const labelFor = useMemo(() => {
+    const bySlug = new Map((catalogue ?? []).map((a) => [a.slug, pickLocalized(a.name, locale)]));
+    return (slug: Amenity) => bySlug.get(slug) ?? (tAmenity.has(slug) ? tAmenity(slug) : slug);
+  }, [catalogue, locale, tAmenity]);
   const groups = groupAmenities(listing.amenities);
 
   const nonEmptyGroups = GROUP_ORDER.filter((g) => groups[g].length > 0);
@@ -37,7 +51,7 @@ export function ListingAmenities({ listing }: ListingAmenitiesProps) {
               {groups[groupKey].map((amenity: Amenity) => (
                 <li key={amenity} className="flex items-center gap-3">
                   <AmenityIcon amenity={amenity} size={20} className="text-primary" />
-                  <span>{tAmenity(amenity)}</span>
+                  <span>{labelFor(amenity)}</span>
                 </li>
               ))}
             </ul>

@@ -4,6 +4,7 @@ import type {
   Activity,
   Listing,
   ListingCategory,
+  ListingStatus,
   Meal,
   PlaceType,
   RegionSummary,
@@ -12,12 +13,29 @@ import type {
   Village,
 } from '@/types';
 import { $Enums, type Prisma, type PrismaClient } from '@prisma/client';
-import { LISTING_INCLUDE, rowToDto } from './listing-dto';
-import type { ListListingsResult } from './listings-service-mock';
+import { LISTING_CARD_SELECT, LISTING_DETAIL_SELECT, rowToCardDto, rowToDto } from './listing-dto';
+import { buildListingSearchText } from './listing-search-text';
 import type { CreateListingInput } from './listings-create-validator';
+import type { ListListingsResult } from './listings-service-mock';
 import type { ListingsQuery } from './listings-validator';
 import { parseLocalized } from './localized-text';
-import { toActivity, toCategory, toMeal, toPlaceType } from './prisma-enums';
+import { toActivity, toCategory, toListingStatus, toMeal, toPlaceType } from './prisma-enums';
+
+/**
+ * Visibility gate for every public read. Apply anywhere a listing reaches an
+ * unauthenticated surface (catalogue, detail, sitemap, static params) so
+ * drafts/archived rows never leak.
+ */
+export const publicListingWhere = { status: $Enums.ListingStatus.PUBLISHED } as const;
+
+/**
+ * Status scope for service reads. Public callers get the default
+ * (`'published'`); the admin API passes an explicit status or `'all'`.
+ */
+export type ListingStatusScope = ListingStatus | 'all';
+
+const statusWhere = (scope: ListingStatusScope): Prisma.ListingWhereInput =>
+  scope === 'all' ? {} : { status: toListingStatus(scope) };
 
 /**
  * Prisma-backed implementations of the listings service. Exported separately
@@ -25,8 +43,11 @@ import { toActivity, toCategory, toMeal, toPlaceType } from './prisma-enums';
  * `PrismaClient` instead of standing up a real DB.
  */
 
-function buildWhere(query: ListingsQuery): Prisma.ListingWhereInput {
-  const where: Prisma.ListingWhereInput = {};
+function buildWhere(
+  query: ListingsQuery,
+  status: ListingStatusScope = 'published',
+): Prisma.ListingWhereInput {
+  const where: Prisma.ListingWhereInput = { ...statusWhere(status) };
   // `categories` is an enum array on Postgres; `hasSome` translates to the
   // `&&` overlap operator, so the listing matches if any of its categories
   // appears in the filter list.
@@ -106,12 +127,10 @@ function buildWhere(query: ListingsQuery): Prisma.ListingWhereInput {
     else where.capacity = { gt: 10 };
   }
   if (query.q) {
-    where.OR = [
-      { address: { contains: query.q, mode: 'insensitive' } },
-      { title: { path: ['en'], string_contains: query.q } },
-      { title: { path: ['ru'], string_contains: query.q } },
-      { title: { path: ['az'], string_contains: query.q } },
-    ];
+    // Single ILIKE over the denormalized search_text (titles ×3 + address),
+    // served by its trigram GIN index — replaces the old 4-arm OR that
+    // seq-scanned three JSONB paths per request.
+    where.searchText = { contains: query.q.toLowerCase() };
   }
   return where;
 }
@@ -133,18 +152,21 @@ function buildOrderBy(sort?: SortOption): Prisma.ListingOrderByWithRelationInput
 export async function listListingsFromDb(
   query: ListingsQuery,
   db: PrismaClient = defaultPrisma,
+  status: ListingStatusScope = 'published',
 ): Promise<ListListingsResult> {
-  const where = buildWhere(query);
+  const where = buildWhere(query, status);
   const orderBy = buildOrderBy(query.sort as SortOption | undefined);
   const skip = (query.page - 1) * query.limit;
 
-  const [rows, total] = await db.$transaction([
-    db.listing.findMany({ where, orderBy, skip, take: query.limit, include: LISTING_INCLUDE }),
+  // Promise.all, not $transaction: a transaction serializes both scans on one
+  // connection, and a catalogue count doesn't need snapshot consistency.
+  const [rows, total] = await Promise.all([
+    db.listing.findMany({ where, orderBy, skip, take: query.limit, select: LISTING_CARD_SELECT }),
     db.listing.count({ where }),
   ]);
 
   return {
-    data: rows.map(rowToDto),
+    data: rows.map(rowToCardDto),
     meta: {
       total,
       page: query.page,
@@ -154,11 +176,34 @@ export async function listListingsFromDb(
   };
 }
 
+export type ListingSlugRef = { slug: string; createdAt: Date };
+
+/**
+ * Newest-first slugs of published listings. Feeds generateStaticParams and
+ * the sitemap, which only need slugs — not 1000 fully-hydrated rows.
+ */
+export async function listListingSlugsFromDb(
+  limit?: number,
+  db: PrismaClient = defaultPrisma,
+): Promise<ListingSlugRef[]> {
+  return db.listing.findMany({
+    where: publicListingWhere,
+    select: { slug: true, createdAt: true },
+    orderBy: { createdAt: 'desc' },
+    ...(limit ? { take: limit } : {}),
+  });
+}
+
 export async function getListingFromDb(
   slug: string,
   db: PrismaClient = defaultPrisma,
 ): Promise<Listing | null> {
-  const row = await db.listing.findUnique({ where: { slug }, include: LISTING_INCLUDE });
+  // findFirst (not findUnique) so the public visibility gate composes with
+  // the unique slug lookup — drafts/archived listings 404 publicly.
+  const row = await db.listing.findFirst({
+    where: { slug, ...publicListingWhere },
+    select: LISTING_DETAIL_SELECT,
+  });
   return row ? rowToDto(row) : null;
 }
 
@@ -166,7 +211,7 @@ export async function getListingByIdFromDb(
   id: string,
   db: PrismaClient = defaultPrisma,
 ): Promise<Listing | null> {
-  const row = await db.listing.findUnique({ where: { id }, include: LISTING_INCLUDE });
+  const row = await db.listing.findUnique({ where: { id }, select: LISTING_DETAIL_SELECT });
   return row ? rowToDto(row) : null;
 }
 
@@ -200,35 +245,29 @@ export async function updateListingFromDb(
   input: CreateListingInput,
   db: PrismaClient = defaultPrisma,
 ): Promise<Listing | null> {
-  const region = await db.region.findUnique({
-    where: { slug: input.region },
-    select: { id: true },
-  });
+  // The three lookups are independent — fan them out. The village→region
+  // ownership check happens after both rows are back.
+  const [region, village, amenityRows] = await Promise.all([
+    db.region.findUnique({ where: { slug: input.region }, select: { id: true } }),
+    input.villageId
+      ? db.village.findUnique({ where: { id: input.villageId }, select: { regionId: true } })
+      : Promise.resolve(null),
+    input.amenities.length > 0
+      ? db.amenity.findMany({
+          where: { slug: { in: input.amenities } },
+          select: { id: true, slug: true },
+        })
+      : Promise.resolve([]),
+  ]);
   if (!region) return null;
 
   // If the form supplied a village, verify it belongs to the chosen region.
   // Cross-region mismatches default to null rather than error — keeps the
   // listing editable instead of bouncing users with a hard validation fail.
-  let villageId: string | null = null;
-  if (input.villageId) {
-    const village = await db.village.findUnique({
-      where: { id: input.villageId },
-      select: { regionId: true },
-    });
-    if (village && village.regionId === region.id) {
-      villageId = input.villageId;
-    }
-  }
+  const villageId =
+    input.villageId && village && village.regionId === region.id ? input.villageId : null;
 
-  const amenityRows =
-    input.amenities.length > 0
-      ? await db.amenity.findMany({
-          where: { slug: { in: input.amenities } },
-          select: { id: true, slug: true },
-        })
-      : [];
-
-  await db.$transaction([
+  const [, fresh] = await db.$transaction([
     db.listingAmenity.deleteMany({ where: { listingId: id } }),
     db.listing.update({
       where: { id },
@@ -238,6 +277,14 @@ export async function updateListingFromDb(
           ru: input.title.ru || input.title.en,
           en: input.title.en,
         } as Prisma.InputJsonValue,
+        searchText: buildListingSearchText(
+          {
+            az: input.title.az || input.title.en,
+            ru: input.title.ru || input.title.en,
+            en: input.title.en,
+          },
+          input.address,
+        ),
         description: {
           az: input.description.az || input.description.en,
           ru: input.description.ru || input.description.en,
@@ -246,6 +293,7 @@ export async function updateListingFromDb(
         regionId: region.id,
         villageId,
         placeType: toPlaceType(input.placeType as PlaceType),
+        status: toListingStatus(input.status as ListingStatus),
         categories: { set: (input.categories as ListingCategory[]).map(toCategory) },
         price: input.price,
         capacity: input.capacity,
@@ -260,11 +308,12 @@ export async function updateListingFromDb(
           ? { amenities: { create: amenityRows.map((a) => ({ amenityId: a.id })) } }
           : {}),
       },
+      // Return the fresh row from the write itself — no follow-up read.
+      select: LISTING_DETAIL_SELECT,
     }),
   ]);
 
-  const fresh = await db.listing.findUnique({ where: { id }, include: LISTING_INCLUDE });
-  return fresh ? rowToDto(fresh) : null;
+  return rowToDto(fresh);
 }
 
 const REGION_LIST_ORDER_BY: Prisma.RegionOrderByWithRelationInput[] = [
@@ -321,15 +370,16 @@ export async function listRegionsWithVillagesFromDb(
   }));
 }
 
+/** Returns `null` when the region doesn't exist (callers map that to 404). */
 export async function listVillagesByRegionSlug(
   regionSlug: string,
   db: PrismaClient = defaultPrisma,
-): Promise<Village[]> {
+): Promise<Village[] | null> {
   const region = await db.region.findUnique({
     where: { slug: regionSlug },
     select: { id: true, slug: true },
   });
-  if (!region) return [];
+  if (!region) return null;
   const rows = await db.village.findMany({
     where: { regionId: region.id },
     orderBy: [{ sortOrder: 'asc' }, { slug: 'asc' }],
@@ -346,6 +396,8 @@ export async function listVillagesByRegionSlug(
 
 export type DeleteListingResult = {
   deleted: boolean;
+  /** Slug of the removed listing, so callers can revalidate its detail pages. */
+  slug: string | null;
   storageRemoved: number;
   storageFailed: number;
 };
@@ -363,7 +415,7 @@ export async function deleteListingFromDb(
   });
 
   // Throws (P2025) if the listing doesn't exist — the route handler maps that to 404.
-  await db.listing.delete({ where: { id } });
+  const removed = await db.listing.delete({ where: { id }, select: { slug: true } });
 
   let storageRemoved = 0;
   let storageFailed = 0;
@@ -373,5 +425,5 @@ export async function deleteListingFromDb(
     else storageFailed += 1;
   }
 
-  return { deleted: true, storageRemoved, storageFailed };
+  return { deleted: true, slug: removed.slug, storageRemoved, storageFailed };
 }

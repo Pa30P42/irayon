@@ -10,8 +10,6 @@
     "viewAll": "Смотреть все",
     "currency": "AZN",
     "perNight": "ночь",
-    "favorite": "В избранное",
-    "unfavorite": "Убрать из избранного",
     "breadcrumb": "Хлебные крошки",
     "skipToContent": "Перейти к контенту"
   },
@@ -31,8 +29,6 @@
     "search": {
       "placeholder": "Куда вы хотите поехать?",
       "location": "Локация",
-      "checkIn": "Заезд",
-      "checkOut": "Выезд",
       "guests": "Гости",
       "guestCount": "{count, plural, one {# гость} few {# гостя} other {# гостей}}",
       "selectDate": "Выбрать дату",
@@ -99,19 +95,18 @@
       "empty": "По этим фильтрам ничего не найдено",
       "showList": "Показать список",
       "showMap": "Показать карту"
-    }
+    },
+    "loadMore": "Показать ещё ({shown} из {total})"
   },
   "detail": {
     "share": "Поделиться",
     "save": "Сохранить",
-    "saved": "Сохранено",
     "showAllPhotos": "Все фото",
     "photoCount": "{current} / {total}",
     "previousPhoto": "Предыдущее фото",
     "nextPhoto": "Следующее фото",
     "closePhoto": "Закрыть",
     "memberSince": "На сайте с {year}",
-    "host": "Хозяин: {name}",
     "highlights": {
       "guests": "{count, plural, one {До # гостя} few {До # гостей} other {До # гостей}}",
       "bedrooms": "{count, plural, one {# спальня} few {# спальни} other {# спален}}",
@@ -144,14 +139,11 @@
     },
     "booking": {
       "perNight": "/ ночь",
-      "checkIn": "Заезд",
-      "checkOut": "Выезд",
       "selectDates": "Выбрать даты",
       "guests": "Гости",
       "nightsX": "{nights, plural, one {# ночь} few {# ночи} other {# ночей}} × {price}",
       "cleaningFee": "Уборка",
       "total": "Итого",
-      "contactHost": "Связаться с хозяином",
       "selectDatesFirst": "Выберите даты, чтобы увидеть расчёт"
     },
     "similar": {
@@ -177,7 +169,10 @@
       "food": "Услуги питания",
       "extra": "Дополнительно",
       "basic": "Базовые потребности",
-      "fun": "Развлечения"
+      "fun": "Развлечения",
+      "category": "Категория",
+      "price": "Цена за ночь (AZN)",
+      "capacity": "Гостей (минимум)"
     },
     "options": {
       "type": {
@@ -221,8 +216,22 @@
         "quad": "Квадроцикл",
         "horse": "верховая езда",
         "fishing": "рыбалка"
+      },
+      "category": {
+        "mountain": "Горы",
+        "forest": "Лес",
+        "river": "У реки",
+        "sea": "У моря",
+        "lake": "У озера"
       }
-    }
+    },
+    "priceMin": "От",
+    "priceMax": "До",
+    "capacityHint": "0 = любое количество гостей",
+    "priceChip": "{min}–{max} AZN",
+    "capacityChip": "{count}+ гостей",
+    "removePrice": "Убрать фильтр цены",
+    "removeCapacity": "Убрать фильтр гостей"
   },
   "categories": {
     "mountain": "Горы",
@@ -256,7 +265,18 @@
     "company": "Компания",
     "support": "Поддержка",
     "legal": "Правовая информация",
-    "follow": "Мы в соцсетях"
+    "follow": "Мы в соцсетях",
+    "links": {
+      "about": "О нас",
+      "press": "Пресса",
+      "careers": "Карьера",
+      "helpCenter": "Центр помощи",
+      "safety": "Безопасность",
+      "cancellations": "Отмена брони",
+      "privacy": "Конфиденциальность",
+      "terms": "Условия",
+      "cookies": "Cookies"
+    }
   },
   "language": {
     "label": "Язык",
@@ -266,12 +286,16 @@
   },
   "admin": {
     "appName": "iRayon · Admin",
-    "localeSwitcher": { "label": "Язык админ-панели" },
+    "localeSwitcher": {
+      "label": "Язык админ-панели"
+    },
     "nav": {
       "listings": "Объявления",
       "regions": "Регионы",
       "new": "Новое",
-      "signOut": "Выйти"
+      "signOut": "Выйти",
+      "amenities": "Удобства",
+      "logs": "Журнал действий"
     },
     "login": {
       "eyebrow": "iRayon · Admin",
@@ -333,7 +357,17 @@
       "editPage": {
         "title": "Редактировать объявление",
         "description": "Обновите поля и нажмите <strong>Сохранить изменения</strong>. Добавление и удаление фото применяется сразу; остальное сохраняется вместе."
-      }
+      },
+      "statusFilter": "Фильтр по статусу",
+      "statusAll": "Все",
+      "publish": "Опубликовать",
+      "unpublish": "Снять с публикации",
+      "archive": "В архив",
+      "publishAria": "Опубликовать {title}",
+      "unpublishAria": "Снять с публикации {title}",
+      "archiveAria": "Архивировать {title}",
+      "calls30d": "{count} звонков / 30 дней",
+      "callCount": "{count, plural, =0 {нет звонков} one {# звонок} few {# звонка} other {# звонков}}"
     },
     "regions": {
       "title": "Регионы",
@@ -357,7 +391,9 @@
       "breadcrumbRoot": "Регионы",
       "breadcrumbNew": "Новый",
       "breadcrumbEdit": "Изменить",
-      "newPage": { "title": "Новый регион" },
+      "newPage": {
+        "title": "Новый регион"
+      },
       "editPage": {
         "title": "Редактировать регион",
         "notFound": "Регион не найден"
@@ -418,7 +454,9 @@
         "categoriesDescription": "Выберите все категории, подходящие к этому месту. Лесной домик у реки может быть и тем, и другим.",
         "amenitiesTitle": "Удобства",
         "amenitiesDescription": "Отметьте каждое удобство, которое есть в этом месте.",
-        "mealsActivitiesTitle": "Питание и активности"
+        "mealsActivitiesTitle": "Питание и активности",
+        "statusTitle": "Статус",
+        "statusDescription": "Черновики и архивные объявления скрыты с сайта. В каталоге, поиске и sitemap показываются только опубликованные."
       },
       "fields": {
         "titleEn": "Название (английский)",
@@ -491,7 +529,8 @@
         "sortOrder": "Порядок сортировки",
         "sortOrderHint": "Меньшие числа отображаются первыми. По умолчанию 0.",
         "featured": "Избранный на главной",
-        "featuredHint": "Избранные регионы появляются в сетке Регионов на главной."
+        "featuredHint": "Избранные регионы появляются в сетке Регионов на главной.",
+        "coverImageUpload": "Загрузить обложку"
       },
       "createSubmit": "Создать регион",
       "editSubmit": "Сохранить изменения",
@@ -515,7 +554,11 @@
       "remove": "Удалить",
       "removeFailed": "Не удалось удалить фото",
       "cover": "Обложка",
-      "photoAlt": "Фото {index}"
+      "photoAlt": "Фото {index}",
+      "makeCover": "Сделать обложкой",
+      "moveEarlier": "Сдвинуть раньше",
+      "moveLater": "Сдвинуть позже",
+      "reorderFailed": "Не удалось изменить порядок фото"
     },
     "labels": {
       "placeType": {
@@ -560,7 +603,62 @@
         "quad": "Квадроцикл",
         "horse": "Верховая езда",
         "fishing": "Рыбалка"
+      },
+      "status": {
+        "draft": "Черновик",
+        "published": "Опубликовано",
+        "archived": "В архиве"
       }
+    },
+    "logs": {
+      "title": "Журнал действий",
+      "totalCount": "{count} записей",
+      "loading": "Загрузка…",
+      "filterPlaceholder": "Фильтр по действию (например, listing.)",
+      "emptyTitle": "Записей нет",
+      "emptyDescription": "Действия администратора появятся здесь.",
+      "columns": {
+        "time": "Время",
+        "action": "Действие",
+        "target": "Объект",
+        "details": "Детали"
+      },
+      "previous": "Назад",
+      "next": "Вперёд",
+      "pageOf": "Страница {page} из {pages}"
+    },
+    "amenities": {
+      "title": "Удобства",
+      "subtitle": "Каталог удобств для объявлений и публичных фильтров. Слаги неизменны; названия и группы можно редактировать.",
+      "createTitle": "Новое удобство",
+      "create": "Создать",
+      "edit": "Изменить",
+      "delete": "Удалить",
+      "cancel": "Отмена",
+      "save": "Сохранить",
+      "saveFailed": "Не удалось сохранить",
+      "deleteFailed": "Не удалось удалить",
+      "namePlaceholder": {
+        "en": "Название (англ.)",
+        "ru": "Название (рус.)",
+        "az": "Название (азерб.)"
+      },
+      "categoryLabel": "Группа"
+    },
+    "amenityCategories": {
+      "essentials": "Основное",
+      "outdoor": "На улице",
+      "kitchen": "Кухня",
+      "family": "Для семьи",
+      "extras": "Дополнительно"
     }
+  },
+  "notFound": {
+    "title": "Страница не найдена",
+    "home": "На главную"
+  },
+  "errorPage": {
+    "title": "Что-то пошло не так",
+    "retry": "Попробовать снова"
   }
 }

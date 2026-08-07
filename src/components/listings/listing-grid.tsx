@@ -1,10 +1,10 @@
 import { cn } from '@/lib/utils';
-import type { Listing, ListingsView, Locale } from '@/types';
+import type { ListingCardDto, ListingsView, Locale } from '@/types';
 import { ListingCard } from './listing-card';
 import { ListingRow } from './listing-row';
 
 type ListingGridProps = {
-  listings: Listing[];
+  listings: ListingCardDto[];
   locale: Locale;
   view?: ListingsView;
 };

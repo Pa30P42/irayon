@@ -1,6 +1,10 @@
-import type { HomeCategory, Listing } from '@/types';
+import type { FilterableListing } from '@/lib/listings-filter';
+import type { HomeCategory } from '@/types';
 
-export function filterByHomeCategory(listings: Listing[], category: HomeCategory): Listing[] {
+export function filterByHomeCategory<T extends FilterableListing>(
+  listings: T[],
+  category: HomeCategory,
+): T[] {
   switch (category) {
     case 'all':
       return listings;

@@ -17,6 +17,10 @@ export function queryFromFilterState(
 ): ListingsQueryInput {
   const out: ListingsQueryInput = {};
   if (state.q) out.q = state.q;
+  if (state.category.length) out.category = state.category;
+  if (state.price_min !== null) out.price_min = state.price_min;
+  if (state.price_max !== null) out.price_max = state.price_max;
+  if (state.capacity !== null) out.capacity = state.capacity;
   if (state.region.length) out.region = state.region;
   if (state.village.length) out.village = state.village;
   if (state.type.length) out.type = state.type;

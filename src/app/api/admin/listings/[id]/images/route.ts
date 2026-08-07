@@ -6,7 +6,10 @@ import {
   apiNotFound,
   apiOk,
   apiServerError,
+  apiServiceUnavailable,
 } from '@/lib/api/api-response';
+import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
+import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import {
   ALLOWED_IMAGE_MIME_TYPES,
@@ -14,6 +17,8 @@ import {
   isAllowedMime,
   uploadListingImage,
 } from '@/lib/storage';
+import { StorageConfigError } from '@/lib/supabase-admin';
+import { after } from 'next/server';
 import { z } from 'zod';
 
 type Context = { params: Promise<{ id: string }> };
@@ -36,7 +41,7 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
 
   const { id } = await params;
 
-  const listing = await prisma.listing.findUnique({ where: { id }, select: { id: true } });
+  const listing = await prisma.listing.findUnique({ where: { id }, select: { slug: true } });
   if (!listing) return apiNotFound(`Listing "${id}" not found`);
 
   let form: FormData;
@@ -85,34 +90,43 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
       where: { listingId: id },
       _max: { order: true },
     });
-    let nextOrder = (startingOrder._max.order ?? -1) + 1;
+    const nextOrder = (startingOrder._max.order ?? -1) + 1;
 
-    const created = [];
-    for (const f of files) {
-      const file = f as File;
-      const uploaded = await uploadListingImage({
-        listingId: id,
-        file: { type: file.type, size: file.size, arrayBuffer: () => file.arrayBuffer() },
-      });
-      const row = await prisma.image.create({
-        data: {
+    // Storage uploads run concurrently, then ONE insert for all rows —
+    // the old per-file loop paid 2×N sequential round-trips.
+    const uploads = await Promise.all(
+      files.map(async (f, i) => {
+        const file = f as File;
+        const uploaded = await uploadListingImage({
+          listingId: id,
+          file: { type: file.type, size: file.size, arrayBuffer: () => file.arrayBuffer() },
+        });
+        return {
           listingId: id,
           url: uploaded.publicUrl,
-          order: nextOrder++,
+          order: nextOrder + i,
           alt: file.name || null,
-        },
-      });
-      created.push(row);
-    }
+        };
+      }),
+    );
+    const created = await prisma.image.createManyAndReturn({ data: uploads });
 
-    await recordAdminLog({
-      action: 'listing.images.upload',
-      target: id,
-      metadata: { count: created.length },
-    });
+    after(() =>
+      recordAdminLog({
+        action: 'listing.images.upload',
+        target: id,
+        metadata: { count: created.length },
+      }),
+    );
+    revalidateListingSurfaces(listing.slug);
     return apiOk({ data: created }, { status: 201 });
   } catch (err) {
-    console.error(`POST /api/admin/listings/${id}/images failed`, err);
-    return apiServerError('Upload failed');
+    logger.error(`POST /api/admin/listings/${id}/images failed`, { err });
+    // Admin-only endpoint behind auth — surface the real reason. A bare
+    // "Upload failed" turned a missing env var into a blind investigation.
+    if (err instanceof StorageConfigError) {
+      return apiServiceUnavailable(`Image storage is not configured: ${err.message}`);
+    }
+    return apiServerError(`Upload failed: ${err instanceof Error ? err.message : 'unknown error'}`);
   }
 }

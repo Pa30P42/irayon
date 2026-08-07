@@ -2,10 +2,10 @@
 // Client component: orchestrates the create/edit region form (RHF + zod).
 
 import { Alert } from '@/components/ui/alert';
-import { Field } from '@/components/ui/form-field';
-import { SectionCard } from '@/components/ui/section-card';
 import { Button } from '@/components/ui/button';
+import { Field } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
+import { SectionCard } from '@/components/ui/section-card';
 import { regionCreateSchema, type RegionCreateInput } from '@/lib/api/regions-validator';
 import { cn } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,6 +27,8 @@ export type RegionFormProps = {
   mode?: 'create' | 'edit';
   /** Current slug — shown read-only in edit mode. Slugs are immutable. */
   slug?: string;
+  /** Region id — enables direct cover upload in edit mode. */
+  regionId?: string;
   initialValues?: Partial<RegionCreateInput>;
   onSubmit: (values: RegionCreateInput) => Promise<void>;
   submitLabel?: string;
@@ -35,6 +37,7 @@ export type RegionFormProps = {
 export function RegionForm({
   mode = 'create',
   slug,
+  regionId,
   initialValues,
   onSubmit,
   submitLabel,
@@ -46,6 +49,8 @@ export function RegionForm({
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isValid },
   } = useForm<RegionCreateInput>({
     resolver: zodResolver(regionCreateSchema),
@@ -54,6 +59,37 @@ export function RegionForm({
   });
 
   const [activeTab, setActiveTab] = useState<LocaleTab>('en');
+  const [coverUpload, setCoverUpload] = useState<
+    { phase: 'idle' } | { phase: 'uploading' } | { phase: 'error'; message: string }
+  >({ phase: 'idle' });
+  const coverImage = watch('coverImage');
+
+  const onCoverFile = async (file: File | undefined) => {
+    if (!file || !regionId) return;
+    setCoverUpload({ phase: 'uploading' });
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      const res = await fetch(`/api/admin/regions/${encodeURIComponent(regionId)}/cover`, {
+        method: 'POST',
+        body: form,
+      });
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        throw new Error(text || `Upload failed (${res.status})`);
+      }
+      const json = (await res.json()) as { coverImage: string };
+      // The endpoint already persisted the URL; mirror it into the form so a
+      // subsequent "Save" doesn't overwrite it with the stale value.
+      setValue('coverImage', json.coverImage, { shouldValidate: true });
+      setCoverUpload({ phase: 'idle' });
+    } catch (err) {
+      setCoverUpload({
+        phase: 'error',
+        message: err instanceof Error ? err.message : tCommon('saveFailed'),
+      });
+    }
+  };
   const [submitState, setSubmitState] = useState<
     | { phase: 'idle' }
     | { phase: 'submitting' }
@@ -79,10 +115,7 @@ export function RegionForm({
 
   return (
     <form onSubmit={handleSubmit(submit)} className="space-y-6">
-      <SectionCard
-        title={tSections('nameTitle')}
-        description={tSections('nameDescription')}
-      >
+      <SectionCard title={tSections('nameTitle')} description={tSections('nameDescription')}>
         <div
           role="tablist"
           aria-label={t('localeTablistLabel')}
@@ -140,10 +173,7 @@ export function RegionForm({
         </div>
       </SectionCard>
 
-      <SectionCard
-        title={tSections('displayTitle')}
-        description={tSections('displayDescription')}
-      >
+      <SectionCard title={tSections('displayTitle')} description={tSections('displayDescription')}>
         {mode === 'edit' && slug ? (
           <Field label={tFields('slug')} hint={tFields('slugHint')}>
             <Input value={slug} readOnly disabled />
@@ -155,12 +185,42 @@ export function RegionForm({
           htmlFor="cover-image"
           error={errors.coverImage?.message}
         >
-          <Input
-            id="cover-image"
-            type="url"
-            placeholder={tFields('coverImagePlaceholder')}
-            {...register('coverImage')}
-          />
+          <div className="space-y-2">
+            {mode === 'edit' && regionId ? (
+              <div className="flex items-center gap-3">
+                {coverImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={coverImage}
+                    alt=""
+                    className="border-border h-16 w-24 rounded-md border object-cover"
+                  />
+                ) : null}
+                <label className="border-border hover:bg-accent inline-flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors">
+                  {coverUpload.phase === 'uploading' ? (
+                    <IconLoader2 size={16} className="animate-spin" />
+                  ) : null}
+                  {tFields('coverImageUpload')}
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/avif"
+                    className="sr-only"
+                    disabled={coverUpload.phase === 'uploading'}
+                    onChange={(e) => void onCoverFile(e.target.files?.[0])}
+                  />
+                </label>
+              </div>
+            ) : null}
+            {coverUpload.phase === 'error' ? (
+              <p className="text-xs text-rose-600">{coverUpload.message}</p>
+            ) : null}
+            <Input
+              id="cover-image"
+              type="url"
+              placeholder={tFields('coverImagePlaceholder')}
+              {...register('coverImage')}
+            />
+          </div>
         </Field>
         <Field
           label={tFields('sortOrder')}

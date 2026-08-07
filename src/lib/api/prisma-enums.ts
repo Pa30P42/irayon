@@ -1,4 +1,4 @@
-import type { Activity, ListingCategory, Meal, PlaceType } from '@/types';
+import type { Activity, ListingCategory, ListingStatus, Meal, PlaceType } from '@/types';
 import type { $Enums } from '@prisma/client';
 
 /**
@@ -13,7 +13,9 @@ export const toPlaceType = (v: PlaceType): $Enums.PlaceType =>
 export const toCategory = (v: ListingCategory): $Enums.ListingCategory =>
   v.toUpperCase() as $Enums.ListingCategory;
 
-export const toMeal = (v: Meal): $Enums.Meal =>
-  v.toUpperCase().replace(/-/g, '_') as $Enums.Meal;
+export const toMeal = (v: Meal): $Enums.Meal => v.toUpperCase().replace(/-/g, '_') as $Enums.Meal;
 
 export const toActivity = (v: Activity): $Enums.Activity => v.toUpperCase() as $Enums.Activity;
+
+export const toListingStatus = (v: ListingStatus): $Enums.ListingStatus =>
+  v.toUpperCase() as $Enums.ListingStatus;

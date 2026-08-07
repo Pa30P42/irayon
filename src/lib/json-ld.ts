@@ -128,15 +128,10 @@ export function accommodationLd({
       },
       availability: 'https://schema.org/InStock',
     },
-    ...(listing.rating > 0 && listing.reviewCount > 0
-      ? {
-          aggregateRating: {
-            '@type': 'AggregateRating',
-            ratingValue: listing.rating,
-            reviewCount: listing.reviewCount,
-          },
-        }
-      : {}),
+    // NO aggregateRating: there is no Review model, so any rating/reviewCount
+    // on a row is seeded/fabricated — emitting it as structured data violates
+    // Google's review-snippet policy. Re-add (gated on genuine review rows)
+    // if a Review model ever lands.
   };
 }
 

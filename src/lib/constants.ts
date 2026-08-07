@@ -5,6 +5,7 @@ import type {
   HomeCategory,
   ListingCategory,
   ListingsFilterState,
+  ListingStatus,
   Meal,
   Placement,
   PlaceType,
@@ -129,6 +130,12 @@ export const BASIC_AMENITIES: readonly Amenity[] = [
 
 export const ACTIVITIES: readonly Activity[] = ['quad', 'horse', 'fishing'] as const;
 
+export const LISTING_STATUSES: readonly ListingStatus[] = [
+  'draft',
+  'published',
+  'archived',
+] as const;
+
 export const SORT_OPTIONS: readonly SortOption[] = [
   'price-asc',
   'price-desc',
@@ -144,6 +151,10 @@ export const SORT_OPTIONS: readonly SortOption[] = [
  */
 export const emptyFilterState = (): ListingsFilterState => ({
   q: '',
+  category: [],
+  price_min: null,
+  price_max: null,
+  capacity: null,
   region: [],
   village: [],
   type: [],

@@ -3,8 +3,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Session-mode (port 5432) connection for migrate/seed/studio — those
+  // don't work through Supabase's pgbouncer transaction pooler.
+  directUrl = env("DIRECT_URL")
 }
 
 // Enum values are mapped to the kebab/lowercase forms used by the API DTOs,
@@ -45,6 +48,14 @@ enum Activity {
   @@map("activity")
 }
 
+enum ListingStatus {
+  DRAFT     @map("draft")
+  PUBLISHED @map("published")
+  ARCHIVED  @map("archived")
+
+  @@map("listing_status")
+}
+
 model Region {
   id         String    @id @default(cuid())
   slug       String    @unique
@@ -77,6 +88,9 @@ model Village {
 
   @@unique([regionId, slug])
   @@index([regionId])
+  // Slug-only lookups (public filter modal / villages-by-slug) can't use the
+  // composite [regionId, slug] unique — slug isn't its leading column.
+  @@index([slug])
   @@map("villages")
 }
 
@@ -97,23 +111,26 @@ model Amenity {
 }
 
 model Listing {
-  id          String          @id @default(cuid())
-  slug        String          @unique
+  id          String            @id @default(cuid())
+  slug        String            @unique
   /// Localized title: { az, ru, en }
   title       Json
   /// Localized description: { az, ru, en }
   description Json
   regionId    String
-  region      Region          @relation(fields: [regionId], references: [id])
+  region      Region            @relation(fields: [regionId], references: [id])
   villageId   String?
-  village     Village?        @relation(fields: [villageId], references: [id], onDelete: SetNull)
+  village     Village?          @relation(fields: [villageId], references: [id], onDelete: SetNull)
   placeType   PlaceType
+  /// Draft/publish/archive workflow. PUBLISHED is the default so existing
+  /// rows (and the pre-status admin flow) keep their current visibility.
+  status      ListingStatus     @default(PUBLISHED)
   /// One or more category tags. A listing can belong to multiple categories
   /// (e.g. a mountain forest cabin near a river).
   categories  ListingCategory[]
   price       Int
-  rating      Float           @default(0)
-  reviewCount Int             @default(0)
+  rating      Float             @default(0)
+  reviewCount Int               @default(0)
   capacity    Int
   bedrooms    Int
   lat         Float
@@ -122,9 +139,15 @@ model Listing {
   phone       String?
   meals       Meal[]
   activities  Activity[]
+  /// Denormalized lowercase haystack for the `q` search: all three title
+  /// locales + address, maintained by the service write paths (see
+  /// `buildListingSearchText`). Backfilled + trigram-GIN-indexed in raw SQL
+  /// (migration 20260806000200) — Prisma can't express gin_trgm_ops.
+  searchText  String            @default("") @map("search_text")
 
-  amenities ListingAmenity[]
-  images    Image[]
+  amenities  ListingAmenity[]
+  images     Image[]
+  callEvents CallEvent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -136,6 +159,17 @@ model Listing {
   @@index([price])
   @@index([rating])
   @@index([createdAt])
+  // Composite indexes for the actual buildWhere/buildOrderBy shapes: the
+  // default catalogue scan (published, newest-first) and the hot
+  // filter+sort combos — without these PG filters then sorts.
+  @@index([status, createdAt(sort: Desc)])
+  @@index([regionId, createdAt(sort: Desc)])
+  @@index([placeType, createdAt(sort: Desc)])
+  // Hero search filters on capacity (gte/lt/between).
+  @@index([capacity])
+  // `hasEvery` array queries on meals/activities translate to @> — GIN-able.
+  @@index([meals], type: Gin)
+  @@index([activities], type: Gin)
   @@map("listings")
 }
 
@@ -161,6 +195,24 @@ model Image {
 
   @@index([listingId, order])
   @@map("images")
+}
+
+/// One row per phone-CTA tap — the business's only conversion event.
+/// `listingId` is SetNull (not Cascade) so deleting a listing keeps the
+/// historical call volume.
+model CallEvent {
+  id        String   @id @default(cuid())
+  listingId String?
+  listing   Listing? @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  /// UI locale the tap happened in (az/ru/en); null for legacy clients.
+  locale    String?
+  /// Where the CTA lived: `detail` or `card`.
+  source    String   @default("detail")
+  createdAt DateTime @default(now())
+
+  @@index([listingId, createdAt])
+  @@index([createdAt])
+  @@map("call_events")
 }
 
 /// Audit trail for state-changing admin actions. Read-only after insert;

@@ -1,6 +1,6 @@
 'use client';
 
-import type { Listing, Locale } from '@/types';
+import type { ListingCardDto, Locale } from '@/types';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ListingsMapLoader } from './listings-map-loader';
@@ -8,7 +8,7 @@ import { ListingsMapPaneToggle, type MobilePane } from './listings-map-pane-togg
 import { ListingsMapRow } from './listings-map-row';
 
 type Props = {
-  listings: Listing[];
+  listings: ListingCardDto[];
   locale: Locale;
 };
 

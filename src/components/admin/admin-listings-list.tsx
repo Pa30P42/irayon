@@ -1,16 +1,28 @@
 'use client';
 
 import { Alert } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { ChipGroup } from '@/components/ui/chip-group';
 import { EmptyState as UiEmptyState } from '@/components/ui/empty-state';
 import { Heading } from '@/components/ui/typography';
-import { useListings } from '@/hooks/use-listings';
+import {
+  useAdminCallStats,
+  useAdminListings,
+  useListingStatusMutation,
+} from '@/hooks/use-admin-listings';
+import { LISTING_STATUSES } from '@/lib/constants';
 import { formatPrice } from '@/lib/utils';
+import type { ListingCardDto, ListingStatus } from '@/types';
 import {
   IconAlertCircle,
+  IconArchive,
   IconExternalLink,
+  IconEye,
+  IconEyeOff,
   IconLoader2,
   IconPencil,
+  IconPhoneCall,
   IconPhoto,
   IconPlus,
   IconRefresh,
@@ -24,15 +36,28 @@ import { DeleteListingDialog } from './delete-listing-dialog';
 
 type DialogState = { id: string; title: string; photoCount: number } | null;
 
+type StatusScope = ListingStatus | 'all';
+
+const STATUS_BADGE_CLASS: Record<ListingStatus, string> = {
+  draft: 'bg-amber-100 text-amber-800',
+  published: 'bg-emerald-100 text-emerald-800',
+  archived: 'bg-zinc-200 text-zinc-600',
+};
+
 export function AdminListingsList() {
   const t = useTranslations('admin.listings');
+  const tStatus = useTranslations('admin.labels.status');
   const tCommon = useTranslations('admin.common');
   const locale = useLocale();
   const [toDelete, setToDelete] = useState<DialogState>(null);
-  const { data, isLoading, isError, error, refetch, isFetching } = useListings({
+  const [statusScope, setStatusScope] = useState<StatusScope>('all');
+  const { data, isLoading, isError, error, refetch, isFetching } = useAdminListings({
     sort: 'newest',
     limit: 100,
+    status: statusScope,
   });
+  const statusMutation = useListingStatusMutation();
+  const { data: callStats } = useAdminCallStats();
 
   const listings = useMemo(() => data?.data ?? [], [data]);
 
@@ -45,6 +70,13 @@ export function AdminListingsList() {
           </Heading>
           <p className="text-foreground-muted mt-1 text-sm">
             {data ? t('totalCount', { count: data.meta.total }) : t('loadingCount')}
+            {callStats ? (
+              <>
+                {' '}
+                {' · '}
+                {t('calls30d', { count: callStats.total30d })}
+              </>
+            ) : null}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -72,6 +104,19 @@ export function AdminListingsList() {
           </Button>
         </div>
       </header>
+
+      <div className="mb-4">
+        <ChipGroup
+          single
+          ariaLabel={t('statusFilter')}
+          selected={[statusScope]}
+          onChange={(next) => setStatusScope(next[0] ?? 'all')}
+          options={[
+            { value: 'all' as StatusScope, label: t('statusAll') },
+            ...LISTING_STATUSES.map((s) => ({ value: s as StatusScope, label: tStatus(s) })),
+          ]}
+        />
+      </div>
 
       {isLoading ? (
         <ListingsSkeleton />
@@ -107,9 +152,14 @@ export function AdminListingsList() {
                 </div>
                 <div className="flex flex-1 flex-col justify-between gap-2 p-3 sm:flex-row sm:items-center sm:p-4">
                   <div className="min-w-0">
-                    <h2 className="truncate text-sm font-medium sm:text-base">
-                      {listing.title.en}
-                    </h2>
+                    <div className="flex items-center gap-2">
+                      <h2 className="truncate text-sm font-medium sm:text-base">
+                        {listing.title.en}
+                      </h2>
+                      <Badge className={STATUS_BADGE_CLASS[listing.status]}>
+                        {tStatus(listing.status)}
+                      </Badge>
+                    </div>
                     <p className="text-foreground-muted mt-0.5 text-xs sm:text-sm">
                       <span className="capitalize">{listing.region}</span>
                       {' · '}
@@ -118,10 +168,20 @@ export function AdminListingsList() {
                         <span className="text-foreground-muted">{t('perNight')}</span>
                       </span>
                       {' · '}
-                      <span>{t('photoCount', { count: listing.images.length })}</span>
+                      <span>{t('photoCount', { count: listing.imageCount })}</span>
+                      {' · '}
+                      <span className="inline-flex items-center gap-1">
+                        <IconPhoneCall size={12} aria-hidden />
+                        {t('callCount', { count: callStats?.byListing[listing.id] ?? 0 })}
+                      </span>
                     </p>
                   </div>
                   <div className="flex items-center gap-1.5">
+                    <StatusActions
+                      listing={listing}
+                      disabled={statusMutation.isPending}
+                      onFlip={(status) => statusMutation.mutate({ id: listing.id, status })}
+                    />
                     <Button asChild variant="ghost" size="sm" className="gap-1.5">
                       <Link
                         href={`/${locale}/listings/${listing.slug}`}
@@ -149,7 +209,7 @@ export function AdminListingsList() {
                         setToDelete({
                           id: listing.id,
                           title: listing.title.en,
-                          photoCount: listing.images.length,
+                          photoCount: listing.imageCount,
                         })
                       }
                       className="gap-1.5"
@@ -173,6 +233,69 @@ export function AdminListingsList() {
         }}
         listing={toDelete}
       />
+    </>
+  );
+}
+
+/**
+ * Publish/unpublish + archive quick actions. Draft/archived listings get a
+ * "Publish" action, published ones get "Unpublish"; everything non-archived
+ * can be archived.
+ */
+function StatusActions({
+  listing,
+  disabled,
+  onFlip,
+}: {
+  listing: ListingCardDto;
+  disabled: boolean;
+  onFlip: (status: ListingStatus) => void;
+}) {
+  const t = useTranslations('admin.listings');
+
+  return (
+    <>
+      {listing.status === 'published' ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          disabled={disabled}
+          onClick={() => onFlip('draft')}
+          className="gap-1.5"
+          aria-label={t('unpublishAria', { title: listing.title.en })}
+        >
+          <IconEyeOff size={14} />
+          <span className="hidden sm:inline">{t('unpublish')}</span>
+        </Button>
+      ) : (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          disabled={disabled}
+          onClick={() => onFlip('published')}
+          className="gap-1.5"
+          aria-label={t('publishAria', { title: listing.title.en })}
+        >
+          <IconEye size={14} />
+          <span className="hidden sm:inline">{t('publish')}</span>
+        </Button>
+      )}
+      {listing.status !== 'archived' ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          disabled={disabled}
+          onClick={() => onFlip('archived')}
+          className="gap-1.5"
+          aria-label={t('archiveAria', { title: listing.title.en })}
+        >
+          <IconArchive size={14} />
+          <span className="hidden sm:inline">{t('archive')}</span>
+        </Button>
+      ) : null}
     </>
   );
 }

@@ -1,19 +1,73 @@
-import type { Activity, Amenity, Listing, ListingCategory, Meal, PlaceType } from '@/types';
+import type {
+  Activity,
+  Amenity,
+  Listing,
+  ListingCardDto,
+  ListingCategory,
+  ListingStatus,
+  Meal,
+  PlaceType,
+} from '@/types';
 import type { Prisma } from '@prisma/client';
 import { parseLocalized } from './localized-text';
 
 /**
- * Prisma include shape for a fully-hydrated listing row. Used everywhere the
- * service returns a `Listing` DTO so the row type stays consistent.
+ * Prisma select shapes for the two listing read paths.
+ *
+ * - `LISTING_CARD_SELECT` — list/card surfaces. No 3-locale description
+ *   (cards never render it), first image only (+ `_count` so the admin list
+ *   can show a real photo count), and slug/name-only relations.
+ * - `LISTING_DETAIL_SELECT` — detail/edit surfaces. Full scalars, but the
+ *   relations are still trimmed to what `rowToDto` actually reads.
+ *
+ * Both use `satisfies Prisma.ListingSelect` + `Prisma.ListingGetPayload` so
+ * a dropped field fails typecheck in the mapper instead of at runtime.
  */
-export const LISTING_INCLUDE = {
-  region: true,
-  village: true,
-  amenities: { include: { amenity: true } },
-  images: { orderBy: { order: 'asc' } },
-} as const satisfies Prisma.ListingInclude;
 
-export type ListingRow = Prisma.ListingGetPayload<{ include: typeof LISTING_INCLUDE }>;
+const CARD_SCALARS = {
+  id: true,
+  slug: true,
+  title: true,
+  villageId: true,
+  placeType: true,
+  status: true,
+  categories: true,
+  price: true,
+  rating: true,
+  reviewCount: true,
+  capacity: true,
+  bedrooms: true,
+  lat: true,
+  lng: true,
+  address: true,
+  phone: true,
+  meals: true,
+  activities: true,
+  createdAt: true,
+} as const satisfies Prisma.ListingSelect;
+
+const RELATION_SELECTS = {
+  region: { select: { slug: true, name: true } },
+  village: { select: { slug: true, name: true } },
+  amenities: { select: { amenity: { select: { slug: true } } } },
+} as const satisfies Prisma.ListingSelect;
+
+export const LISTING_CARD_SELECT = {
+  ...CARD_SCALARS,
+  ...RELATION_SELECTS,
+  images: { select: { url: true }, orderBy: { order: 'asc' }, take: 1 },
+  _count: { select: { images: true } },
+} as const satisfies Prisma.ListingSelect;
+
+export const LISTING_DETAIL_SELECT = {
+  ...CARD_SCALARS,
+  ...RELATION_SELECTS,
+  description: true,
+  images: { select: { url: true }, orderBy: { order: 'asc' } },
+} as const satisfies Prisma.ListingSelect;
+
+export type ListingCardRow = Prisma.ListingGetPayload<{ select: typeof LISTING_CARD_SELECT }>;
+export type ListingRow = Prisma.ListingGetPayload<{ select: typeof LISTING_DETAIL_SELECT }>;
 
 const PRISMA_TO_DTO_PLACE_TYPE: Record<string, PlaceType> = {
   A_FRAME: 'a-frame',
@@ -42,30 +96,65 @@ const PRISMA_TO_DTO_ACTIVITY: Record<string, Activity> = {
   FISHING: 'fishing',
 };
 
-export function rowToDto(row: ListingRow): Listing {
+const PRISMA_TO_DTO_STATUS: Record<string, ListingStatus> = {
+  DRAFT: 'draft',
+  PUBLISHED: 'published',
+  ARCHIVED: 'archived',
+};
+
+/** Row fields shared by the card and detail selects. */
+type CommonRow = Omit<ListingCardRow, 'images' | '_count'>;
+
+/** Fields shared by the card and detail mappers. */
+function rowToCommonDto(row: CommonRow) {
   return {
     id: row.id,
     slug: row.slug,
     title: parseLocalized(row.title),
-    description: parseLocalized(row.description),
     region: row.region.slug,
     regionName: parseLocalized(row.region.name),
     villageId: row.villageId,
     villageSlug: row.village?.slug ?? null,
     villageName: row.village ? parseLocalized(row.village.name) : null,
     placeType: PRISMA_TO_DTO_PLACE_TYPE[row.placeType] ?? 'villa-cottage',
+    status: PRISMA_TO_DTO_STATUS[row.status] ?? 'published',
     categories: row.categories.map((c) => PRISMA_TO_DTO_CATEGORY[c] ?? 'mountain'),
     price: row.price,
     rating: row.rating,
     reviewCount: row.reviewCount,
     capacity: row.capacity,
     bedrooms: row.bedrooms,
-    images: row.images.map((img) => img.url),
     amenities: row.amenities.map((rel) => rel.amenity.slug as Amenity),
     meals: row.meals.map((m) => PRISMA_TO_DTO_MEAL[m] ?? 'breakfast'),
     activities: row.activities.map((a) => PRISMA_TO_DTO_ACTIVITY[a] ?? 'fishing'),
     location: { lat: row.lat, lng: row.lng, address: row.address },
-    phone: row.phone ?? '',
+    phone: row.phone,
     createdAt: row.createdAt.toISOString(),
+  };
+}
+
+export function rowToCardDto(row: ListingCardRow): ListingCardDto {
+  return {
+    ...rowToCommonDto(row),
+    images: row.images.map((img) => img.url),
+    imageCount: row._count.images,
+  };
+}
+
+export function rowToDto(row: ListingRow): Listing {
+  return {
+    ...rowToCommonDto(row),
+    description: parseLocalized(row.description),
+    images: row.images.map((img) => img.url),
+  };
+}
+
+/** Project a full DTO into the card shape (mock path / fixtures). */
+export function listingToCard(listing: Listing): ListingCardDto {
+  const { description: _description, ...rest } = listing;
+  return {
+    ...rest,
+    images: listing.images.slice(0, 1),
+    imageCount: listing.images.length,
   };
 }

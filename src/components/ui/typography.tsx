@@ -60,9 +60,7 @@ export function BodyText(props: React.HTMLAttributes<HTMLParagraphElement>) {
 }
 
 export function Caption(props: React.HTMLAttributes<HTMLSpanElement>) {
-  return (
-    <span {...props} className={cn('text-foreground-muted text-xs', props.className)} />
-  );
+  return <span {...props} className={cn('text-foreground-muted text-xs', props.className)} />;
 }
 
 type EyebrowProps = React.HTMLAttributes<HTMLElement> & {
@@ -81,5 +79,5 @@ export function Eyebrow({ as: As = 'span', className, ...props }: EyebrowProps) 
   );
 }
 
-export { headingVariants, cardTitleVariants };
-export type { HeadingProps, CardTitleProps };
+export { cardTitleVariants, headingVariants };
+export type { CardTitleProps, HeadingProps };

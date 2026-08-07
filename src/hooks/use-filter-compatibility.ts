@@ -1,11 +1,16 @@
 'use client';
 
 import { computeCompatibility } from '@/lib/listings-filter';
-import type { FilterCompatibility, FilterGroupName, Listing, ListingsFilterState } from '@/types';
+import type {
+  FilterCompatibility,
+  FilterGroupName,
+  ListingCardDto,
+  ListingsFilterState,
+} from '@/types';
 import { useMemo } from 'react';
 
 type UseFilterCompatibilityArgs = {
-  listings: Listing[];
+  listings: ListingCardDto[];
   state: ListingsFilterState;
   group: FilterGroupName;
   options: readonly string[];

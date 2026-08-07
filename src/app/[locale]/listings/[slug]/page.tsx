@@ -1,29 +1,40 @@
 import { ListingDetailContent } from '@/components/listings/listing-detail-content';
 import { JsonLd } from '@/components/shared/json-ld';
 import { routing, type Locale } from '@/i18n/routing';
+import { listAmenities } from '@/lib/api/amenities-service';
 import { emptyListingsQuery } from '@/lib/api/listings-query-defaults';
-import { getListingBySlug, listListings } from '@/lib/api/listings-service';
+import { getListingBySlug, listListingSlugs, listListings } from '@/lib/api/listings-service';
 import { SITE } from '@/lib/constants';
 import { accommodationLd, breadcrumbLd } from '@/lib/json-ld';
 import { buildMetadata, type SeoLocale } from '@/lib/seo';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import { cache } from 'react';
+
+/**
+ * generateMetadata and the page body both need the listing; React's
+ * request-scoped cache collapses them to one DB roundtrip per request.
+ */
+const cachedGetListingBySlug = cache(getListingBySlug);
+
+// ISR safety net: admin edits revalidate detail pages on-demand; this bounds
+// staleness to 10 minutes if a path is ever missed.
+export const revalidate = 600;
 
 type ListingDetailProps = {
   params: Promise<{ locale: Locale; slug: string }>;
 };
 
 /**
- * Pre-renders all currently-known slugs at build time. Listings created after
- * a build still render dynamically on first request (Next.js' default
- * `dynamicParams: true`), so the admin doesn't need to trigger redeploys.
+ * Pre-renders the newest ~100 slugs at build time (slug-only query — no need
+ * to hydrate full rows). Older listings and ones created after a build render
+ * dynamically on first request (default `dynamicParams: true`), so the admin
+ * doesn't need to trigger redeploys.
  */
 export async function generateStaticParams() {
-  const { data } = await listListings(emptyListingsQuery({ sort: 'newest', limit: 1000 }));
-  return data.flatMap((listing) =>
-    routing.locales.map((locale) => ({ locale, slug: listing.slug })),
-  );
+  const slugs = await listListingSlugs(100);
+  return slugs.flatMap(({ slug }) => routing.locales.map((locale) => ({ locale, slug })));
 }
 
 /**
@@ -38,7 +49,7 @@ const trimAtWord = (text: string, max = 160): string => {
 
 export async function generateMetadata({ params }: ListingDetailProps): Promise<Metadata> {
   const { locale, slug } = await params;
-  const listing = await getListingBySlug(slug);
+  const listing = await cachedGetListingBySlug(slug);
   if (!listing) return { title: 'Not found', robots: { index: false, follow: false } };
 
   const seoLocale = locale as SeoLocale;
@@ -63,10 +74,11 @@ export default async function ListingDetailPage({ params }: ListingDetailProps) 
 
   // Listing + translations have no inter-dependencies — fan them out so the
   // server's TTFB is bounded by the slowest of the three, not their sum.
-  const [listing, t, tAmenity] = await Promise.all([
-    getListingBySlug(slug),
+  const [listing, t, tAmenity, amenityCatalogue] = await Promise.all([
+    cachedGetListingBySlug(slug),
     getTranslations({ locale, namespace: 'listings' }),
     getTranslations({ locale, namespace: 'amenity' }),
+    listAmenities(),
   ]);
   if (!listing) notFound();
 
@@ -89,8 +101,18 @@ export default async function ListingDetailPage({ params }: ListingDetailProps) 
   ]);
   // Localized labels for amenities + region — drives richer SERP rendering of
   // the Accommodation block (instead of raw slugs like "ev-charger").
+  const amenityNameBySlug = new Map(
+    amenityCatalogue.map((a) => [a.slug, a.name[seoLocale]] as const),
+  );
   const amenityLabels = Object.fromEntries(
-    listing.amenities.map((slug) => [slug, tAmenity(slug)] as const),
+    listing.amenities.map(
+      (amenitySlug) =>
+        [
+          amenitySlug,
+          amenityNameBySlug.get(amenitySlug) ??
+            (tAmenity.has(amenitySlug) ? tAmenity(amenitySlug) : amenitySlug),
+        ] as const,
+    ),
   );
   const accommodation = accommodationLd({
     listing,

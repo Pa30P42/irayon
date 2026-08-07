@@ -3,12 +3,12 @@ import { LazyMount } from '@/components/shared/lazy-mount';
 import { Button } from '@/components/ui/button';
 import { Eyebrow, Heading } from '@/components/ui/typography';
 import { Link } from '@/i18n/navigation';
-import type { Listing, Locale } from '@/types';
+import type { ListingCardDto, Locale } from '@/types';
 import { IconMapPin } from '@tabler/icons-react';
 import { useTranslations } from 'next-intl';
 
 type MapTeaserProps = {
-  listings: Listing[];
+  listings: ListingCardDto[];
   locale: Locale;
 };
 

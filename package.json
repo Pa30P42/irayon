@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@9.11.0",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "prisma generate && next build",
+    "build:ci": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -17,11 +19,12 @@
     "test:ui": "vitest --ui",
     "prisma:generate": "prisma generate",
     "prisma:format": "prisma format",
-    "prisma:migrate": "dotenv -e .env.local -- ./scripts/prisma-direct.sh migrate dev",
-    "prisma:push": "dotenv -e .env.local -- ./scripts/prisma-direct.sh db push",
-    "prisma:seed": "dotenv -e .env.local -- ./scripts/prisma-direct.sh db seed",
-    "prisma:studio": "dotenv -e .env.local -- ./scripts/prisma-direct.sh studio",
-    "prisma:reset": "dotenv -e .env.local -- ./scripts/prisma-direct.sh migrate reset"
+    "prisma:migrate": "dotenv -e .env.local -- prisma migrate dev",
+    "prisma:deploy": "dotenv -e .env.local -- prisma migrate deploy",
+    "prisma:status": "dotenv -e .env.local -- prisma migrate status",
+    "prisma:seed": "dotenv -e .env.local -- prisma db seed",
+    "prisma:studio": "dotenv -e .env.local -- prisma studio",
+    "prisma:reset": "dotenv -e .env.local -- prisma migrate reset"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

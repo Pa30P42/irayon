@@ -4,10 +4,11 @@ import { JsonLd } from '@/components/shared/json-ld';
 import { Heading } from '@/components/ui/typography';
 import type { Locale } from '@/i18n/routing';
 import { emptyListingsQuery } from '@/lib/api/listings-query-defaults';
-import { listingsQuerySchema, type ListingsQuery } from '@/lib/api/listings-validator';
 import { listListings } from '@/lib/api/listings-service';
+import { listingsQuerySchema, type ListingsQuery } from '@/lib/api/listings-validator';
 import { SITE } from '@/lib/constants';
 import { breadcrumbLd, itemListLd } from '@/lib/json-ld';
+import { GRID_PAGE_SIZE } from '@/lib/listings-pagination';
 import { buildMetadata, type SeoLocale } from '@/lib/seo';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -86,17 +87,18 @@ export default async function ListingsPage({ params, searchParams }: ListingsPag
   setRequestLocale(locale);
 
   const t = await getTranslations('listings');
+  const tCommon = await getTranslations('common');
 
   // Parse the URL filters server-side so the SSR payload already matches the
   // user's request (e.g. `?region=gabala` SSRs only Gabala listings, not the
   // full catalogue). Falls back to defaults on parse failure — a malformed
-  // querystring shouldn't 500. `limit: 100` is the temporary ceiling until
-  // proper pagination lands.
+  // querystring shouldn't 500. One grid page — the client's infinite query
+  // appends the rest on demand.
   const sp = await searchParams;
   const parsed = listingsQuerySchema.safeParse(sp);
   const query: ListingsQuery = parsed.success
-    ? { ...parsed.data, limit: 100 }
-    : emptyListingsQuery({ sort: 'newest', limit: 100 });
+    ? { ...parsed.data, limit: GRID_PAGE_SIZE }
+    : emptyListingsQuery({ sort: 'newest', limit: GRID_PAGE_SIZE });
   const { data: listings, meta } = await listListings(query);
 
   const base = SITE.url.replace(/\/$/, '');
@@ -119,8 +121,13 @@ export default async function ListingsPage({ params, searchParams }: ListingsPag
         </Heading>
         <p className="text-foreground-muted mt-2">{t('subtitle')}</p>
       </header>
-      <Suspense fallback={<div className="text-foreground-muted">Loading…</div>}>
-        <ListingsView initialListings={listings} initialMeta={meta} locale={locale} />
+      <Suspense fallback={<div className="text-foreground-muted">{tCommon('loading')}</div>}>
+        <ListingsView
+          initialListings={listings}
+          initialMeta={meta}
+          initialFetchedAt={Date.now()}
+          locale={locale}
+        />
       </Suspense>
       <JsonLd data={[breadcrumbs, itemList]} />
     </section>

@@ -150,7 +150,7 @@ describe('schema builders', () => {
     );
   });
 
-  it('accommodationLd includes aggregateRating only when reviewed', () => {
+  it('accommodationLd never emits aggregateRating (no Review model — values would be fabricated)', () => {
     const baseListing = {
       id: 'a',
       slug: 'foo',
@@ -177,20 +177,18 @@ describe('schema builders', () => {
       createdAt: new Date().toISOString(),
     } as unknown as Parameters<typeof accommodationLd>[0]['listing'];
 
-    const withReviews = accommodationLd({
+    // Even a listing carrying (seeded) rating/reviewCount values must not
+    // emit aggregateRating — there are no genuine reviews behind them.
+    const withSeededRating = accommodationLd({
       listing: baseListing,
       locale: 'en',
       canonicalUrl: 'https://x/listings/foo',
     });
-    expect(withReviews['aggregateRating']).toMatchObject({
-      ratingValue: 4.8,
-      reviewCount: 12,
-    });
+    expect('aggregateRating' in withSeededRating).toBe(false);
     expect(
-      (withReviews as { offers: { priceSpecification: object } }).offers.priceSpecification,
+      (withSeededRating as { offers: { priceSpecification: object } }).offers.priceSpecification,
     ).toMatchObject({ price: 250, priceCurrency: 'AZN' });
 
-    // Without reviews — no aggregateRating key.
     const noReviewListing = { ...baseListing, rating: 0, reviewCount: 0 };
     const noReviews = accommodationLd({
       listing: noReviewListing,

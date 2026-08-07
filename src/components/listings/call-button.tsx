@@ -8,7 +8,8 @@ import { useTranslations } from 'next-intl';
 
 type CallButtonProps = {
   listingId: string;
-  phone: string;
+  /** Nullable: legacy rows may have no phone. The button hides itself then. */
+  phone: string | null;
   source?: 'detail' | 'card';
   className?: string;
   size?: 'sm' | 'md' | 'lg';
@@ -23,6 +24,9 @@ export function CallButton({
 }: CallButtonProps) {
   const t = useTranslations('listings');
   const trackCall = useTrackCall();
+
+  // A NULL phone would render a broken `tel:` link — hide the CTA instead.
+  if (!phone) return null;
 
   const onClick = () => {
     // Fire-and-forget — analytics must never block the call action, so we

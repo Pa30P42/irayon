@@ -12,6 +12,7 @@ import {
   IconIroning,
   IconMoodKid,
   IconPaw,
+  IconSparkles,
   IconSwimming,
   IconTemperature,
   IconToolsKitchen2,
@@ -21,7 +22,8 @@ import {
   type Icon,
 } from '@tabler/icons-react';
 
-const ICONS: Record<Amenity, Icon> = {
+// Known slugs get a dedicated icon; data-driven newcomers fall back below.
+const ICONS: Record<string, Icon> = {
   wifi: IconWifi,
   parking: IconCar,
   pool: IconSwimming,
@@ -48,14 +50,14 @@ type AmenityIconProps = {
   size?: number;
   /**
    * Accessible label. Defaults to `aria-hidden` so the icon is decorative —
-   * the parent (e.g. ListingCard's amenities list) is responsible for naming
+   * the parent (e.g. ListingCardDto's amenities list) is responsible for naming
    * the visible item with a localized string.
    */
   label?: string;
 };
 
 export function AmenityIcon({ amenity, className, size = 16, label }: AmenityIconProps) {
-  const Icon = ICONS[amenity];
+  const Icon = ICONS[amenity] ?? IconSparkles;
   return label ? (
     <Icon size={size} className={className} aria-label={label} />
   ) : (

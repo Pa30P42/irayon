@@ -21,6 +21,7 @@ const make = (overrides: Partial<Listing> & Pick<Listing, 'id'>): Listing => ({
   reviewCount: 10,
   capacity: 4,
   bedrooms: 2,
+  status: 'published',
   phone: '+994500000000',
   meals: [],
   activities: [],

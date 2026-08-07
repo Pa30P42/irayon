@@ -1,4 +1,4 @@
-import { ACTIVITIES, AMENITIES, CATEGORIES, MEALS, PLACE_TYPES } from '@/lib/constants';
+import { ACTIVITIES, CATEGORIES, MEALS, PLACE_TYPES } from '@/lib/constants';
 import { z } from 'zod';
 import { localizedTextSchema } from './localized-text';
 
@@ -24,6 +24,11 @@ export const createListingSchema = z.object({
   categories: z
     .array(z.enum(CATEGORIES as readonly [string, ...string[]]))
     .min(1, 'Pick at least one category'),
+  /**
+   * Draft/publish/archive workflow. Defaults to `published` so payloads from
+   * before the status field (and quick admin creates) keep today's behavior.
+   */
+  status: z.enum(['draft', 'published', 'archived']).default('published'),
   price: z.coerce.number().int().positive().max(100_000),
   capacity: z.coerce.number().int().positive().max(50),
   bedrooms: z.coerce.number().int().nonnegative().max(20),
@@ -34,7 +39,12 @@ export const createListingSchema = z.object({
     .string()
     .trim()
     .regex(/^\+?[0-9 ()-]{6,20}$/, 'Phone must be 6–20 digits, optional +/spaces/dashes/parens'),
-  amenities: z.array(z.enum(AMENITIES as readonly [string, ...string[]])).default([]),
+  /**
+   * Amenity slugs are data-driven (admin CRUD) — validated against the DB at
+   * write time (unknown slugs are dropped by the amenity lookup), so no
+   * static enum here.
+   */
+  amenities: z.array(z.string().trim().min(1).max(64)).default([]),
   meals: z.array(z.enum(MEALS as readonly [string, ...string[]])).default([]),
   activities: z.array(z.enum(ACTIVITIES as readonly [string, ...string[]])).default([]),
 });

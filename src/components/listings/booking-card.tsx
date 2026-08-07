@@ -2,7 +2,6 @@
 // Client component: holds the date range state for the booking breakdown.
 
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useBookingCalculator } from '@/hooks/use-booking-calculator';
 import { formatPrice } from '@/lib/utils';
@@ -10,9 +9,21 @@ import type { Listing, Locale } from '@/types';
 import { IconCalendar } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import type { DateRange } from 'react-day-picker';
 import { CallButton } from './call-button';
+
+// react-day-picker (+ its CSS + date-fns locale data) is a heavy dependency
+// for a widget hidden behind a Popover — load it only when the popover opens.
+const Calendar = dynamic(() => import('@/components/ui/calendar').then((m) => m.Calendar), {
+  ssr: false,
+  loading: () => (
+    <div className="grid h-80 w-72 place-items-center p-4" aria-hidden>
+      <div className="bg-accent h-64 w-full animate-pulse rounded-md" />
+    </div>
+  ),
+});
 
 type BookingCardProps = {
   listing: Listing;

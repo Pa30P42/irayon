@@ -38,9 +38,9 @@ describe('listListingsFromMock', () => {
   it('filters by category + region simultaneously', () => {
     const query = listingsQuerySchema.parse({ category: 'forest', region: 'gabala' });
     const result = listListingsFromMock(query);
-    expect(
-      result.data.every((l) => l.categories.includes('forest') && l.region === 'gabala'),
-    ).toBe(true);
+    expect(result.data.every((l) => l.categories.includes('forest') && l.region === 'gabala')).toBe(
+      true,
+    );
   });
 
   it('filters by multiple categories (OR overlap)', () => {
@@ -48,9 +48,7 @@ describe('listListingsFromMock', () => {
     const result = listListingsFromMock(query);
     expect(result.data.length).toBeGreaterThan(0);
     expect(
-      result.data.every(
-        (l) => l.categories.includes('forest') || l.categories.includes('river'),
-      ),
+      result.data.every((l) => l.categories.includes('forest') || l.categories.includes('river')),
     ).toBe(true);
   });
 
@@ -218,10 +216,13 @@ describe('listListingsFromDb', () => {
     db = mockDeep<PrismaClient>();
   });
 
-  it('returns mapped data + meta from a single $transaction call', async () => {
-    const rows = [mkRow(), mkRow({ id: 'lst_db_2', slug: 'second' })];
-    // db.$transaction takes either a callback or an array; here we pass the array.
-    db.$transaction.mockResolvedValueOnce([rows, 50] as never);
+  it('returns mapped data + meta from parallel findMany + count', async () => {
+    const rows = [mkRow(), mkRow({ id: 'lst_db_2', slug: 'second' })].map((r) => ({
+      ...r,
+      _count: { images: r.images.length },
+    }));
+    db.listing.findMany.mockResolvedValueOnce(rows as never);
+    db.listing.count.mockResolvedValueOnce(50 as never);
 
     const query = listingsQuerySchema.parse({ page: '2', limit: '10' });
     const result = await listListingsFromDb(query, db);
@@ -236,15 +237,12 @@ describe('listListingsFromDb', () => {
   });
 
   it('applies category filter on Prisma (kebab → SCREAMING_SNAKE_CASE)', async () => {
-    db.$transaction.mockResolvedValueOnce([[], 0] as never);
+    db.listing.findMany.mockResolvedValueOnce([] as never);
+    db.listing.count.mockResolvedValueOnce(0 as never);
 
     const query = listingsQuerySchema.parse({ category: 'forest' });
     await listListingsFromDb(query, db);
 
-    // The first transaction arg is the array of operations. We want the findMany call.
-    const txArgs = db.$transaction.mock.calls[0]?.[0];
-    expect(Array.isArray(txArgs)).toBe(true);
-    // We can also inspect calls to listing.findMany via mockDeep:
     expect(db.listing.findMany).toHaveBeenCalled();
     const findManyArgs = db.listing.findMany.mock.calls[0]?.[0];
     const cat = findManyArgs?.where?.categories as { hasSome: string[] };
@@ -252,7 +250,8 @@ describe('listListingsFromDb', () => {
   });
 
   it('builds a placement filter that maps "water" to RIVER/SEA/LAKE', async () => {
-    db.$transaction.mockResolvedValueOnce([[], 0] as never);
+    db.listing.findMany.mockResolvedValueOnce([] as never);
+    db.listing.count.mockResolvedValueOnce(0 as never);
 
     const query = listingsQuerySchema.parse({ placement: 'water' });
     await listListingsFromDb(query, db);
@@ -270,16 +269,20 @@ describe('listListingsFromDb', () => {
 describe('getListingFromDb', () => {
   it('returns null when Prisma reports no row', async () => {
     const db = mockDeep<PrismaClient>();
-    db.listing.findUnique.mockResolvedValueOnce(null);
+    db.listing.findFirst.mockResolvedValueOnce(null);
     expect(await getListingFromDb('missing', db)).toBeNull();
   });
 
-  it('returns a mapped DTO for a found row', async () => {
+  it('returns a mapped DTO for a found row, gated to published rows', async () => {
     const db = mockDeep<PrismaClient>();
-    db.listing.findUnique.mockResolvedValueOnce(mkRow() as never);
+    db.listing.findFirst.mockResolvedValueOnce(mkRow() as never);
     const result = await getListingFromDb('db-villa', db);
     expect(result?.slug).toBe('db-villa');
     expect(result?.categories).toEqual(['forest']);
+    // Public read must carry the visibility gate.
+    expect(db.listing.findFirst).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { slug: 'db-villa', status: 'PUBLISHED' } }),
+    );
   });
 });
 
@@ -327,7 +330,7 @@ describe('deleteListingFromDb', () => {
       { url: 'https://example.supabase.co/storage/v1/object/public/listings/abc.jpg' },
       { url: 'https://images.unsplash.com/photo-x' },
     ] as never);
-    db.listing.delete.mockResolvedValueOnce({ id: 'lst1' } as never);
+    db.listing.delete.mockResolvedValueOnce({ slug: 'lst1-slug' } as never);
 
     const remove = vi.fn().mockResolvedValue(undefined);
     const result = await deleteListingFromDb('lst1', db, remove);
@@ -337,15 +340,23 @@ describe('deleteListingFromDb', () => {
       where: { listingId: 'lst1' },
       select: { url: true },
     });
-    expect(db.listing.delete).toHaveBeenCalledWith({ where: { id: 'lst1' } });
+    expect(db.listing.delete).toHaveBeenCalledWith({
+      where: { id: 'lst1' },
+      select: { slug: true },
+    });
     expect(remove).toHaveBeenCalledTimes(2);
-    expect(result).toEqual({ deleted: true, storageRemoved: 2, storageFailed: 0 });
+    expect(result).toEqual({
+      deleted: true,
+      slug: 'lst1-slug',
+      storageRemoved: 2,
+      storageFailed: 0,
+    });
   });
 
   it('reports storageFailed when individual storage removals throw, without throwing itself', async () => {
     const db = mockDeep<PrismaClient>();
     db.image.findMany.mockResolvedValueOnce([{ url: 'a' }, { url: 'b' }, { url: 'c' }] as never);
-    db.listing.delete.mockResolvedValueOnce({ id: 'lst1' } as never);
+    db.listing.delete.mockResolvedValueOnce({ slug: 'lst1-slug' } as never);
 
     const remove = vi
       .fn()
@@ -354,7 +365,12 @@ describe('deleteListingFromDb', () => {
       .mockResolvedValueOnce(undefined);
 
     const result = await deleteListingFromDb('lst1', db, remove);
-    expect(result).toEqual({ deleted: true, storageRemoved: 2, storageFailed: 1 });
+    expect(result).toEqual({
+      deleted: true,
+      slug: 'lst1-slug',
+      storageRemoved: 2,
+      storageFailed: 1,
+    });
   });
 
   it('propagates Prisma errors when the listing does not exist (caller maps to 404)', async () => {

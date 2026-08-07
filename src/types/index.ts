@@ -17,25 +17,22 @@ export type ListingLocation = Coordinates & {
   address: string;
 };
 
-export type Amenity =
-  | 'wifi'
-  | 'parking'
-  | 'pool'
-  | 'sauna'
-  | 'jacuzzi'
-  | 'fireplace'
-  | 'kitchen'
-  | 'bbq'
-  | 'pets'
-  | 'heating'
-  | 'ac'
-  | 'tv'
-  | 'washer'
-  | 'iron'
-  | 'hairdryer'
-  | 'crib'
-  | 'kids'
-  | 'ev-charger';
+/**
+ * Amenity slugs are data-driven (admin CRUD at /admin/amenities). Plain
+ * string so a new amenity doesn't require a code change; the DB is the
+ * source of truth (see `AmenityOption`).
+ */
+export type Amenity = string;
+
+/** Catalogue entry served by /api/amenities. */
+export type AmenityOption = {
+  id: string;
+  slug: Amenity;
+  icon: string | null;
+  /** Group key: essentials | outdoor | kitchen | family | extras */
+  category: string;
+  name: LocalizedText;
+};
 
 /**
  * Region slugs are now data-driven (admin can add/edit/remove). This is a
@@ -78,6 +75,9 @@ export type Meal = 'breakfast' | 'on-request';
 
 export type Activity = 'quad' | 'horse' | 'fishing';
 
+/** Draft/publish/archive workflow. Only `published` listings are publicly visible. */
+export type ListingStatus = 'draft' | 'published' | 'archived';
+
 export type Listing = {
   id: string;
   slug: string;
@@ -93,6 +93,7 @@ export type Listing = {
   /** Localized village name; null when the listing has no village. */
   villageName: LocalizedText | null;
   placeType: PlaceType;
+  status: ListingStatus;
   price: number;
   images: string[];
   amenities: Amenity[];
@@ -102,13 +103,25 @@ export type Listing = {
   reviewCount: number;
   capacity: number;
   bedrooms: number;
-  /** E.164-formatted phone number used by the "Call" CTA. */
-  phone: string;
+  /** E.164-formatted phone number used by the "Call" CTA. Null hides the CTA. */
+  phone: string | null;
   meals: Meal[];
   activities: Activity[];
   location: ListingLocation;
   /** ISO-8601 date string. Used for "sort by newest". */
   createdAt: string;
+};
+
+/**
+ * Slim listing shape for list/card surfaces (catalogue grid, map, home,
+ * admin list). Same as `Listing` minus the 3-locale `description`, with
+ * `images` truncated to the cover and a real `imageCount` alongside.
+ * A full `Listing` is NOT assignable here (it lacks `imageCount`) — use
+ * `listingToCard` to project one.
+ */
+export type ListingCardDto = Omit<Listing, 'description'> & {
+  /** Total image count (images itself carries only the cover URL). */
+  imageCount: number;
 };
 
 export type HomeCategory =
@@ -124,6 +137,13 @@ export type HomeCategory =
 
 export type ListingsFilterState = {
   q: string;
+  /** Category tags (OR-combined, matches the API's `hasSome`). */
+  category: ListingCategory[];
+  /** Price bounds in AZN/night; null = unbounded. URL keys match the API's. */
+  price_min: number | null;
+  price_max: number | null;
+  /** Minimum guest capacity (the homepage hero's guests input). */
+  capacity: number | null;
   /**
    * Selected region slugs (multi). OR-combined with `village` at the service
    * layer: a listing matches if its region is in `region` OR its village is in
@@ -142,6 +162,7 @@ export type ListingsFilterState = {
 };
 
 export type FilterGroupName =
+  | 'category'
   | 'region'
   | 'village'
   | 'type'

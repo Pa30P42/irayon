@@ -1,13 +1,13 @@
-import { makeFilterState, makeListing } from '@/test/factories';
+import { makeFilterState, makeListingCard } from '@/test/factories';
 import { renderWithProviders, screen, within } from '@/test/test-utils';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { FilterModal } from './filter-modal';
 
 const listings = [
-  makeListing({ id: '1', villageSlug: 'qirmizi-qasaba', amenities: ['pool'] }),
-  makeListing({ id: '2', villageSlug: 'hamarat', amenities: ['fireplace'] }),
-  makeListing({ id: '3', villageSlug: 'lahij', amenities: ['pool', 'sauna'] }),
+  makeListingCard({ id: '1', villageSlug: 'qirmizi-qasaba', amenities: ['pool'] }),
+  makeListingCard({ id: '2', villageSlug: 'hamarat', amenities: ['fireplace'] }),
+  makeListingCard({ id: '3', villageSlug: 'lahij', amenities: ['pool', 'sauna'] }),
 ];
 
 describe('FilterModal', () => {

@@ -11,8 +11,13 @@ import { SITE } from '@/lib/constants';
 import { organizationLd, websiteLd } from '@/lib/json-ld';
 import { buildMetadata, type SeoLocale } from '@/lib/seo';
 import type { Metadata } from 'next';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Suspense } from 'react';
+
+// ISR safety net: admin mutations revalidate these pages on-demand
+// (`revalidateListingSurfaces`), but a missed path or failed call self-heals
+// within 5 minutes instead of waiting for the next deploy.
+export const revalidate = 300;
 
 type HomePageProps = {
   params: Promise<{ locale: Locale }>;
@@ -69,6 +74,7 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
 export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const tCommon = await getTranslations({ locale, namespace: 'common' });
 
   // Fetch a generous batch for the featured grid; FeaturedListings re-filters
   // client-side by category from URL state.
@@ -81,7 +87,9 @@ export default async function HomePage({ params }: HomePageProps) {
         <CategoryFilterBar />
       </Suspense>
       <Suspense
-        fallback={<div className="container-wide text-foreground-muted py-12">Loading…</div>}
+        fallback={
+          <div className="container-wide text-foreground-muted py-12">{tCommon('loading')}</div>
+        }
       >
         <FeaturedListings initialListings={listings} locale={locale} />
       </Suspense>

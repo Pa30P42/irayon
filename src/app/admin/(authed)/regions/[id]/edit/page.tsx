@@ -1,7 +1,7 @@
 import { EditRegionClient } from '@/components/admin/edit-region-client';
 import { Heading } from '@/components/ui/typography';
-import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 
 export async function generateMetadata(): Promise<Metadata> {
