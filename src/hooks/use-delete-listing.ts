@@ -26,7 +26,11 @@ export function useDeleteListing() {
   return useMutation({
     mutationFn: deleteListingRequest,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
+      // The admin table reads ['admin-listings', …]; the public list and grid
+      // read ['listings', …] / ['listings-grid', …]. All three go stale.
+      void queryClient.invalidateQueries({ queryKey: ['admin-listings'] });
+      void queryClient.invalidateQueries({ queryKey: ['listings'] });
+      void queryClient.invalidateQueries({ queryKey: ['listings-grid'] });
     },
   });
 }
