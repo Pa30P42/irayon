@@ -25,7 +25,7 @@ export function ListingFormActionBar({ submitState, isEdit, isBusy, readyFileCou
   return (
     <div className="border-border bg-background/95 fixed inset-x-0 bottom-0 z-30 border-t backdrop-blur">
       <div className="container-wide flex items-center justify-between gap-3 py-3">
-        <div className="text-foreground-muted hidden text-xs sm:block">
+        <div className="text-foreground-muted hidden min-w-0 truncate text-xs sm:block">
           {title || t('newListingFallback')} · {t('photoCount', { count: readyFileCount })}
         </div>
         <Button type="submit" size="lg" disabled={!isValid || isBusy} className="ml-auto gap-2">

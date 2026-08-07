@@ -82,14 +82,15 @@ export function VillagesManager({ regionId }: VillagesManagerProps) {
                       <span>{tRegions('order', { value: v.sortOrder })}</span>
                     </p>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex shrink-0 items-center gap-1">
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={() => setEditingId(v.id)}
+                      title={t('edit')}
                       aria-label={t('editAria', { title: v.name.en })}
-                      className="gap-1.5"
+                      className="shrink-0 gap-1.5"
                     >
                       <IconPencil size={14} />
                       <span className="hidden sm:inline">{t('edit')}</span>
@@ -99,10 +100,12 @@ export function VillagesManager({ regionId }: VillagesManagerProps) {
                       variant="destructiveGhost"
                       size="sm"
                       onClick={() => setToDelete(v)}
+                      title={t('delete')}
                       aria-label={t('deleteAria', { title: v.name.en })}
-                      className="gap-1.5"
+                      className="shrink-0 gap-1.5"
                     >
                       <IconTrash size={14} />
+                      <span className="hidden sm:inline">{t('delete')}</span>
                     </Button>
                   </div>
                 </li>

@@ -344,6 +344,7 @@
       "refresh": "Yenilə",
       "editAria": "{title} elanını redaktə et",
       "deleteAria": "{title} elanını sil",
+      "viewAria": "{title} elanına bax",
       "perNight": "/ gecə",
       "photoCount": "{count, plural, =0 {0 şəkil} one {# şəkil} other {# şəkil}}",
       "emptyTitle": "Hələ heç bir elan yoxdur",

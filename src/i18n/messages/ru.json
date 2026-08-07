@@ -344,6 +344,7 @@
       "refresh": "Обновить",
       "editAria": "Изменить {title}",
       "deleteAria": "Удалить {title}",
+      "viewAria": "Открыть {title}",
       "perNight": "/ ночь",
       "photoCount": "{count, plural, =0 {0 фото} one {# фото} few {# фото} other {# фото}}",
       "emptyTitle": "Пока нет объявлений",

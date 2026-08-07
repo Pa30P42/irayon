@@ -92,11 +92,11 @@ export function AdminRegionsList() {
                 <IconMap2 size={20} aria-hidden />
               </div>
               <div className="min-w-0 flex-1">
-                <h2 className="flex items-center gap-2 truncate text-sm font-medium sm:text-base">
-                  {r.name.en}
+                <h2 className="flex min-w-0 items-center gap-2 text-sm font-medium sm:text-base">
+                  <span className="truncate">{r.name.en}</span>
                   {r.featured ? (
                     <span
-                      className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800"
+                      className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-800"
                       title={t('featuredTitle')}
                     >
                       <IconStarFilled size={11} />
@@ -114,10 +114,11 @@ export function AdminRegionsList() {
                   <span>{t('order', { value: r.sortOrder })}</span>
                 </p>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Button asChild variant="ghost" size="sm" className="gap-1.5">
+              <div className="flex shrink-0 items-center gap-1.5">
+                <Button asChild variant="ghost" size="sm" className="shrink-0 gap-1.5">
                   <Link
                     href={`/admin/regions/${r.id}/edit`}
+                    title={t('edit')}
                     aria-label={t('editAria', { title: r.name.en })}
                   >
                     <IconPencil size={14} />
@@ -136,7 +137,8 @@ export function AdminRegionsList() {
                       villageCount: r.villageCount,
                     })
                   }
-                  className="gap-1.5"
+                  className="shrink-0 gap-1.5"
+                  title={t('delete')}
                   aria-label={t('deleteAria', { title: r.name.en })}
                 >
                   <IconTrash size={14} />

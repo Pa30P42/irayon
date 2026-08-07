@@ -41,7 +41,18 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
 
   const { id } = await params;
 
-  const listing = await prisma.listing.findUnique({ where: { id }, select: { slug: true } });
+  // Guarded: an unhandled throw here (dead pool, missing DATABASE_URL) escaped
+  // the handler and answered a body-less 500, so the admin UI could only report
+  // "upload failed" with no reason to act on.
+  let listing: { slug: string } | null;
+  try {
+    listing = await prisma.listing.findUnique({ where: { id }, select: { slug: true } });
+  } catch (err) {
+    logger.error(`POST /api/admin/listings/${id}/images lookup failed`, { err });
+    return apiServerError(
+      `Could not load listing: ${err instanceof Error ? err.message : 'unknown error'}`,
+    );
+  }
   if (!listing) return apiNotFound(`Listing "${id}" not found`);
 
   let form: FormData;

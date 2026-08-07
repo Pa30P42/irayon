@@ -29,7 +29,7 @@ export function AdminLocaleSwitcher() {
 
   return (
     <div
-      className="border-border inline-flex items-center gap-0.5 rounded-lg border p-0.5"
+      className="border-border inline-flex shrink-0 items-center gap-0.5 rounded-lg border p-0.5"
       role="group"
       aria-label={t('label')}
     >

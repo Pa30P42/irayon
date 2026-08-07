@@ -344,6 +344,7 @@
       "refresh": "Refresh",
       "editAria": "Edit {title}",
       "deleteAria": "Delete {title}",
+      "viewAria": "View {title}",
       "perNight": "/ night",
       "photoCount": "{count, plural, =0 {0 photos} one {# photo} other {# photos}}",
       "emptyTitle": "No listings yet",
