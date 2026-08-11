@@ -140,11 +140,29 @@
     "booking": {
       "perNight": "/ ночь",
       "selectDates": "Выбрать даты",
-      "guests": "Гости",
+      "guests": "Гостей",
       "nightsX": "{nights, plural, one {# ночь} few {# ночи} other {# ночей}} × {price}",
       "cleaningFee": "Уборка",
       "total": "Итого",
-      "selectDatesFirst": "Выберите даты, чтобы увидеть расчёт"
+      "selectDatesFirst": "Выберите даты, чтобы увидеть расчёт",
+      "request": "Отправить запрос",
+      "requesting": "Отправляем…",
+      "signInToBook": "Войдите, чтобы забронировать",
+      "note": "Сообщение хозяину (необязательно)",
+      "notePlaceholder": "Сколько вас, во сколько планируете приехать и т.д.",
+      "requestSent": "Запрос отправлен",
+      "requestSentBody": "Мы уведомим вас, как только хозяин ответит.",
+      "viewMyBookings": "Мои бронирования",
+      "ownListing": "Это ваше собственное объявление",
+      "notInstant": "Это не мгновенное бронирование — хозяин должен подтвердить.",
+      "errors": {
+        "dates_unavailable": "К сожалению, эти даты уже заняты.",
+        "duplicate_request": "У вас уже есть запрос на эти даты.",
+        "invalid_state": "Статус этого бронирования уже изменился.",
+        "booking_expired": "Срок этого запроса истёк.",
+        "generic": "Не удалось отправить запрос. Попробуйте ещё раз.",
+        "own_listing": "Нельзя забронировать собственное объявление."
+      }
     },
     "similar": {
       "title": "Ещё в этом регионе"
@@ -774,6 +792,34 @@
       "rejectedReason": "Причина отклонения",
       "photoPendingAdd": "На проверке",
       "photoPendingRemove": "Удаление на проверке"
+    }
+  },
+  "account": {
+    "bookingsTitle": "Мои бронирования",
+    "bookingsEmpty": "Пока нет бронирований",
+    "bookingsEmptyBody": "Найдите подходящее жильё и отправьте запрос.",
+    "browse": "Смотреть жильё",
+    "settingsTitle": "Настройки",
+    "nights": "{count} ноч.",
+    "guests": "{count} гост.",
+    "cancel": "Отменить",
+    "cancelling": "Отменяем…",
+    "confirmCancel": "Отменить это бронирование?",
+    "expiresAt": "Ответ до",
+    "priceAtRequest": "Цена на момент запроса",
+    "name": "Имя",
+    "email": "Эл. почта",
+    "phone": "Телефон",
+    "language": "Язык уведомлений",
+    "save": "Сохранить",
+    "saved": "Сохранено",
+    "status": {
+      "pending": "Ожидает",
+      "accepted": "Подтверждено",
+      "declined": "Отклонено",
+      "expired": "Истекло",
+      "cancelled": "Отменено",
+      "completed": "Завершено"
     }
   }
 }

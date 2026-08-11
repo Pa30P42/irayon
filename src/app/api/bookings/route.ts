@@ -90,7 +90,7 @@ export async function POST(request: Request): Promise<Response> {
     // A host booking their own place is meaningless and would let them block
     // their own calendar through the guest flow, bypassing availability blocks.
     if (listing.hostId === auth.user.id) {
-      return apiConflict('You cannot book your own listing');
+      return apiConflict('own_listing');
     }
 
     if (input.guestCount > listing.capacity) {

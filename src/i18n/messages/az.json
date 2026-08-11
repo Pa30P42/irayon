@@ -140,11 +140,29 @@
     "booking": {
       "perNight": "/ gecə",
       "selectDates": "Tarix seç",
-      "guests": "Qonaqlar",
+      "guests": "Qonaq sayı",
       "nightsX": "{nights, plural, one {# gecə} other {# gecə}} × {price}",
       "cleaningFee": "Təmizlik haqqı",
       "total": "Cəmi",
-      "selectDatesFirst": "Hesablamanı görmək üçün tarixləri seçin"
+      "selectDatesFirst": "Hesablamanı görmək üçün tarixləri seçin",
+      "request": "Rezervasiya sorğusu göndər",
+      "requesting": "Göndərilir…",
+      "signInToBook": "Rezervasiya üçün daxil ol",
+      "note": "Ev sahibinə mesaj (istəyə bağlı)",
+      "notePlaceholder": "Neçə nəfər gəlirsiniz, gəliş vaxtı və s.",
+      "requestSent": "Sorğunuz göndərildi",
+      "requestSentBody": "Ev sahibi cavab verəndə sizə bildiriş gələcək.",
+      "viewMyBookings": "Rezervasiyalarıma bax",
+      "ownListing": "Bu sizin öz elanınızdır",
+      "notInstant": "Bu dərhal rezervasiya deyil — ev sahibi təsdiqləməlidir.",
+      "errors": {
+        "dates_unavailable": "Təəssüf ki, bu tarixlər artıq tutulub.",
+        "duplicate_request": "Bu tarixlər üçün artıq gözləyən sorğunuz var.",
+        "invalid_state": "Bu rezervasiya artıq dəyişdirilib.",
+        "booking_expired": "Bu sorğunun müddəti bitib.",
+        "generic": "Sorğu göndərilmədi. Yenidən cəhd edin.",
+        "own_listing": "Öz elanınızı rezervasiya edə bilməzsiniz."
+      }
     },
     "similar": {
       "title": "Bu regiondakı digərləri"
@@ -774,6 +792,34 @@
       "rejectedReason": "Rədd səbəbi",
       "photoPendingAdd": "Yoxlamada",
       "photoPendingRemove": "Silinmə yoxlamada"
+    }
+  },
+  "account": {
+    "bookingsTitle": "Rezervasiyalarım",
+    "bookingsEmpty": "Hələ rezervasiyanız yoxdur",
+    "bookingsEmptyBody": "Bəyəndiyiniz yeri tapın və sorğu göndərin.",
+    "browse": "Yerlərə bax",
+    "settingsTitle": "Tənzimləmələr",
+    "nights": "{count} gecə",
+    "guests": "{count} qonaq",
+    "cancel": "Ləğv et",
+    "cancelling": "Ləğv edilir…",
+    "confirmCancel": "Bu rezervasiyanı ləğv etmək istədiyinizə əminsiniz?",
+    "expiresAt": "Cavab müddəti",
+    "priceAtRequest": "Sorğu anındakı qiymət",
+    "name": "Ad",
+    "email": "E-poçt",
+    "phone": "Telefon",
+    "language": "Bildiriş dili",
+    "save": "Yadda saxla",
+    "saved": "Yadda saxlanıldı",
+    "status": {
+      "pending": "Gözləyir",
+      "accepted": "Təsdiqləndi",
+      "declined": "Rədd edildi",
+      "expired": "Müddəti bitdi",
+      "cancelled": "Ləğv edildi",
+      "completed": "Tamamlandı"
     }
   }
 }

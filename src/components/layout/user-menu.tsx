@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useSessionUser } from '@/hooks/use-session-user';
+import { useUnreadCount } from '@/hooks/use-unread-count';
 import { Link } from '@/i18n/navigation';
 import { CircleUserRound } from 'lucide-react';
 import { signOut } from 'next-auth/react';
@@ -20,6 +21,8 @@ export function UserMenu() {
   const t = useTranslations('auth');
   const locale = useLocale();
   const { data: user, isPending: isLoading } = useSessionUser();
+  // Only poll for a signed-in user — an anonymous visitor has nothing to count.
+  const { data: unread = 0 } = useUnreadCount(!!user);
   const [isSigningOut, startTransition] = useTransition();
 
   // Reserve the slot while the session resolves so the header doesn't reflow.
@@ -40,9 +43,17 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-2" aria-label={label}>
+        <Button variant="ghost" size="sm" className="relative gap-2" aria-label={label}>
           <CircleUserRound className="h-4 w-4" />
           <span className="hidden max-w-40 truncate sm:inline">{label}</span>
+          {unread > 0 ? (
+            <span
+              className="bg-primary absolute -top-0.5 -right-0.5 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[10px] font-semibold text-white"
+              aria-label={`${unread}`}
+            >
+              {unread > 9 ? '9+' : unread}
+            </span>
+          ) : null}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="min-w-52">

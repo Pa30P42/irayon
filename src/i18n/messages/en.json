@@ -144,7 +144,25 @@
       "nightsX": "{nights, plural, one {# night} other {# nights}} × {price}",
       "cleaningFee": "Cleaning fee",
       "total": "Total",
-      "selectDatesFirst": "Select dates to see the breakdown"
+      "selectDatesFirst": "Select dates to see the breakdown",
+      "request": "Request to book",
+      "requesting": "Sending…",
+      "signInToBook": "Sign in to book",
+      "note": "Message to the host (optional)",
+      "notePlaceholder": "How many of you, roughly what time you plan to arrive…",
+      "requestSent": "Request sent",
+      "requestSentBody": "We'll notify you as soon as the host responds.",
+      "viewMyBookings": "View my bookings",
+      "ownListing": "This is your own listing",
+      "notInstant": "This isn't an instant booking — the host confirms it.",
+      "errors": {
+        "dates_unavailable": "Sorry, those dates have just been taken.",
+        "duplicate_request": "You already have a pending request for these dates.",
+        "invalid_state": "This booking has already changed.",
+        "booking_expired": "This request has expired.",
+        "generic": "Couldn't send the request. Please try again.",
+        "own_listing": "You can't book your own listing."
+      }
     },
     "similar": {
       "title": "More in this region"
@@ -774,6 +792,34 @@
       "rejectedReason": "Reason for rejection",
       "photoPendingAdd": "In review",
       "photoPendingRemove": "Removal in review"
+    }
+  },
+  "account": {
+    "bookingsTitle": "My bookings",
+    "bookingsEmpty": "No bookings yet",
+    "bookingsEmptyBody": "Find a place you like and send a request.",
+    "browse": "Browse places",
+    "settingsTitle": "Settings",
+    "nights": "{count} nights",
+    "guests": "{count} guests",
+    "cancel": "Cancel",
+    "cancelling": "Cancelling…",
+    "confirmCancel": "Cancel this booking?",
+    "expiresAt": "Respond by",
+    "priceAtRequest": "Price at time of request",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "language": "Notification language",
+    "save": "Save",
+    "saved": "Saved",
+    "status": {
+      "pending": "Pending",
+      "accepted": "Confirmed",
+      "declined": "Declined",
+      "expired": "Expired",
+      "cancelled": "Cancelled",
+      "completed": "Completed"
     }
   }
 }
