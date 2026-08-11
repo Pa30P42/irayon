@@ -36,7 +36,11 @@ export function BookingCard({ listing, locale }: BookingCardProps) {
   const [range, setRange] = useState<DateRange | undefined>(undefined);
 
   const fmtMoney = (amount: number) => `${formatPrice(amount, locale)} ${tCommon('currency')}`;
-  const breakdown = useBookingCalculator({ pricePerNight: listing.price, range });
+  const breakdown = useBookingCalculator({
+    pricePerNight: listing.price,
+    cleaningFee: listing.cleaningFee,
+    range,
+  });
 
   const rangeLabel =
     range?.from && range?.to

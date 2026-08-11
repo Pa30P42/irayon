@@ -95,6 +95,8 @@ export type Listing = {
   placeType: PlaceType;
   status: ListingStatus;
   price: number;
+  /** Per-stay cleaning fee. Snapshotted onto a Booking at request time. */
+  cleaningFee: number;
   images: string[];
   amenities: Amenity[];
   /** One or more category tags. Always non-empty. */

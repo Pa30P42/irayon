@@ -174,6 +174,7 @@ export async function POST(request: Request): Promise<Response> {
           moderationStatus: $Enums.ModerationStatus.PENDING,
           categories: { set: (input.categories as ListingCategory[]).map(toCategory) },
           price: input.price,
+          cleaningFee: input.cleaningFee,
           capacity: input.capacity,
           bedrooms: input.bedrooms,
           // Normalise at the same precision `isSignificantEdit` compares at, so

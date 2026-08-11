@@ -488,7 +488,8 @@
         "bedrooms": "Yataq otağı",
         "price": "Qiymət / gecə (AZN)",
         "meals": "Yeməklər",
-        "activities": "Əyləncələr"
+        "activities": "Əyləncələr",
+        "cleaningFee": "Təmizlik haqqı (istəyə bağlı)"
       },
       "actionBar": {
         "newListingFallback": "Yeni elan",

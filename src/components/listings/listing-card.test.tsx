@@ -32,6 +32,7 @@ const baseListing: ListingCardDto = {
   villageName: null,
   placeType: 'villa-cottage',
   price: 320,
+  cleaningFee: 0,
   images: ['https://example.test/img.jpg'],
   amenities: ['wifi', 'pool', 'bbq', 'kitchen'],
   categories: ['mountain'],

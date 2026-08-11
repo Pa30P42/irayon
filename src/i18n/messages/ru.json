@@ -488,7 +488,8 @@
         "bedrooms": "Спальни",
         "price": "Цена / ночь (AZN)",
         "meals": "Питание",
-        "activities": "Активности"
+        "activities": "Активности",
+        "cleaningFee": "Плата за уборку (необязательно)"
       },
       "actionBar": {
         "newListingFallback": "Новое объявление",

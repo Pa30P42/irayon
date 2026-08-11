@@ -162,6 +162,7 @@ export async function POST(request: Request): Promise<Response> {
         moderationStatus: $Enums.ModerationStatus.APPROVED,
         categories: { set: (input.categories as ListingCategory[]).map(toCategory) },
         price: input.price,
+        cleaningFee: input.cleaningFee,
         capacity: input.capacity,
         bedrooms: input.bedrooms,
         lat: input.lat,

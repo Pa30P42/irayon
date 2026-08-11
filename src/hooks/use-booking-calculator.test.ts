@@ -11,7 +11,7 @@ const mkRange = (fromIso: string, toIso: string): DateRange => ({
 describe('useBookingCalculator', () => {
   it('returns invalid breakdown when no range is selected', () => {
     const { result } = renderHook(() =>
-      useBookingCalculator({ pricePerNight: 200, range: undefined }),
+      useBookingCalculator({ pricePerNight: 200, cleaningFee: 20, range: undefined }),
     );
     expect(result.current.isValid).toBe(false);
     expect(result.current.nights).toBe(0);
@@ -22,6 +22,7 @@ describe('useBookingCalculator', () => {
     const { result } = renderHook(() =>
       useBookingCalculator({
         pricePerNight: 200,
+        cleaningFee: 20,
         range: mkRange('2025-06-01T00:00:00Z', '2025-06-04T00:00:00Z'),
       }),
     );
@@ -32,6 +33,7 @@ describe('useBookingCalculator', () => {
     const { result } = renderHook(() =>
       useBookingCalculator({
         pricePerNight: 200,
+        cleaningFee: 20,
         range: mkRange('2025-06-01T00:00:00Z', '2025-06-01T00:00:00Z'),
       }),
     );
@@ -39,10 +41,26 @@ describe('useBookingCalculator', () => {
     expect(result.current.subtotal).toBe(200);
   });
 
+  it("uses the LISTING's cleaning fee, not a platform-wide constant", () => {
+    // This was a hardcoded `CLEANING_FEE = 20` — fine with one operator, wrong
+    // the moment hosts set their own. A host who charges nothing must not have
+    // a fee invented for them.
+    const { result } = renderHook(() =>
+      useBookingCalculator({
+        pricePerNight: 100,
+        cleaningFee: 0,
+        range: mkRange('2025-06-01T00:00:00Z', '2025-06-03T00:00:00Z'),
+      }),
+    );
+    expect(result.current.cleaningFee).toBe(0);
+    expect(result.current.total).toBe(200);
+  });
+
   it('totals subtotal + cleaning fee', () => {
     const { result } = renderHook(() =>
       useBookingCalculator({
         pricePerNight: 200,
+        cleaningFee: 20,
         range: mkRange('2025-06-01T00:00:00Z', '2025-06-04T00:00:00Z'),
       }),
     );
@@ -56,6 +74,7 @@ describe('useBookingCalculator', () => {
     const { result } = renderHook(() =>
       useBookingCalculator({
         pricePerNight: 200,
+        cleaningFee: 20,
         range: { from: new Date('2025-06-01T00:00:00Z') },
       }),
     );

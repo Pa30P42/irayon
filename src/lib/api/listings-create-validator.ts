@@ -30,6 +30,12 @@ export const createListingSchema = z.object({
    */
   status: z.enum(['draft', 'published', 'archived']).default('published'),
   price: z.coerce.number().int().positive().max(100_000),
+  /**
+   * Per-stay cleaning fee. Zero is a legitimate value — most village hosts
+   * don't charge one, and the old hardcoded platform fee invented one for
+   * them. Snapshotted onto every Booking at request time.
+   */
+  cleaningFee: z.coerce.number().int().nonnegative().max(10_000).default(0),
   capacity: z.coerce.number().int().positive().max(50),
   bedrooms: z.coerce.number().int().nonnegative().max(20),
   lat: z.coerce.number().min(-90).max(90),

@@ -33,6 +33,7 @@ const INPUT: CreateListingInput = {
   categories: ['mountain'],
   status: 'published',
   price: 150,
+  cleaningFee: 20,
   capacity: 6,
   bedrooms: 3,
   lat: 41.1234567,
@@ -77,6 +78,7 @@ describe('significantChanges', () => {
 
   it.each([
     ['price', { price: 999 }],
+    ['cleaningFee', { cleaningFee: 45 }],
     ['capacity', { capacity: 12 }],
     ['bedrooms', { bedrooms: 5 }],
     ['amenities', { amenities: ['wifi', 'parking'] }],

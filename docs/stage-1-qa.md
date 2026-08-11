@@ -19,11 +19,11 @@ pnpm dev          # http://localhost:3000
 Accounts already in the database (sign in at `/az/signin` — the dev-only email form;
 there is no password, and no Google button because OAuth isn't connected yet):
 
-| Email | Role | Notes |
-|---|---|---|
-| `hajiev93@gmail.com` | admin + host | owns the 13 catalogue listings |
-| `testhost@example.com` | host | owns `test-host-cabin`, allowlisted |
-| `guest@example.com` | plain user | **not** allowlisted — use for negative tests |
+| Email                  | Role         | Notes                                        |
+| ---------------------- | ------------ | -------------------------------------------- |
+| `hajiev93@gmail.com`   | admin + host | owns the 13 catalogue listings               |
+| `testhost@example.com` | host         | owns `test-host-cabin`, allowlisted          |
+| `guest@example.com`    | plain user   | **not** allowlisted — use for negative tests |
 
 Any other email you type creates a fresh non-allowlisted user, which is useful.
 
@@ -63,7 +63,7 @@ that's a bug.
 - [ ] Sign in from there → you land back on `/az/host`, not the homepage
 - [ ] `/az/signin` while already signed in → bounces you away
 
-**Known and expected:** *My bookings* and *Settings* 404. Those pages are Stage 2 and
+**Known and expected:** _My bookings_ and _Settings_ 404. Those pages are Stage 2 and
 Stage 3. The links exist because the menu is built once.
 
 ## C. Admin panel — regression
@@ -114,7 +114,7 @@ Sign in as `hajiev93@gmail.com`, open `/admin/moderation`.
 
 - [ ] The queue lists the pending listing you created in section D, oldest first
 - [ ] A **new** listing shows no diff table (there's nothing to compare)
-- [ ] An **edited** listing shows the diff table: *Live* vs *Proposed* columns, only for
+- [ ] An **edited** listing shows the diff table: _Live_ vs _Proposed_ columns, only for
       the fields that actually changed
 - [ ] The photo strip shows badges on photos being added or removed
 - [ ] Click **Reject** → the reason box appears; the submit button stays disabled until
@@ -124,8 +124,8 @@ Sign in as `hajiev93@gmail.com`, open `/admin/moderation`.
       on the edit page
 - [ ] Back as admin, **Approve** a pending listing → it appears on the public site, and
       any pending photo becomes visible
-- [ ] Approving a listing whose photos are all flagged for removal → shows *"Cannot
-      approve: the listing would be left with no photos. Reject instead."*
+- [ ] Approving a listing whose photos are all flagged for removal → shows _"Cannot
+      approve: the listing would be left with no photos. Reject instead."_
 - [ ] Your terminal printed `"type":"email_logged"` lines with
       `listing-approved` / `listing-rejected` and the host's address
 

@@ -13,6 +13,7 @@ export const makeListing = (overrides: Partial<Listing> & Pick<Listing, 'id'>): 
   villageName: null,
   placeType: 'villa-cottage',
   price: 200,
+  cleaningFee: 0,
   images: [],
   amenities: [],
   categories: ['mountain'],

@@ -59,6 +59,19 @@ export function ListingFormCapacitySection() {
             {...register('price', { valueAsNumber: true })}
           />
         </Field>
+        <Field
+          label={tFields('cleaningFee')}
+          error={errors.cleaningFee?.message}
+          htmlFor="cleaningFee"
+        >
+          <Input
+            id="cleaningFee"
+            type="number"
+            inputMode="numeric"
+            min={0}
+            {...register('cleaningFee', { valueAsNumber: true })}
+          />
+        </Field>
       </div>
     </SectionCard>
   );

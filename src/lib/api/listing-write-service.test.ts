@@ -36,6 +36,7 @@ const INPUT: CreateListingInput = {
   categories: ['mountain'],
   status: 'published',
   price: 150,
+  cleaningFee: 20,
   capacity: 4,
   bedrooms: 2,
   lat: 41.1234567,

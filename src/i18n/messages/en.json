@@ -488,7 +488,8 @@
         "bedrooms": "Bedrooms",
         "price": "Price / night (AZN)",
         "meals": "Meals",
-        "activities": "Activities"
+        "activities": "Activities",
+        "cleaningFee": "Cleaning fee (optional)"
       },
       "actionBar": {
         "newListingFallback": "New listing",

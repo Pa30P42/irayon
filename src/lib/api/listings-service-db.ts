@@ -349,6 +349,7 @@ export async function updateListingFromDb(
     status: toListingStatus(input.status as ListingStatus),
     categories: { set: (input.categories as ListingCategory[]).map(toCategory) },
     price: input.price,
+    cleaningFee: input.cleaningFee,
     capacity: input.capacity,
     bedrooms: input.bedrooms,
     meals: { set: (input.meals as Meal[]).map(toMeal) },

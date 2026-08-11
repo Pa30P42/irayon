@@ -88,6 +88,22 @@ enum ImageModerationState {
   @@map("image_moderation_state")
 }
 
+/// Request-to-book lifecycle. There are no online payments: a booking is a
+/// coordination record, and money settles offline.
+///
+/// PENDING is the only state a guest creates. Everything else is reached by a
+/// host decision, a guest cancellation, or the hourly cron sweep.
+enum BookingStatus {
+  PENDING   @map("pending")
+  ACCEPTED  @map("accepted")
+  DECLINED  @map("declined")
+  EXPIRED   @map("expired")
+  CANCELLED @map("cancelled")
+  COMPLETED @map("completed")
+
+  @@map("booking_status")
+}
+
 /// Platform account. Single model — "host" is a capability (`becameHostAt`),
 /// not an account type. Auth.js (NextAuth v5) owns `name/email/emailVerified/
 /// image` through the Prisma adapter; every other column is ours.
@@ -111,9 +127,11 @@ model User {
 
   accounts          Account[]
   sessions          Session[]
-  listings          Listing[]  @relation("HostListings")
-  moderatedListings Listing[]  @relation("ModeratedListings")
+  listings          Listing[]      @relation("HostListings")
+  moderatedListings Listing[]      @relation("ModeratedListings")
   adminLogs         AdminLog[]
+  bookings          Booking[]      @relation("GuestBookings")
+  notifications     Notification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -247,6 +265,10 @@ model Listing {
   /// Host edits to *significant* fields park here while the approved content
   /// stays live. Merged onto the row on approve, dropped on reject.
   pendingChanges   Json?
+  /// Per-stay cleaning fee, host-editable, snapshotted onto every Booking.
+  /// Replaces the hardcoded platform-wide CLEANING_FEE, which stopped being a
+  /// defensible idea the moment listings had different owners.
+  cleaningFee      Int               @default(0)
   /// One or more category tags. A listing can belong to multiple categories
   /// (e.g. a mountain forest cabin near a river).
   categories       ListingCategory[]
@@ -267,9 +289,11 @@ model Listing {
   /// (migration 20260806000200) — Prisma can't express gin_trgm_ops.
   searchText       String            @default("") @map("search_text")
 
-  amenities  ListingAmenity[]
-  images     Image[]
-  callEvents CallEvent[]
+  amenities          ListingAmenity[]
+  images             Image[]
+  callEvents         CallEvent[]
+  bookings           Booking[]
+  availabilityBlocks AvailabilityBlock[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -327,6 +351,108 @@ model Image {
 
   @@index([listingId, order])
   @@map("images")
+}
+
+/// A guest's request to stay. Request-to-book only: creating one asks, it does
+/// not reserve. Only ACCEPTED bookings hold dates.
+///
+/// Dates are DATE-only and half-open `[checkIn, checkOut)`. Azerbaijan is a
+/// single timezone that abolished DST in 2016, but storing timestamps would
+/// still invite an off-by-one every time a value crossed a boundary — and
+/// half-open ranges make "one guest checks out the morning another checks in"
+/// a non-overlap by construction rather than by a special case.
+model Booking {
+  id        String        @id @default(cuid())
+  listingId String
+  /// Restrict: booking history is a support and legal record. A listing with
+  /// bookings is archived, never deleted.
+  listing   Listing       @relation(fields: [listingId], references: [id], onDelete: Restrict)
+  guestId   String
+  guest     User          @relation("GuestBookings", fields: [guestId], references: [id], onDelete: Restrict)
+  status    BookingStatus @default(PENDING)
+
+  checkIn    DateTime @db.Date
+  checkOut   DateTime @db.Date
+  guestCount Int
+  guestNote  String?
+
+  /// PRICE SNAPSHOT, taken when the request is made and never recomputed.
+  ///
+  /// `price` and `cleaningFee` are live-apply fields a host can change at any
+  /// time. If the host inbox showed current pricing, a host who raised the
+  /// price between request and accept would confirm a booking believing it was
+  /// worth more than the guest was quoted — and with offline settlement that
+  /// is a dispute with no system record of what either side agreed to.
+  pricePerNight Int
+  cleaningFee   Int
+  nights        Int
+  total         Int
+  currency      String @default("AZN")
+
+  /// Host response deadline. See `bookingExpiresAt` for the 2h floor.
+  expiresAt     DateTime
+  acceptedAt    DateTime?
+  declinedAt    DateTime?
+  declineReason String?
+  cancelledAt   DateTime?
+  /// 'guest' | 'host' — who cancelled. Free text rather than an enum because
+  /// it is descriptive metadata, not a state the system branches on.
+  cancelledBy   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// Overlap checks for one listing.
+  @@index([listingId, status, checkIn])
+  /// The guest's own bookings list.
+  @@index([guestId, createdAt(sort: Desc)])
+  /// Cron: expire stale pending requests.
+  @@index([status, expiresAt])
+  /// Cron: complete finished stays.
+  @@index([status, checkOut])
+  @@map("bookings")
+}
+
+/// Dates a host has manually closed off (maintenance, personal use, a booking
+/// arranged outside the platform).
+model AvailabilityBlock {
+  id        String   @id @default(cuid())
+  listingId String
+  /// Cascade: a block is derived data with no independent meaning, unlike a
+  /// booking, which is a record of an agreement between two people.
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  startDate DateTime @db.Date
+  endDate   DateTime @db.Date
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([listingId, startDate])
+  @@map("availability_blocks")
+}
+
+/// In-app notification.
+///
+/// Written INSIDE the same transaction as the state change it describes.
+/// `after()` has no retry and no outbox, so email cannot be the system of
+/// record for "your booking was accepted" — it is a best-effort layer on top
+/// of this row.
+model Notification {
+  id     String    @id @default(cuid())
+  userId String
+  user   User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Stable verb: `booking.requested`, `booking.accepted`, `booking.declined`,
+  /// `booking.expired`, `booking.cancelled`, `message.new`.
+  type   String
+  /// Payload for rendering the notification without a second query. Never PII
+  /// beyond what the recipient can already see.
+  data   Json?
+  readAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  /// Unread-badge count and the notification list share this index.
+  @@index([userId, readAt, createdAt(sort: Desc)])
+  @@map("notifications")
 }
 
 /// One row per phone-CTA tap — the business's only conversion event.

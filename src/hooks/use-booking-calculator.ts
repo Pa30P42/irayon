@@ -4,10 +4,17 @@ import { differenceInCalendarDays } from 'date-fns';
 import { useMemo } from 'react';
 import type { DateRange } from 'react-day-picker';
 
-const CLEANING_FEE = 20;
-
 type UseBookingCalculatorArgs = {
   pricePerNight: number;
+  /**
+   * Per-stay cleaning fee, from the listing.
+   *
+   * This used to be a hardcoded platform-wide `CLEANING_FEE = 20`, which was
+   * defensible while one operator owned every listing and indefensible the
+   * moment hosts did: a host who doesn't charge cleaning had one invented for
+   * them, and a host who charges more silently under-quoted every guest.
+   */
+  cleaningFee: number;
   range: DateRange | undefined;
 };
 
@@ -20,8 +27,16 @@ export type BookingBreakdown = {
   isValid: boolean;
 };
 
+/**
+ * Client-side price preview.
+ *
+ * **Advisory only.** The server re-derives the whole breakdown from the
+ * database when a request is created, and the resulting snapshot is what both
+ * parties are shown from then on. Nothing here is ever trusted as an input.
+ */
 export function useBookingCalculator({
   pricePerNight,
+  cleaningFee,
   range,
 }: UseBookingCalculatorArgs): BookingBreakdown {
   return useMemo(() => {
@@ -37,8 +52,7 @@ export function useBookingCalculator({
     }
     const nights = Math.max(1, differenceInCalendarDays(range.to, range.from));
     const subtotal = nights * pricePerNight;
-    const cleaningFee = CLEANING_FEE;
     const total = subtotal + cleaningFee;
     return { nights, pricePerNight, subtotal, cleaningFee, total, isValid: true };
-  }, [pricePerNight, range]);
+  }, [pricePerNight, cleaningFee, range]);
 }
