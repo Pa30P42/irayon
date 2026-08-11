@@ -224,6 +224,14 @@ export default async function middleware(request: NextRequest) {
     return withNoIndex(NextResponse.next());
   }
 
+  // Cron endpoints authenticate by BEARER TOKEN and are deliberately NOT in the
+  // gated list: Vercel Cron sends no session cookie, so a session gate here
+  // would 403 every invocation, silently, inside a job nobody watches. They
+  // still get the no-store/noindex stamp.
+  if (startsWithSegment(pathname, '/api/cron')) {
+    return withNoIndex(NextResponse.next());
+  }
+
   // Remaining public API routes (/api/listings, /api/regions, …) are not
   // localized and set their own CDN cache headers.
   if (pathname.startsWith('/api/')) {

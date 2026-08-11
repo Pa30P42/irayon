@@ -46,7 +46,7 @@ export function notificationData(
   userId: string,
   type: NotificationType,
   payload: NotificationPayload = {},
-): Prisma.NotificationCreateArgs['data'] {
+): Prisma.NotificationCreateManyInput {
   return {
     userId,
     type,
