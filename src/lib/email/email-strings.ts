@@ -109,3 +109,137 @@ const en: Strings = {
 const STRINGS: Record<EmailLocale, Strings> = { az, ru, en };
 
 export const emailStrings = (locale: EmailLocale): Strings => STRINGS[locale];
+
+/**
+ * Booking emails.
+ *
+ * Kept in a separate table from the listing-moderation copy above because they
+ * share a single template component parameterised by `kind` — five near-identical
+ * template files would drift in layout the first time one of them was tweaked.
+ */
+export type BookingEmailKind = 'requested' | 'accepted' | 'declined' | 'expired' | 'cancelled';
+
+type BookingStrings = {
+  subject: (title: string) => string;
+  heading: string;
+  body: string;
+  cta: string;
+};
+
+const bookingAz: Record<BookingEmailKind, BookingStrings> = {
+  requested: {
+    subject: (t) => `Yeni rezervasiya sorğusu: ${t}`,
+    heading: 'Yeni sorğu',
+    body: 'Elanınız üçün yeni rezervasiya sorğusu var. Cavab müddəti bitməmiş baxın.',
+    cta: 'Sorğuya bax',
+  },
+  accepted: {
+    subject: (t) => `Rezervasiyanız təsdiqləndi: ${t}`,
+    heading: 'Rezervasiya təsdiqləndi',
+    body: 'Ev sahibi sorğunuzu qəbul etdi. Ödəniş və digər detallar üçün onunla əlaqə saxlayın.',
+    cta: 'Rezervasiyaya bax',
+  },
+  declined: {
+    subject: (t) => `Rezervasiya sorğunuz rədd edildi: ${t}`,
+    heading: 'Sorğu rədd edildi',
+    body: 'Təəssüf ki, ev sahibi bu tarixlər üçün sorğunuzu qəbul etmədi.',
+    cta: 'Başqa yer tap',
+  },
+  expired: {
+    subject: (t) => `Rezervasiya sorğunuzun müddəti bitdi: ${t}`,
+    heading: 'Sorğunun müddəti bitdi',
+    body: 'Ev sahibi vaxtında cavab vermədi. Başqa tarixlər və ya başqa yer sınaya bilərsiniz.',
+    cta: 'Yenidən cəhd et',
+  },
+  cancelled: {
+    subject: (t) => `Rezervasiya ləğv edildi: ${t}`,
+    heading: 'Rezervasiya ləğv edildi',
+    body: 'Bu rezervasiya ləğv edildi.',
+    cta: 'Rezervasiyalarıma bax',
+  },
+};
+
+const bookingRu: Record<BookingEmailKind, BookingStrings> = {
+  requested: {
+    subject: (t) => `Новый запрос на бронирование: ${t}`,
+    heading: 'Новый запрос',
+    body: 'По вашему объявлению поступил новый запрос. Ответьте до истечения срока.',
+    cta: 'Открыть запрос',
+  },
+  accepted: {
+    subject: (t) => `Бронирование подтверждено: ${t}`,
+    heading: 'Бронирование подтверждено',
+    body: 'Хозяин принял ваш запрос. Свяжитесь с ним об оплате и деталях заезда.',
+    cta: 'Открыть бронирование',
+  },
+  declined: {
+    subject: (t) => `Запрос отклонён: ${t}`,
+    heading: 'Запрос отклонён',
+    body: 'К сожалению, хозяин не принял запрос на эти даты.',
+    cta: 'Найти другое жильё',
+  },
+  expired: {
+    subject: (t) => `Срок запроса истёк: ${t}`,
+    heading: 'Срок запроса истёк',
+    body: 'Хозяин не ответил вовремя. Попробуйте другие даты или другое жильё.',
+    cta: 'Попробовать снова',
+  },
+  cancelled: {
+    subject: (t) => `Бронирование отменено: ${t}`,
+    heading: 'Бронирование отменено',
+    body: 'Это бронирование было отменено.',
+    cta: 'Мои бронирования',
+  },
+};
+
+const bookingEn: Record<BookingEmailKind, BookingStrings> = {
+  requested: {
+    subject: (t) => `New booking request: ${t}`,
+    heading: 'New request',
+    body: 'You have a new booking request. Respond before the window closes.',
+    cta: 'View request',
+  },
+  accepted: {
+    subject: (t) => `Your booking is confirmed: ${t}`,
+    heading: 'Booking confirmed',
+    body: 'The host accepted your request. Contact them to arrange payment and arrival.',
+    cta: 'View booking',
+  },
+  declined: {
+    subject: (t) => `Your booking request was declined: ${t}`,
+    heading: 'Request declined',
+    body: "Unfortunately the host couldn't take your request for these dates.",
+    cta: 'Find another place',
+  },
+  expired: {
+    subject: (t) => `Your booking request expired: ${t}`,
+    heading: 'Request expired',
+    body: "The host didn't respond in time. Try different dates, or another place.",
+    cta: 'Try again',
+  },
+  cancelled: {
+    subject: (t) => `Booking cancelled: ${t}`,
+    heading: 'Booking cancelled',
+    body: 'This booking has been cancelled.',
+    cta: 'My bookings',
+  },
+};
+
+const BOOKING_STRINGS: Record<EmailLocale, Record<BookingEmailKind, BookingStrings>> = {
+  az: bookingAz,
+  ru: bookingRu,
+  en: bookingEn,
+};
+
+export const bookingEmailStrings = (locale: EmailLocale, kind: BookingEmailKind): BookingStrings =>
+  BOOKING_STRINGS[locale][kind];
+
+/** Shared row labels for the booking summary block. */
+export const bookingLabels = (
+  locale: EmailLocale,
+): { dates: string; guests: string; total: string; reason: string } =>
+  locale === 'az'
+    ? { dates: 'Tarixlər', guests: 'Qonaq sayı', total: 'Cəmi', reason: 'Səbəb' }
+    : locale === 'ru'
+      ? { dates: 'Даты', guests: 'Гостей', total: 'Итого', reason: 'Причина' }
+      : { dates: 'Dates', guests: 'Guests', total: 'Total', reason: 'Reason' };

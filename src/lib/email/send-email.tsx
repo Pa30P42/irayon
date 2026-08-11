@@ -2,6 +2,11 @@ import { render } from '@react-email/render';
 import type { ReactElement } from 'react';
 import { toEmailLocale, type EmailLocale } from './email-strings';
 import {
+  BookingUpdateEmail,
+  bookingUpdateSubject,
+  type BookingEmailData,
+} from './templates/booking-update';
+import {
   ListingApprovedEmail,
   listingApprovedSubject,
   type ListingApprovedData,
@@ -36,7 +41,8 @@ export type EmailDriver = 'resend' | 'log';
  */
 export type EmailPayload =
   | { template: 'listing-approved'; data: ListingApprovedData }
-  | { template: 'listing-rejected'; data: ListingRejectedData };
+  | { template: 'listing-rejected'; data: ListingRejectedData }
+  | { template: 'booking-update'; data: BookingEmailData };
 
 export type SendEmailInput = EmailPayload & {
   to: string;
@@ -95,6 +101,11 @@ function renderPayload(
       return {
         subject: listingRejectedSubject(locale, payload.data),
         element: <ListingRejectedEmail locale={locale} data={payload.data} />,
+      };
+    case 'booking-update':
+      return {
+        subject: bookingUpdateSubject(locale, payload.data),
+        element: <BookingUpdateEmail locale={locale} data={payload.data} />,
       };
   }
 }
