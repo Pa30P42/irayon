@@ -41,6 +41,12 @@ type Strings = {
     reasonLabel: string;
     cta: string;
   };
+  messageNew: {
+    subject: (title: string) => string;
+    heading: string;
+    body: string;
+    cta: string;
+  };
 };
 
 const az: Strings = {
@@ -54,6 +60,12 @@ const az: Strings = {
     heading: 'Elanınız yayımdadır',
     body: 'Elanınız yoxlanışdan keçdi və artıq saytda görünür.',
     cta: 'Elana bax',
+  },
+  messageNew: {
+    subject: (title) => `Yeni mesaj: ${title}`,
+    heading: 'Yeni mesajınız var',
+    body: 'Rezervasiya ilə bağlı sizə yeni mesaj gəlib.',
+    cta: 'Mesajı oxu',
   },
   listingRejected: {
     subject: (title) => `"${title}" elanınız təsdiqlənmədi`,
@@ -76,6 +88,12 @@ const ru: Strings = {
     body: 'Объявление прошло проверку и теперь видно на сайте.',
     cta: 'Открыть объявление',
   },
+  messageNew: {
+    subject: (title) => `Новое сообщение: ${title}`,
+    heading: 'У вас новое сообщение',
+    body: 'Вам написали по поводу бронирования.',
+    cta: 'Прочитать',
+  },
   listingRejected: {
     subject: (title) => `Объявление «${title}» отклонено`,
     heading: 'Объявление нужно доработать',
@@ -96,6 +114,12 @@ const en: Strings = {
     heading: 'Your listing is live',
     body: 'Your listing passed review and is now visible on the site.',
     cta: 'View listing',
+  },
+  messageNew: {
+    subject: (title) => `New message: ${title}`,
+    heading: 'You have a new message',
+    body: 'Someone messaged you about a booking.',
+    cta: 'Read it',
   },
   listingRejected: {
     subject: (title) => `Your listing "${title}" was not approved`,

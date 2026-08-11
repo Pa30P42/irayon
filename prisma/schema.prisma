@@ -132,6 +132,9 @@ model User {
   adminLogs         AdminLog[]
   bookings          Booking[]      @relation("GuestBookings")
   notifications     Notification[]
+  messages          Message[]
+  submittedReports  Report[]       @relation("SubmittedReports")
+  resolvedReports   Report[]       @relation("ResolvedReports")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -399,6 +402,8 @@ model Booking {
   /// it is descriptive metadata, not a state the system branches on.
   cancelledBy   String?
 
+  conversation Conversation?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -453,6 +458,91 @@ model Notification {
   /// Unread-badge count and the notification list share this index.
   @@index([userId, readAt, createdAt(sort: Desc)])
   @@map("notifications")
+}
+
+/// Message thread for one booking.
+///
+/// There is no standalone chat, and that is a product decision, not a
+/// limitation: every conversation on this platform is *about* a specific stay,
+/// so anchoring the thread to a booking gives both participants and the
+/// permission model for free. Participants are DERIVED — booking→guest and
+/// booking→listing→host — so there is no membership table to fall out of sync
+/// with who the booking actually belongs to.
+model Conversation {
+  id        String  @id @default(cuid())
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  /// Read cursors, one per side. A timestamp rather than a per-message flag:
+  /// unread count is then one indexed comparison instead of a join.
+  guestLastReadAt DateTime?
+  hostLastReadAt  DateTime?
+
+  /// Denormalised so the thread list can sort without touching messages.
+  lastMessageAt DateTime?
+
+  /// Debounce markers, ONE PER RECIPIENT — mirroring the read cursors above.
+  ///
+  /// A single shared column looks tempting and is wrong: emailing the host
+  /// would then suppress the very next email to the guest, so a host's reply
+  /// silently never reached them. The debounce is a property of "has THIS
+  /// person been told", not of the thread.
+  guestLastEmailedAt DateTime?
+  hostLastEmailedAt  DateTime?
+
+  messages Message[]
+
+  createdAt DateTime @default(now())
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  /// Restrict: a message must always attribute to someone. Accounts are
+  /// anonymised rather than deleted precisely so this stays true.
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Restrict)
+  /// Plain text, max 2000 chars (enforced in zod). Rendered as React text
+  /// nodes only — no markdown, no HTML — so there is nothing to sanitise.
+  body           String
+
+  createdAt DateTime @default(now())
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+/// User-submitted report of a listing, a user, or a message.
+///
+/// `targetId` is POLYMORPHIC and deliberately has no foreign key: a report must
+/// outlive the thing it reports, or archiving a reported listing would erase
+/// the evidence. The queue therefore has to render a missing target as "content
+/// no longer available" and still allow resolution — otherwise it accumulates
+/// rows that crash the page.
+model Report {
+  id         String  @id @default(cuid())
+  reporterId String
+  reporter   User    @relation("SubmittedReports", fields: [reporterId], references: [id], onDelete: Cascade)
+  /// 'listing' | 'user' | 'message'
+  targetType String
+  targetId   String
+  reason     String
+  note       String?
+
+  resolvedAt   DateTime?
+  resolvedById String?
+  resolvedBy   User?     @relation("ResolvedReports", fields: [resolvedById], references: [id], onDelete: SetNull)
+  resolution   String?
+
+  createdAt DateTime @default(now())
+
+  /// Queue: unresolved first, oldest first.
+  @@index([resolvedAt, createdAt])
+  @@index([targetType, targetId])
+  @@map("reports")
 }
 
 /// One row per phone-CTA tap — the business's only conversion event.

@@ -22,7 +22,8 @@ export function UserMenu() {
   const locale = useLocale();
   const { data: user, isPending: isLoading } = useSessionUser();
   // Only poll for a signed-in user — an anonymous visitor has nothing to count.
-  const { data: unread = 0 } = useUnreadCount(!!user);
+  const { data: unread } = useUnreadCount(!!user);
+  const unreadTotal = unread?.total ?? 0;
   const [isSigningOut, startTransition] = useTransition();
 
   // Reserve the slot while the session resolves so the header doesn't reflow.
@@ -46,12 +47,12 @@ export function UserMenu() {
         <Button variant="ghost" size="sm" className="relative gap-2" aria-label={label}>
           <CircleUserRound className="h-4 w-4" />
           <span className="hidden max-w-40 truncate sm:inline">{label}</span>
-          {unread > 0 ? (
+          {unreadTotal > 0 ? (
             <span
               className="bg-primary absolute -top-0.5 -right-0.5 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[10px] font-semibold text-white"
-              aria-label={`${unread}`}
+              aria-label={`${unreadTotal}`}
             >
-              {unread > 9 ? '9+' : unread}
+              {unreadTotal > 9 ? '9+' : unreadTotal}
             </span>
           ) : null}
         </Button>

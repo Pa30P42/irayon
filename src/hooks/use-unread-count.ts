@@ -4,14 +4,16 @@ import { useQuery } from '@tanstack/react-query';
 
 export const UNREAD_QUERY_KEY = ['unread'] as const;
 
-async function fetchUnread(signal?: AbortSignal): Promise<number> {
+export type UnreadCounts = { notifications: number; messages: number; total: number };
+
+async function fetchUnread(signal?: AbortSignal): Promise<UnreadCounts> {
   const res = await fetch('/api/account/unread', {
     cache: 'no-store',
     ...(signal ? { signal } : {}),
   });
-  if (!res.ok) return 0;
-  const json = (await res.json()) as { notifications: number };
-  return json.notifications;
+  if (!res.ok) return { notifications: 0, messages: 0, total: 0 };
+  const json = (await res.json()) as { notifications: number; messages: number };
+  return { ...json, total: json.notifications + json.messages };
 }
 
 /**

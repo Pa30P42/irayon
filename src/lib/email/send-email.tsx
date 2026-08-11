@@ -16,6 +16,7 @@ import {
   listingRejectedSubject,
   type ListingRejectedData,
 } from './templates/listing-rejected';
+import { MessageNewEmail, messageNewSubject, type MessageNewData } from './templates/message-new';
 
 /**
  * Transactional email.
@@ -42,7 +43,8 @@ export type EmailDriver = 'resend' | 'log';
 export type EmailPayload =
   | { template: 'listing-approved'; data: ListingApprovedData }
   | { template: 'listing-rejected'; data: ListingRejectedData }
-  | { template: 'booking-update'; data: BookingEmailData };
+  | { template: 'booking-update'; data: BookingEmailData }
+  | { template: 'message-new'; data: MessageNewData };
 
 export type SendEmailInput = EmailPayload & {
   to: string;
@@ -106,6 +108,11 @@ function renderPayload(
       return {
         subject: bookingUpdateSubject(locale, payload.data),
         element: <BookingUpdateEmail locale={locale} data={payload.data} />,
+      };
+    case 'message-new':
+      return {
+        subject: messageNewSubject(locale, payload.data),
+        element: <MessageNewEmail locale={locale} data={payload.data} />,
       };
   }
 }
