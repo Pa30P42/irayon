@@ -50,6 +50,18 @@ export default async function AdminAuthedLayout({ children }: { children: ReactN
               {t('nav.amenities')}
             </Link>
             <Link
+              href="/admin/reports"
+              className="text-foreground-muted hover:text-foreground shrink-0"
+            >
+              {t('nav.reports')}
+            </Link>
+            <Link
+              href="/admin/users"
+              className="text-foreground-muted hover:text-foreground shrink-0"
+            >
+              {t('nav.users')}
+            </Link>
+            <Link
               href="/admin/logs"
               className="text-foreground-muted hover:text-foreground shrink-0"
             >

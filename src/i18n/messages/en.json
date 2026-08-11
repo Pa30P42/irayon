@@ -314,7 +314,9 @@
       "signOut": "Sign out",
       "amenities": "Amenities",
       "logs": "Activity log",
-      "moderation": "Moderation"
+      "moderation": "Moderation",
+      "reports": "Reports",
+      "users": "Users"
     },
     "login": {
       "eyebrow": "iRayon · Admin",
@@ -642,7 +644,8 @@
         "time": "Time",
         "action": "Action",
         "target": "Target",
-        "details": "Details"
+        "details": "Details",
+        "admin": "Admin"
       },
       "previous": "Previous",
       "next": "Next",
@@ -708,6 +711,42 @@
         "villageId": "Village",
         "phone": "Phone"
       }
+    },
+    "reports": {
+      "navLabel": "Reports",
+      "title": "Reports",
+      "subtitle": "Oldest unresolved first.",
+      "empty": "No reports",
+      "showResolved": "Show resolved",
+      "hideResolved": "Open only",
+      "reporter": "Reported by",
+      "target": "Target",
+      "reason": "Reason",
+      "note": "Note",
+      "missing": "Content no longer available",
+      "openThread": "Open thread (logged)",
+      "resolve": "Resolve",
+      "resolution": "What did you do?",
+      "resolved": "Resolved",
+      "threadWarning": "Opening this conversation is written to the audit log."
+    },
+    "users": {
+      "navLabel": "Users",
+      "title": "Users",
+      "search": "Search by email or name",
+      "empty": "No users found",
+      "role": "Role",
+      "joined": "Joined",
+      "listings": "Listings",
+      "bookings": "Bookings",
+      "suspend": "Suspend",
+      "unsuspend": "Unsuspend",
+      "revoke": "Revoke sessions",
+      "suspended": "Suspended",
+      "active": "Active",
+      "confirmSuspend": "Suspend this user? All their sessions end immediately.",
+      "confirmRevoke": "Revoke all of this user's sessions?",
+      "cannotSuspend": "An admin cannot be suspended from this panel."
     }
   },
   "notFound": {

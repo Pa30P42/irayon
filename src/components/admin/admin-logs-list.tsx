@@ -15,6 +15,7 @@ type AdminLogEntry = {
   id: string;
   action: string;
   target: string | null;
+  admin: { id: string; name: string | null; email: string } | null;
   metadata: unknown;
   createdAt: string;
 };
@@ -88,6 +89,7 @@ export function AdminLogsList() {
             <thead>
               <tr className="border-border bg-accent/50 border-b text-left">
                 <th className="px-4 py-3 font-medium">{t('columns.time')}</th>
+                <th className="px-4 py-3 font-medium">{t('columns.admin')}</th>
                 <th className="px-4 py-3 font-medium">{t('columns.action')}</th>
                 <th className="px-4 py-3 font-medium">{t('columns.target')}</th>
                 <th className="px-4 py-3 font-medium">{t('columns.details')}</th>
@@ -98,6 +100,11 @@ export function AdminLogsList() {
                 <tr key={log.id} className="border-border border-b align-top last:border-b-0">
                   <td className="text-foreground-muted px-4 py-3 whitespace-nowrap tabular-nums">
                     {new Date(log.createdAt).toLocaleString()}
+                  </td>
+                  <td className="text-foreground-muted max-w-40 truncate px-4 py-3">
+                    {/* Break-glass sessions have no user row and log null — the
+                        metadata carries `breakGlass: true` in that case. */}
+                    {log.admin ? (log.admin.name ?? log.admin.email) : '—'}
                   </td>
                   <td className="px-4 py-3 font-medium">{log.action}</td>
                   <td className="text-foreground-muted max-w-40 truncate px-4 py-3 font-mono text-xs">

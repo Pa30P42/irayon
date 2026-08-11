@@ -1,3 +1,4 @@
+import { ReportButton } from '@/components/shared/report-button';
 import { Badge } from '@/components/ui/badge';
 import { Heading } from '@/components/ui/typography';
 import { pickLocalized } from '@/lib/utils';
@@ -51,7 +52,10 @@ export function ListingHeader({ listing, locale }: ListingHeaderProps) {
           ) : null}
           <span className="text-foreground-muted">{listing.location.address}</span>
         </div>
-        <ShareSaveButtons shareTitle={title} shareText={listing.description[locale]} />
+        <div className="flex items-center gap-1">
+          <ShareSaveButtons shareTitle={title} shareText={listing.description[locale]} />
+          <ReportButton targetType="listing" targetId={listing.id} />
+        </div>
       </div>
     </header>
   );

@@ -1,5 +1,6 @@
 'use client';
 
+import { ReportButton } from '@/components/shared/report-button';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useMarkRead, useMessages, useSendMessage } from '@/hooks/use-messages';
@@ -69,15 +70,22 @@ export function MessageThread({ conversationId }: { conversationId: string }) {
                   parser to get wrong.
                 */}
                 <p className="break-words whitespace-pre-wrap">{message.body}</p>
-                <time
-                  dateTime={message.createdAt}
-                  className={cn(
-                    'mt-1 block text-[10px]',
-                    message.mine ? 'text-white/70' : 'text-foreground-muted',
-                  )}
-                >
-                  {new Date(message.createdAt).toLocaleString()}
-                </time>
+                <span className="mt-1 flex items-center gap-1">
+                  <time
+                    dateTime={message.createdAt}
+                    className={cn(
+                      'text-[10px]',
+                      message.mine ? 'text-white/70' : 'text-foreground-muted',
+                    )}
+                  >
+                    {new Date(message.createdAt).toLocaleString()}
+                  </time>
+                  {/* Only the other party's messages — reporting your own is
+                      noise in the queue. */}
+                  {!message.mine ? (
+                    <ReportButton targetType="message" targetId={message.id} />
+                  ) : null}
+                </span>
               </div>
             </div>
           ))

@@ -20,6 +20,16 @@ export type AdminLogEntry = {
   target: string | null;
   metadata: unknown;
   createdAt: string;
+  /**
+   * Who did it. Null for a break-glass session, which has no user row — those
+   * entries carry `metadata.breakGlass: true` instead.
+   *
+   * Surfacing this is the entire point of the `admin_logs.adminId` FK: an audit
+   * trail that records what happened but not who did it answers half the
+   * question it exists to answer, and the half it drops is the one you ask when
+   * something has gone wrong.
+   */
+  admin: { id: string; name: string | null; email: string } | null;
 };
 
 /**
@@ -55,6 +65,14 @@ export async function GET(request: Request): Promise<Response> {
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
+        select: {
+          id: true,
+          action: true,
+          target: true,
+          metadata: true,
+          createdAt: true,
+          admin: { select: { id: true, name: true, email: true } },
+        },
       }),
       prisma.adminLog.count({ where }),
     ]);
@@ -65,6 +83,7 @@ export async function GET(request: Request): Promise<Response> {
         target: r.target,
         metadata: r.metadata,
         createdAt: r.createdAt.toISOString(),
+        admin: r.admin,
       })),
       meta: { total, page, limit, hasMore: page * limit < total },
     });

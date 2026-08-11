@@ -314,7 +314,9 @@
       "signOut": "Çıxış",
       "amenities": "Şərait",
       "logs": "Fəaliyyət jurnalı",
-      "moderation": "Moderasiya"
+      "moderation": "Moderasiya",
+      "reports": "Şikayətlər",
+      "users": "İstifadəçilər"
     },
     "login": {
       "eyebrow": "iRayon · Admin",
@@ -642,7 +644,8 @@
         "time": "Vaxt",
         "action": "Əməliyyat",
         "target": "Obyekt",
-        "details": "Detallar"
+        "details": "Detallar",
+        "admin": "Admin"
       },
       "previous": "Geri",
       "next": "İrəli",
@@ -708,6 +711,42 @@
         "villageId": "Kənd",
         "phone": "Telefon"
       }
+    },
+    "reports": {
+      "navLabel": "Şikayətlər",
+      "title": "Şikayətlər",
+      "subtitle": "Ən köhnə həll edilməmiş birinci.",
+      "empty": "Şikayət yoxdur",
+      "showResolved": "Həll edilmişləri göstər",
+      "hideResolved": "Yalnız açıq olanlar",
+      "reporter": "Göndərən",
+      "target": "Obyekt",
+      "reason": "Səbəb",
+      "note": "Qeyd",
+      "missing": "Məzmun artıq mövcud deyil",
+      "openThread": "Yazışmanı aç (qeydə alınır)",
+      "resolve": "Həll et",
+      "resolution": "Nə edildi?",
+      "resolved": "Həll edilib",
+      "threadWarning": "Bu yazışmanı açmağınız audit jurnalına yazılacaq."
+    },
+    "users": {
+      "navLabel": "İstifadəçilər",
+      "title": "İstifadəçilər",
+      "search": "E-poçt və ya ad üzrə axtar",
+      "empty": "İstifadəçi tapılmadı",
+      "role": "Rol",
+      "joined": "Qoşulub",
+      "listings": "Elanlar",
+      "bookings": "Rezervasiyalar",
+      "suspend": "Dayandır",
+      "unsuspend": "Bərpa et",
+      "revoke": "Sessiyaları ləğv et",
+      "suspended": "Dayandırılıb",
+      "active": "Aktiv",
+      "confirmSuspend": "Bu istifadəçini dayandırmaq istəyirsiniz? Bütün sessiyaları dərhal bitəcək.",
+      "confirmRevoke": "Bu istifadəçinin bütün sessiyalarını ləğv et?",
+      "cannotSuspend": "Administratoru bu paneldən dayandırmaq olmaz."
     }
   },
   "notFound": {
