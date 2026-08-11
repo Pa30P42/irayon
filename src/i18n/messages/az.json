@@ -751,7 +751,9 @@
       "dashboard": "İdarə paneli",
       "listings": "Elanlarım",
       "newListing": "Yeni elan",
-      "settings": "Tənzimləmələr"
+      "settings": "Tənzimləmələr",
+      "bookings": "Rezervasiyalar",
+      "calendar": "Təqvim"
     },
     "dashboard": {
       "title": "Ev sahibi kabineti",
@@ -792,6 +794,47 @@
       "rejectedReason": "Rədd səbəbi",
       "photoPendingAdd": "Yoxlamada",
       "photoPendingRemove": "Silinmə yoxlamada"
+    },
+    "bookings": {
+      "title": "Rezervasiyalar",
+      "pending": "Gözləyən",
+      "upcoming": "Yaxınlaşan",
+      "past": "Keçmiş",
+      "all": "Hamısı",
+      "empty": "Bu bölmədə rezervasiya yoxdur",
+      "emptyBody": "Yeni sorğular burada görünəcək.",
+      "accept": "Qəbul et",
+      "decline": "Rədd et",
+      "cancel": "Ləğv et",
+      "accepting": "Qəbul edilir…",
+      "declining": "Rədd edilir…",
+      "declineReason": "Səbəb (istəyə bağlı)",
+      "confirmDecline": "Bu sorğunu rədd et?",
+      "confirmCancel": "Bu təsdiqlənmiş rezervasiyanı ləğv et?",
+      "respondBy": "Cavab müddəti",
+      "guest": "Qonaq",
+      "note": "Qonaqdan mesaj",
+      "priceAtRequest": "Sorğu anındakı qiymət",
+      "priceChanged": "Elanın hazırkı qiyməti fərqlidir — qonaqla razılaşdığınız məbləğ budur.",
+      "errors": {
+        "dates_unavailable": "Bu tarixlər artıq tutulub.",
+        "invalid_state": "Bu rezervasiyanın statusu artıq dəyişib.",
+        "booking_expired": "Bu sorğunun müddəti bitib.",
+        "generic": "Əməliyyat alınmadı."
+      }
+    },
+    "calendar": {
+      "title": "Təqvim",
+      "selectListing": "Elan seçin",
+      "blocked": "Bağlı tarixlər",
+      "booked": "Rezervasiya edilib",
+      "addBlock": "Tarixləri bağla",
+      "blockNote": "Qeyd (istəyə bağlı)",
+      "removeBlock": "Aç",
+      "noBlocks": "Bağlı tarix yoxdur",
+      "selectRange": "Təqvimdən aralıq seçin",
+      "dates_booked": "Bu tarixlərdə təsdiqlənmiş rezervasiya var.",
+      "noListings": "Əvvəlcə elan yaradın"
     }
   },
   "account": {
@@ -821,5 +864,11 @@
       "cancelled": "Ləğv edildi",
       "completed": "Tamamlandı"
     }
+  },
+  "hostProfile": {
+    "title": "Ev sahibi",
+    "memberSince": "Qoşulub",
+    "listings": "Elanlar",
+    "noListings": "Aktiv elan yoxdur"
   }
 }

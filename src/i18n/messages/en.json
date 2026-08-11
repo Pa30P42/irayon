@@ -751,7 +751,9 @@
       "dashboard": "Dashboard",
       "listings": "My listings",
       "newListing": "New listing",
-      "settings": "Settings"
+      "settings": "Settings",
+      "bookings": "Bookings",
+      "calendar": "Calendar"
     },
     "dashboard": {
       "title": "Host dashboard",
@@ -792,6 +794,47 @@
       "rejectedReason": "Reason for rejection",
       "photoPendingAdd": "In review",
       "photoPendingRemove": "Removal in review"
+    },
+    "bookings": {
+      "title": "Bookings",
+      "pending": "Pending",
+      "upcoming": "Upcoming",
+      "past": "Past",
+      "all": "All",
+      "empty": "Nothing here yet",
+      "emptyBody": "New requests will show up here.",
+      "accept": "Accept",
+      "decline": "Decline",
+      "cancel": "Cancel",
+      "accepting": "Accepting…",
+      "declining": "Declining…",
+      "declineReason": "Reason (optional)",
+      "confirmDecline": "Decline this request?",
+      "confirmCancel": "Cancel this confirmed booking?",
+      "respondBy": "Respond by",
+      "guest": "Guest",
+      "note": "Message from guest",
+      "priceAtRequest": "Price at time of request",
+      "priceChanged": "Your listing's current price differs — this is what you agreed with the guest.",
+      "errors": {
+        "dates_unavailable": "Those dates have already been taken.",
+        "invalid_state": "This booking has already changed.",
+        "booking_expired": "This request has expired.",
+        "generic": "That didn't work."
+      }
+    },
+    "calendar": {
+      "title": "Calendar",
+      "selectListing": "Choose a listing",
+      "blocked": "Blocked dates",
+      "booked": "Booked",
+      "addBlock": "Block dates",
+      "blockNote": "Note (optional)",
+      "removeBlock": "Unblock",
+      "noBlocks": "No blocked dates",
+      "selectRange": "Pick a range in the calendar",
+      "dates_booked": "There is a confirmed booking on those dates.",
+      "noListings": "Create a listing first"
     }
   },
   "account": {
@@ -821,5 +864,11 @@
       "cancelled": "Cancelled",
       "completed": "Completed"
     }
+  },
+  "hostProfile": {
+    "title": "Host",
+    "memberSince": "Joined",
+    "listings": "Listings",
+    "noListings": "No active listings"
   }
 }
