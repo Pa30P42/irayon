@@ -1,4 +1,3 @@
-import { requireAdmin } from '@/lib/admin-auth';
 import { recordAdminLog } from '@/lib/admin-log';
 import {
   apiBadRequest,
@@ -11,6 +10,7 @@ import {
 import { parseLocalized } from '@/lib/api/localized-text';
 import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
 import { villageUpdateSchema } from '@/lib/api/villages-validator';
+import { requireAdmin, requireSameOrigin } from '@/lib/auth-helpers';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import type { Village } from '@/types';
@@ -55,7 +55,14 @@ export async function GET(request: Request, { params }: Context): Promise<Respon
  * is immutable so URL filters stay stable.
  */
 export async function PATCH(request: Request, { params }: Context): Promise<Response> {
-  const auth = await requireAdmin(request);
+  // CSRF: Auth.js protects its own endpoints; every other user-initiated
+  // mutation opts in here explicitly.
+  const csrf = requireSameOrigin(request);
+  if (csrf) return csrf;
+
+  // `force` skips the strict-check caches: a suspension that applies to the
+  // next read but not the next write is not a suspension.
+  const auth = await requireAdmin(request, { force: true });
   if (!auth.ok) return auth.response;
 
   const { id } = await params;
@@ -99,7 +106,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
       data,
       include: { region: { select: { slug: true } } },
     });
-    after(() => recordAdminLog({ action: 'village.update', target: id }));
+    after(() => recordAdminLog({ actor: auth.user, action: 'village.update', target: id }));
     revalidateListingSurfaces();
     return apiOk(toDto(row));
   } catch (err) {
@@ -122,7 +129,14 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
  * listings — better to surface the count and let them reassign first.
  */
 export async function DELETE(request: Request, { params }: Context): Promise<Response> {
-  const auth = await requireAdmin(request);
+  // CSRF: Auth.js protects its own endpoints; every other user-initiated
+  // mutation opts in here explicitly.
+  const csrf = requireSameOrigin(request);
+  if (csrf) return csrf;
+
+  // `force` skips the strict-check caches: a suspension that applies to the
+  // next read but not the next write is not a suspension.
+  const auth = await requireAdmin(request, { force: true });
   if (!auth.ok) return auth.response;
 
   const { id } = await params;
@@ -142,7 +156,7 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
     }
 
     await prisma.village.delete({ where: { id } });
-    after(() => recordAdminLog({ action: 'village.delete', target: id }));
+    after(() => recordAdminLog({ actor: auth.user, action: 'village.delete', target: id }));
     revalidateListingSurfaces();
     return apiOk({ deleted: true });
   } catch (err) {

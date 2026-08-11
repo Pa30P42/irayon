@@ -1,4 +1,3 @@
-import { requireAdmin } from '@/lib/admin-auth';
 import { recordAdminLog } from '@/lib/admin-log';
 import { listAmenities } from '@/lib/api/amenities-service';
 import {
@@ -10,6 +9,7 @@ import {
 } from '@/lib/api/api-response';
 import { localizedTextSchema } from '@/lib/api/localized-text';
 import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
+import { requireAdmin, requireSameOrigin } from '@/lib/auth-helpers';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { isUniqueConstraintError } from '@/lib/prisma-errors';
@@ -45,7 +45,14 @@ export async function GET(request: Request): Promise<Response> {
  * listings reference amenities by slug in filters and URLs.
  */
 export async function POST(request: Request): Promise<Response> {
-  const auth = await requireAdmin(request);
+  // CSRF: Auth.js protects its own endpoints; every other user-initiated
+  // mutation opts in here explicitly.
+  const csrf = requireSameOrigin(request);
+  if (csrf) return csrf;
+
+  // `force` skips the strict-check caches: a suspension that applies to the
+  // next read but not the next write is not a suspension.
+  const auth = await requireAdmin(request, { force: true });
   if (!auth.ok) return auth.response;
 
   let raw: unknown;
@@ -76,7 +83,12 @@ export async function POST(request: Request): Promise<Response> {
       select: { id: true, slug: true },
     });
     after(() =>
-      recordAdminLog({ action: 'amenity.create', target: created.id, metadata: { slug } }),
+      recordAdminLog({
+        actor: auth.user,
+        action: 'amenity.create',
+        target: created.id,
+        metadata: { slug },
+      }),
     );
     revalidateListingSurfaces();
     return apiOk(created, { status: 201 });

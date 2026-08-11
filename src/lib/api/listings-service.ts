@@ -14,8 +14,8 @@ import {
   updateListingFromDb,
   type DeleteListingResult,
   type ListingImageRef,
+  type ListingReadScope,
   type ListingSlugRef,
-  type ListingStatusScope,
 } from './listings-service-db';
 import {
   getListingFromMock,
@@ -44,16 +44,17 @@ export const isUsingMockData = (): boolean =>
   !process.env.DATABASE_URL || process.env.DATABASE_URL === '';
 
 /**
- * Public reads default to `'published'` rows only. The admin API is the only
- * caller that widens the scope (specific status or `'all'`).
+ * Public reads default to published AND approved rows only — see
+ * `ListingReadScope`, which fails closed. The admin and host cabinets are the
+ * only callers that widen it.
  */
 export async function listListings(
   query: ListingsQuery,
-  status: ListingStatusScope = 'published',
+  scope: ListingReadScope = {},
 ): Promise<ListListingsResult> {
   return isUsingMockData()
-    ? listListingsFromMock(query, status)
-    : listListingsFromDb(query, undefined, status);
+    ? listListingsFromMock(query, scope.status ?? 'published')
+    : listListingsFromDb(query, undefined, scope);
 }
 
 export async function getListingBySlug(slug: string): Promise<Listing | null> {
@@ -137,6 +138,7 @@ export {
   updateListingFromDb,
   type DeleteListingResult,
   type ListingImageRef,
+  type ListingReadScope,
   type ListingStatusScope,
 } from './listings-service-db';
 export {

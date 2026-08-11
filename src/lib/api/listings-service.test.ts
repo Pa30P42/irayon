@@ -273,15 +273,19 @@ describe('getListingFromDb', () => {
     expect(await getListingFromDb('missing', db)).toBeNull();
   });
 
-  it('returns a mapped DTO for a found row, gated to published rows', async () => {
+  it('returns a mapped DTO for a found row, gated to published AND approved rows', async () => {
     const db = mockDeep<PrismaClient>();
     db.listing.findFirst.mockResolvedValueOnce(mkRow() as never);
     const result = await getListingFromDb('db-villa', db);
     expect(result?.slug).toBe('db-villa');
     expect(result?.categories).toEqual(['forest']);
-    // Public read must carry the visibility gate.
+    // Public read must carry BOTH halves of the visibility gate: the host's
+    // lifecycle intent (`status`) and the platform's moderation decision.
+    // Dropping either one publishes something nobody agreed to publish.
     expect(db.listing.findFirst).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { slug: 'db-villa', status: 'PUBLISHED' } }),
+      expect.objectContaining({
+        where: { slug: 'db-villa', status: 'PUBLISHED', moderationStatus: 'APPROVED' },
+      }),
     );
   });
 });

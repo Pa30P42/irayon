@@ -1,7 +1,7 @@
-import { requireAdmin } from '@/lib/admin-auth';
 import { recordAdminLog } from '@/lib/admin-log';
 import { apiNotFound, apiOk, apiServerError } from '@/lib/api/api-response';
 import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
+import { requireAdmin, requireSameOrigin } from '@/lib/auth-helpers';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { deleteListingImageByUrl } from '@/lib/storage';
@@ -17,7 +17,14 @@ type Context = { params: Promise<{ id: string; imageId: string }> };
  * filesystem — only the DB row is deleted.
  */
 export async function DELETE(request: Request, { params }: Context): Promise<Response> {
-  const auth = await requireAdmin(request);
+  // CSRF: Auth.js protects its own endpoints; every other user-initiated
+  // mutation opts in here explicitly.
+  const csrf = requireSameOrigin(request);
+  if (csrf) return csrf;
+
+  // `force` skips the strict-check caches: a suspension that applies to the
+  // next read but not the next write is not a suspension.
+  const auth = await requireAdmin(request, { force: true });
   if (!auth.ok) return auth.response;
 
   const { id, imageId } = await params;
@@ -41,6 +48,7 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
         logger.error(`storage cleanup failed for image ${imageId}`, { err, url: image.url });
       }
       await recordAdminLog({
+        actor: auth.user,
         action: 'listing.image.delete',
         target: `${id}/${imageId}`,
         metadata: { storageDeleted },

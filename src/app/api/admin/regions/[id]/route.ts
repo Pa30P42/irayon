@@ -1,4 +1,3 @@
-import { requireAdmin } from '@/lib/admin-auth';
 import { recordAdminLog } from '@/lib/admin-log';
 import {
   apiBadRequest,
@@ -11,6 +10,7 @@ import {
 import { parseLocalized } from '@/lib/api/localized-text';
 import { regionUpdateSchema } from '@/lib/api/regions-validator';
 import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
+import { requireAdmin, requireSameOrigin } from '@/lib/auth-helpers';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import type { RegionWithVillages } from '@/types';
@@ -76,7 +76,14 @@ export async function GET(request: Request, { params }: Context): Promise<Respon
  * Slug is intentionally not editable — bookmarked filter URLs would break.
  */
 export async function PATCH(request: Request, { params }: Context): Promise<Response> {
-  const auth = await requireAdmin(request);
+  // CSRF: Auth.js protects its own endpoints; every other user-initiated
+  // mutation opts in here explicitly.
+  const csrf = requireSameOrigin(request);
+  if (csrf) return csrf;
+
+  // `force` skips the strict-check caches: a suspension that applies to the
+  // next read but not the next write is not a suspension.
+  const auth = await requireAdmin(request, { force: true });
   if (!auth.ok) return auth.response;
 
   const { id } = await params;
@@ -111,7 +118,7 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
       data,
       include: { villages: true, _count: { select: { listings: true, villages: true } } },
     });
-    after(() => recordAdminLog({ action: 'region.update', target: id }));
+    after(() => recordAdminLog({ actor: auth.user, action: 'region.update', target: id }));
     revalidateListingSurfaces();
     return apiOk(toDto(row));
   } catch (err) {
@@ -131,7 +138,14 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
  * destroy data that took manual entry.
  */
 export async function DELETE(request: Request, { params }: Context): Promise<Response> {
-  const auth = await requireAdmin(request);
+  // CSRF: Auth.js protects its own endpoints; every other user-initiated
+  // mutation opts in here explicitly.
+  const csrf = requireSameOrigin(request);
+  if (csrf) return csrf;
+
+  // `force` skips the strict-check caches: a suspension that applies to the
+  // next read but not the next write is not a suspension.
+  const auth = await requireAdmin(request, { force: true });
   if (!auth.ok) return auth.response;
 
   const { id } = await params;
@@ -151,7 +165,7 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
     }
 
     await prisma.region.delete({ where: { id } });
-    after(() => recordAdminLog({ action: 'region.delete', target: id }));
+    after(() => recordAdminLog({ actor: auth.user, action: 'region.delete', target: id }));
     revalidateListingSurfaces();
     return apiOk({ deleted: true });
   } catch (err) {

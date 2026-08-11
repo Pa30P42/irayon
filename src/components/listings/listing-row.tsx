@@ -56,11 +56,14 @@ export function ListingRow({ listing, locale, priority = false }: ListingRowProp
               <CardTitle size="lg" className="line-clamp-2">
                 {title}
               </CardTitle>
-              <div className="flex shrink-0 items-center gap-1 text-sm" aria-label={t('rating')}>
-                <IconStarFilled size={14} aria-hidden />
-                <span>{listing.rating.toFixed(1)}</span>
-                <span className="text-foreground-muted">· {listing.reviewCount}</span>
-              </div>
+              {/* Hidden until a real review exists — see listing-card.tsx. */}
+              {listing.reviewCount > 0 ? (
+                <div className="flex shrink-0 items-center gap-1 text-sm" aria-label={t('rating')}>
+                  <IconStarFilled size={14} aria-hidden />
+                  <span>{listing.rating.toFixed(1)}</span>
+                  <span className="text-foreground-muted">· {listing.reviewCount}</span>
+                </div>
+              ) : null}
             </div>
             <p className="text-foreground-muted mt-1 text-sm">{regionName}</p>
             {topAmenities.length > 0 ? (

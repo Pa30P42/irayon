@@ -1,4 +1,3 @@
-import { requireAdmin } from '@/lib/admin-auth';
 import { recordAdminLog } from '@/lib/admin-log';
 import {
   apiBadRequest,
@@ -8,6 +7,7 @@ import {
   apiOk,
   apiPaginated,
   apiServerError,
+  apiServiceUnavailable,
 } from '@/lib/api/api-response';
 import { buildListingSearchText } from '@/lib/api/listing-search-text';
 import { createListingSchema, type CreateListingInput } from '@/lib/api/listings-create-validator';
@@ -20,13 +20,15 @@ import {
   toMeal,
   toPlaceType,
 } from '@/lib/api/prisma-enums';
+import { resolveAdminHostId } from '@/lib/api/resolve-host-id';
 import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
+import { requireAdmin, requireSameOrigin } from '@/lib/auth-helpers';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import { isUniqueConstraintError } from '@/lib/prisma-errors';
 import { slugify, uniqueSlug } from '@/lib/slug';
 import type { Activity, ListingCategory, ListingStatus, Meal, PlaceType } from '@/types';
-import type { Prisma } from '@prisma/client';
+import { $Enums, type Prisma } from '@prisma/client';
 import { after } from 'next/server';
 import { z } from 'zod';
 
@@ -53,7 +55,9 @@ export async function GET(request: Request): Promise<Response> {
   const { status, ...query } = parsed.data;
 
   try {
-    const result = await listListings(query, status);
+    // `approvedOnly: false` — the admin catalogue is exactly where pending and
+    // rejected listings must be visible.
+    const result = await listListings(query, { status, approvedOnly: false });
     return apiPaginated(result);
   } catch (err) {
     logger.error('GET /api/admin/listings failed', { err });
@@ -69,7 +73,14 @@ export async function GET(request: Request): Promise<Response> {
  * listing's id + slug so the client can chain image uploads.
  */
 export async function POST(request: Request): Promise<Response> {
-  const auth = await requireAdmin(request);
+  // CSRF: Auth.js protects its own endpoints; every other user-initiated
+  // mutation opts in here explicitly.
+  const csrf = requireSameOrigin(request);
+  if (csrf) return csrf;
+
+  // `force` skips the strict-check caches: a suspension that applies to the
+  // next read but not the next write is not a suspension.
+  const auth = await requireAdmin(request, { force: true });
   if (!auth.ok) return auth.response;
 
   let raw: unknown;
@@ -115,6 +126,15 @@ export async function POST(request: Request): Promise<Response> {
 
   const slug = uniqueSlug(baseSlug, new Set(existing.map((l) => l.slug)));
 
+  // Every listing has an owner from M2 onward. A break-glass session has no
+  // user row, so it can't be one — see `resolveAdminHostId`.
+  const hostId = await resolveAdminHostId(auth.user);
+  if (!hostId) {
+    return apiServiceUnavailable(
+      'No admin account exists to own this listing. Sign in with ADMIN_EMAIL once, or run the seed.',
+    );
+  }
+
   try {
     const storedTitle = {
       az: input.title.az || input.title.en,
@@ -133,8 +153,13 @@ export async function POST(request: Request): Promise<Response> {
         } as Prisma.InputJsonValue,
         regionId: region.id,
         villageId,
+        hostId,
         placeType: toPlaceType(input.placeType as PlaceType),
         status: toListingStatus(input.status as ListingStatus),
+        // The column default is `pending` (fail-closed, see migration M1), so
+        // this must be explicit: an admin is not untrusted input, and a listing
+        // the admin creates would otherwise queue for the admin's own approval.
+        moderationStatus: $Enums.ModerationStatus.APPROVED,
         categories: { set: (input.categories as ListingCategory[]).map(toCategory) },
         price: input.price,
         capacity: input.capacity,
@@ -154,6 +179,7 @@ export async function POST(request: Request): Promise<Response> {
 
     after(() =>
       recordAdminLog({
+        actor: auth.user,
         action: 'listing.create',
         target: created.id,
         metadata: { slug: created.slug, status: input.status },

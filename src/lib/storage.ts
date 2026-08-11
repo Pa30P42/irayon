@@ -1,3 +1,4 @@
+import sharp from 'sharp';
 import { getSupabaseAdmin } from './supabase-admin';
 
 export const STORAGE_BUCKET = 'listings';
@@ -12,6 +13,33 @@ export const ALLOWED_IMAGE_MIME_TYPES = [
 export type AllowedImageMime = (typeof ALLOWED_IMAGE_MIME_TYPES)[number];
 
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB; mirrors the bucket's limit.
+
+/**
+ * Output dimension cap (longest edge). A byte cap alone doesn't bound decode
+ * cost — a 20000×20000 highly-compressible PNG fits in 5 MB and expands to
+ * gigabytes in memory.
+ */
+export const MAX_IMAGE_EDGE = 2560;
+
+/** Files accepted in a single multipart upload request. */
+export const MAX_FILES_PER_REQUEST = 10;
+
+/** Hard cap on stored images per listing, across all moderation states. */
+export const MAX_IMAGES_PER_LISTING = 30;
+
+/**
+ * Platform minimum a *publicly visible* listing must keep. Enforced by the
+ * per-image delete endpoint and, authoritatively, by the moderation approve
+ * handler — approving must never leave a live listing with zero photos.
+ */
+export const MIN_LISTING_IMAGES = 1;
+
+/**
+ * Every upload is re-encoded to WebP. One output format keeps the storage key,
+ * the `Content-Type`, and the sniffing rules uniform, and re-encoding is what
+ * actually guarantees the EXIF strip below.
+ */
+export const OUTPUT_MIME = 'image/webp' as const;
 
 /**
  * Sniff the first bytes of an upload to confirm it's actually the image format
@@ -82,6 +110,44 @@ export function buildImageObjectKey(listingId: string, mime: AllowedImageMime): 
   return `${listingId}/${id}.${ext}`;
 }
 
+export type ProcessedImage = {
+  bytes: Buffer;
+  width: number;
+  height: number;
+};
+
+/**
+ * Re-encode an uploaded image server-side: apply EXIF orientation, DROP all
+ * metadata, cap the longest edge, and normalize to WebP.
+ *
+ * The EXIF strip is the point. Phone photos carry GPS coordinates of where the
+ * shot was taken — for a rental listing that is frequently the host's home, at
+ * metre precision, published regardless of any address-precision policy. The
+ * client-side canvas compression already drops EXIF, but a client check is a
+ * suggestion: anyone can POST the original file straight to this API. Only a
+ * server-side re-encode actually guarantees it.
+ *
+ * `sharp` never carries metadata forward unless `.withMetadata()` is called —
+ * so do not add it here.
+ */
+export async function processListingImage(input: Buffer): Promise<ProcessedImage> {
+  const pipeline = sharp(input, { failOn: 'error' })
+    // Bake the EXIF orientation into the pixels BEFORE the tag is discarded,
+    // otherwise stripping metadata silently rotates every phone photo.
+    .rotate()
+    .resize({
+      width: MAX_IMAGE_EDGE,
+      height: MAX_IMAGE_EDGE,
+      fit: 'inside',
+      // Never upscale a small image just to reach the cap.
+      withoutEnlargement: true,
+    })
+    .webp({ quality: 82 });
+
+  const { data, info } = await pipeline.toBuffer({ resolveWithObject: true });
+  return { bytes: data, width: info.width, height: info.height };
+}
+
 /** Public URL for an object in the public `listings` bucket. */
 export function publicUrlFor(objectKey: string): string {
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -109,8 +175,10 @@ export type UploadInput = {
 export type UploadResult = {
   objectKey: string;
   publicUrl: string;
-  mime: AllowedImageMime;
+  mime: typeof OUTPUT_MIME;
   bytes: number;
+  width: number;
+  height: number;
 };
 
 export async function uploadListingImage(input: UploadInput): Promise<UploadResult> {
@@ -126,17 +194,21 @@ export async function uploadListingImage(input: UploadInput): Promise<UploadResu
 
   // Reject if the actual bytes don't match the declared MIME — defends against
   // an HTML/SVG payload uploaded as `image/jpeg` and then served by the bucket
-  // with that forged Content-Type.
+  // with that forged Content-Type. Cheap, and it runs before `sharp` ever
+  // touches attacker-supplied bytes.
   if (!sniffImageMatchesMime(buffer, file.type)) {
     throw new Error(`File bytes do not match declared MIME type "${file.type}"`);
   }
 
-  const objectKey = buildImageObjectKey(listingId, file.type);
+  // Re-encode: strips EXIF (incl. GPS), caps dimensions, normalizes to WebP.
+  const processed = await processListingImage(buffer);
+
+  const objectKey = buildImageObjectKey(listingId, OUTPUT_MIME);
 
   const { error } = await getSupabaseAdmin()
     .storage.from(STORAGE_BUCKET)
-    .upload(objectKey, buffer, {
-      contentType: file.type,
+    .upload(objectKey, processed.bytes, {
+      contentType: OUTPUT_MIME,
       cacheControl: '31536000', // 1 year — paths are content-addressed via UUID.
       upsert: false,
     });
@@ -146,8 +218,10 @@ export async function uploadListingImage(input: UploadInput): Promise<UploadResu
   return {
     objectKey,
     publicUrl: publicUrlFor(objectKey),
-    mime: file.type,
-    bytes: file.size,
+    mime: OUTPUT_MIME,
+    bytes: processed.bytes.byteLength,
+    width: processed.width,
+    height: processed.height,
   };
 }
 

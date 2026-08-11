@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import type { LocaleTab } from './listing-form-labels';
+import type { LocaleTab } from './labels';
 
 type Props = {
   active: LocaleTab;

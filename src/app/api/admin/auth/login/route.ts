@@ -3,6 +3,7 @@ import {
   SESSION_MAX_AGE_SECONDS,
   signAdminSession,
 } from '@/lib/admin-session';
+import { isBreakGlassEnabled } from '@/lib/auth-helpers';
 import { checkRateLimit, getClientIp, rateLimitHeaders } from '@/lib/rate-limit';
 import { NextResponse } from 'next/server';
 import { timingSafeEqual } from 'node:crypto';
@@ -18,7 +19,7 @@ const json = (status: number, body: unknown): NextResponse => NextResponse.json(
 
 const logFailedAuth = (
   request: Request,
-  reason: 'bad-credentials' | 'invalid-body' | 'rate-limited',
+  reason: 'bad-credentials' | 'invalid-body' | 'rate-limited' | 'break-glass-disabled',
 ): void => {
   // Structured single-line JSON so a log aggregator (Vercel logs, Datadog,
   // etc.) can parse and alert on `type === 'admin_auth_failed'` without a
@@ -35,7 +36,17 @@ const logFailedAuth = (
 };
 
 export async function POST(request: Request): Promise<Response> {
-  const rate = checkRateLimit('adminLogin', getClientIp(request));
+  // BREAK-GLASS ONLY. Normal admin access is Google sign-in with `role=admin`;
+  // this credential path exists solely so an OAuth misconfiguration or outage
+  // can't lock the operator out of their own platform. Disarmed by default, and
+  // gated here as well as in middleware so narrowing the matcher later can't
+  // silently re-expose it.
+  if (!isBreakGlassEnabled()) {
+    logFailedAuth(request, 'break-glass-disabled');
+    return json(404, { error: { message: 'Not found' } });
+  }
+
+  const rate = await checkRateLimit('adminLogin', getClientIp(request));
   if (!rate.success) {
     logFailedAuth(request, 'rate-limited');
     return NextResponse.json(
@@ -84,6 +95,15 @@ export async function POST(request: Request): Promise<Response> {
       error: { message: 'ADMIN_SESSION_SECRET must be set (at least 32 characters)' },
     });
   }
+
+  console.warn(
+    JSON.stringify({
+      type: 'admin_break_glass_login',
+      at: new Date().toISOString(),
+      ip: getClientIp(request),
+      userAgent: request.headers.get('user-agent') ?? null,
+    }),
+  );
 
   const response = json(200, { ok: true });
   response.cookies.set({

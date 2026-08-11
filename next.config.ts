@@ -45,6 +45,10 @@ const nextConfig: NextConfig = {
   experimental: {
     typedRoutes: true,
   },
+  // `sharp` is a native addon (server-side EXIF strip + re-encode in
+  // `src/lib/storage.ts`). Bundling it breaks the .node binary resolution, so
+  // keep it external and let Node require it at runtime.
+  serverExternalPackages: ['sharp'],
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },

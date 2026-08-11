@@ -12,7 +12,7 @@ const callEventSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const rate = checkRateLimit('calls', getClientIp(request));
+  const rate = await checkRateLimit('calls', getClientIp(request));
   if (!rate.success) {
     return NextResponse.json(
       { error: 'rate_limited' },

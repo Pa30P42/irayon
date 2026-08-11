@@ -1,5 +1,6 @@
 'use client';
 
+import type { ListingEndpoints } from '@/components/listing-form/endpoints';
 import { Button } from '@/components/ui/button';
 import { useDeleteListingImage } from '@/hooks/use-delete-listing-image';
 import { useReorderListingImages } from '@/hooks/use-reorder-listing-images';
@@ -21,11 +22,18 @@ type ExistingImage = {
 
 type ExistingImagesGridProps = {
   listingId: string;
+  /** Which cabinet's API to hit — see `endpoints.ts`. */
+  endpoints: ListingEndpoints;
   images: ExistingImage[];
   onChange: (next: ExistingImage[]) => void;
 };
 
-export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImagesGridProps) {
+export function ExistingImagesGrid({
+  listingId,
+  endpoints,
+  images,
+  onChange,
+}: ExistingImagesGridProps) {
   const t = useTranslations('admin.existingImages');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +47,7 @@ export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImag
     setError(null);
     setDeletingId(img.id);
     deleteImage.mutate(
-      { listingId, imageId: img.id },
+      { listingId, imageId: img.id, endpoints },
       {
         onSuccess: () => onChange(images.filter((i) => i.id !== img.id)),
         onError: (err) => setError(err instanceof Error ? err.message : t('removeFailed')),
@@ -55,7 +63,7 @@ export function ExistingImagesGrid({ listingId, images, onChange }: ExistingImag
     const previous = images;
     onChange(next);
     reorder.mutate(
-      { listingId, order: next.map((i) => i.id) },
+      { listingId, order: next.map((i) => i.id), endpoints },
       {
         onError: (err) => {
           onChange(previous);

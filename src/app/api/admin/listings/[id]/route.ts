@@ -1,4 +1,3 @@
-import { requireAdmin } from '@/lib/admin-auth';
 import { recordAdminLog } from '@/lib/admin-log';
 import {
   apiBadRequest,
@@ -7,9 +6,11 @@ import {
   apiOk,
   apiServerError,
 } from '@/lib/api/api-response';
+import { updateListingAsActor } from '@/lib/api/listing-write-service';
 import { createListingSchema } from '@/lib/api/listings-create-validator';
-import { deleteListing, getListingById, updateListing } from '@/lib/api/listings-service';
+import { deleteListing, getListingById, isUsingMockData } from '@/lib/api/listings-service';
 import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
+import { requireAdmin, requireSameOrigin } from '@/lib/auth-helpers';
 import { logger } from '@/lib/logger';
 import { after } from 'next/server';
 
@@ -46,7 +47,14 @@ export async function GET(request: Request, { params }: Context): Promise<Respon
  * URL stays stable even when the title changes.
  */
 export async function PATCH(request: Request, { params }: Context): Promise<Response> {
-  const auth = await requireAdmin(request);
+  // CSRF: Auth.js protects its own endpoints; every other user-initiated
+  // mutation opts in here explicitly.
+  const csrf = requireSameOrigin(request);
+  if (csrf) return csrf;
+
+  // `force` skips the strict-check caches: a suspension that applies to the
+  // next read but not the next write is not a suspension.
+  const auth = await requireAdmin(request, { force: true });
   if (!auth.ok) return auth.response;
 
   const { id } = await params;
@@ -62,10 +70,22 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
   if (!parsed.success) return apiBadRequest(parsed.error);
 
   try {
-    const updated = await updateListing(id, parsed.data);
-    if (!updated) return apiNotFound(`Listing "${id}" not found`);
+    if (isUsingMockData()) return apiNotFound(`Listing "${id}" not found`);
+
+    // Same shared service the host cabinet calls — `actor: 'admin'` is the only
+    // difference, and it is what makes this edit apply live, never populate
+    // `pendingChanges`, and stamp the row as moderated.
+    const outcome = await updateListingAsActor({
+      listingId: id,
+      input: parsed.data,
+      actor: 'admin',
+      actorUserId: auth.user.breakGlass ? null : auth.user.id,
+    });
+    if (outcome.kind === 'not-found') return apiNotFound(`Listing "${id}" not found`);
+    const updated = outcome.listing;
     after(() =>
       recordAdminLog({
+        actor: auth.user,
         action: 'listing.update',
         target: id,
         metadata: { slug: updated.slug, status: parsed.data.status },
@@ -89,7 +109,14 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
  * best-effort removes its bucket-stored images.
  */
 export async function DELETE(request: Request, { params }: Context): Promise<Response> {
-  const auth = await requireAdmin(request);
+  // CSRF: Auth.js protects its own endpoints; every other user-initiated
+  // mutation opts in here explicitly.
+  const csrf = requireSameOrigin(request);
+  if (csrf) return csrf;
+
+  // `force` skips the strict-check caches: a suspension that applies to the
+  // next read but not the next write is not a suspension.
+  const auth = await requireAdmin(request, { force: true });
   if (!auth.ok) return auth.response;
 
   const { id } = await params;
@@ -98,6 +125,7 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
     const result = await deleteListing(id);
     after(() =>
       recordAdminLog({
+        actor: auth.user,
         action: 'listing.delete',
         target: id,
         metadata: {

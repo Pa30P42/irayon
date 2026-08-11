@@ -1,6 +1,6 @@
-import { requireAdmin } from '@/lib/admin-auth';
 import { apiOk, apiServerError } from '@/lib/api/api-response';
 import { isUsingMockData } from '@/lib/api/listings-service';
+import { requireAdmin } from '@/lib/auth-helpers';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 

@@ -1,7 +1,7 @@
 'use client';
 
-import { ListingForm } from '@/components/admin/listing-form';
-import { listingToFormValues } from '@/components/admin/listing-form-labels';
+import { listingToFormValues } from '@/components/listing-form/labels';
+import { ListingForm } from '@/components/listing-form/listing-form';
 import type { ListingImageRef } from '@/lib/api/listings-service';
 import type { Listing } from '@/types';
 import { useRouter } from 'next/navigation';
@@ -16,7 +16,8 @@ export function EditListingClient({ listing, images }: EditListingClientProps) {
 
   return (
     <ListingForm
-      mode="edit"
+      mode="admin"
+      action="edit"
       listingId={listing.id}
       initialValues={listingToFormValues(listing)}
       initialImages={images}

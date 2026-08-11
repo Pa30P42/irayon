@@ -2,18 +2,19 @@
 // Client component: orchestrates the create/edit listing form (RHF + zod).
 // Sections live in sibling files and share state via FormProvider.
 
-import { ListingFormActionBar } from '@/components/admin/listing-form-action-bar';
-import { ListingFormBasicInfoSection } from '@/components/admin/listing-form-basic-info-section';
-import { ListingFormCapacitySection } from '@/components/admin/listing-form-capacity-section';
-import { DEFAULT_VALUES, type LocaleTab } from '@/components/admin/listing-form-labels';
-import { ListingFormLocationSection } from '@/components/admin/listing-form-location-section';
-import { ListingFormPhotosSection } from '@/components/admin/listing-form-photos-section';
-import { ListingFormStatusBanner } from '@/components/admin/listing-form-status-banner';
-import { ListingFormTaxonomySection } from '@/components/admin/listing-form-taxonomy-section';
+import { ListingFormActionBar } from '@/components/listing-form/action-bar';
+import { ListingFormBasicInfoSection } from '@/components/listing-form/basic-info-section';
+import { ListingFormCapacitySection } from '@/components/listing-form/capacity-section';
+import { listingEndpointsFor, type ListingFormMode } from '@/components/listing-form/endpoints';
+import { DEFAULT_VALUES, type LocaleTab } from '@/components/listing-form/labels';
+import { ListingFormLocationSection } from '@/components/listing-form/location-section';
+import { ListingFormPhotosSection } from '@/components/listing-form/photos-section';
+import { ListingFormStatusBanner } from '@/components/listing-form/status-banner';
+import { ListingFormTaxonomySection } from '@/components/listing-form/taxonomy-section';
 import { useListingSubmit } from '@/hooks/use-listing-submit';
 import { createListingSchema, type CreateListingInput } from '@/lib/api/listings-create-validator';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
 
 type FormValues = CreateListingInput;
@@ -23,11 +24,16 @@ type ExistingImage = { id: string; url: string };
 type ListingFormProps = {
   onSubmitted?: (result: { id: string; slug: string }) => void;
   /**
-   * When set, the form runs in "edit" mode: PATCHes /api/admin/listings/:id
-   * instead of POSTing, and renders the existing-images grid above the
-   * uploader so admins can remove old photos and append new ones.
+   * WHICH CABINET this form is rendered in. Selects the API base only — the
+   * admin and host paths share every field, every validation rule, and every
+   * pixel, and the server decides what each actor is allowed to do.
    */
-  mode?: 'create' | 'edit';
+  mode?: ListingFormMode;
+  /**
+   * `edit` PATCHes an existing listing and renders the existing-images grid
+   * above the uploader so old photos can be removed and new ones appended.
+   */
+  action?: 'create' | 'edit';
   listingId?: string;
   initialValues?: Partial<FormValues>;
   initialImages?: ExistingImage[];
@@ -35,12 +41,14 @@ type ListingFormProps = {
 
 export function ListingForm({
   onSubmitted,
-  mode = 'create',
+  mode = 'admin',
+  action = 'create',
   listingId,
   initialValues,
   initialImages = [],
 }: ListingFormProps) {
-  const isEdit = mode === 'edit';
+  const isEdit = action === 'edit';
+  const endpoints = useMemo(() => listingEndpointsFor(mode), [mode]);
   const methods = useForm<FormValues>({
     resolver: zodResolver(createListingSchema),
     defaultValues: { ...DEFAULT_VALUES, ...initialValues },
@@ -55,7 +63,8 @@ export function ListingForm({
     isBusy,
     submit,
   } = useListingSubmit({
-    mode,
+    action,
+    endpoints,
     listingId,
     onSubmitted: (target) => {
       onSubmitted?.(target);
@@ -72,7 +81,8 @@ export function ListingForm({
     <FormProvider {...methods}>
       <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-5 pb-28">
         <ListingFormPhotosSection
-          mode={mode}
+          action={action}
+          endpoints={endpoints}
           listingId={listingId}
           existingImages={existingImages}
           onExistingImagesChange={setExistingImages}

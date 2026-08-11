@@ -295,7 +295,8 @@
       "new": "Yeni",
       "signOut": "Çıxış",
       "amenities": "Şərait",
-      "logs": "Fəaliyyət jurnalı"
+      "logs": "Fəaliyyət jurnalı",
+      "moderation": "Moderasiya"
     },
     "login": {
       "eyebrow": "iRayon · Admin",
@@ -652,6 +653,42 @@
       "kitchen": "Mətbəx",
       "family": "Ailə üçün",
       "extras": "Əlavə"
+    },
+    "moderation": {
+      "navLabel": "Moderasiya",
+      "title": "Moderasiya növbəsi",
+      "subtitle": "Yeni elanlar və təsdiq gözləyən dəyişikliklər. Ən köhnə birinci.",
+      "empty": "Növbə boşdur",
+      "emptyDescription": "Yoxlanılası elan yoxdur.",
+      "newListing": "Yeni elan",
+      "editedListing": "Dəyişiklik",
+      "host": "Ev sahibi",
+      "submitted": "Göndərilib",
+      "currentValue": "Hazırkı",
+      "proposedValue": "Təklif olunan",
+      "noFieldChanges": "Mətn dəyişikliyi yoxdur",
+      "livePhotos": "Saytdakı şəkillər",
+      "pendingAdd": "Əlavə edilir",
+      "pendingRemove": "Silinir",
+      "approve": "Təsdiqlə",
+      "reject": "Rədd et",
+      "rejectReason": "Rədd səbəbi (ən azı 10 simvol)",
+      "rejectSubmit": "Rədd et və göndər",
+      "cancel": "Ləğv et",
+      "approveFailed": "Təsdiq alınmadı",
+      "wouldEmptyImages": "Təsdiq edilə bilməz: elanda heç bir şəkil qalmayacaq. Bunun əvəzinə rədd edin.",
+      "openListing": "Elana bax",
+      "fields": {
+        "title": "Başlıq",
+        "description": "Təsvir",
+        "address": "Ünvan",
+        "lat": "Enlik",
+        "lng": "Uzunluq",
+        "placeType": "Növ",
+        "region": "Region",
+        "villageId": "Kənd",
+        "phone": "Telefon"
+      }
     }
   },
   "notFound": {
@@ -661,5 +698,81 @@
   "errorPage": {
     "title": "Nəsə səhv getdi",
     "retry": "Yenidən cəhd et"
+  },
+  "auth": {
+    "signIn": "Daxil ol",
+    "signOut": "Çıxış",
+    "title": "irayon-a daxil ol",
+    "subtitle": "Rezervasiya etmək və ya öz evinizi yerləşdirmək üçün daxil olun.",
+    "continueWithGoogle": "Google ilə davam et",
+    "googleUnavailable": "Google ilə giriş hazırda konfiqurasiya edilməyib.",
+    "devTitle": "Yalnız development üçün giriş",
+    "devHint": "Bu forma yalnız lokal mühitdə mövcuddur və production-da tamamilə deaktivdir.",
+    "devEmail": "E-poçt",
+    "devName": "Ad (istəyə bağlı)",
+    "devSubmit": "Development girişi",
+    "devFailed": "Giriş alınmadı. E-poçtu yoxlayın.",
+    "noProviders": "Heç bir giriş üsulu konfiqurasiya edilməyib. AUTH_GOOGLE_ID/SECRET və ya AUTH_DEV_LOGIN təyin edin.",
+    "myAccount": "Hesabım",
+    "myBookings": "Rezervasiyalarım",
+    "accountSettings": "Tənzimləmələr",
+    "hostDashboard": "Ev sahibi kabineti",
+    "becomeHost": "Ev sahibi ol",
+    "adminPanel": "Admin panel",
+    "reason": {
+      "session_expired": "Sessiyanızın müddəti bitdi. Zəhmət olmasa yenidən daxil olun.",
+      "suspended": "Hesabınız dayandırılıb. Suallarınız üçün bizimlə əlaqə saxlayın.",
+      "Configuration": "Giriş konfiqurasiyasında xəta var. Administratorla əlaqə saxlayın.",
+      "AccessDenied": "Giriş rədd edildi.",
+      "Verification": "Bu keçid artıq etibarlı deyil."
+    }
+  },
+  "host": {
+    "nav": {
+      "dashboard": "İdarə paneli",
+      "listings": "Elanlarım",
+      "newListing": "Yeni elan",
+      "settings": "Tənzimləmələr"
+    },
+    "dashboard": {
+      "title": "Ev sahibi kabineti",
+      "subtitle": "Elanlarınızı buradan idarə edin.",
+      "totalListings": "Elanlar",
+      "pendingReview": "Yoxlamada",
+      "published": "Yayımda",
+      "rejected": "Rədd edilib"
+    },
+    "start": {
+      "title": "irayon-da ev sahibi olun",
+      "subtitle": "Öz evinizi yerləşdirin və qonaq qəbul edin. Hər yeni elan yayımdan əvvəl yoxlanılır.",
+      "cta": "İlk elanı yarat",
+      "closedTitle": "Qeydiyyat hazırda bağlıdır",
+      "closedBody": "Ev sahibi qeydiyyatı hazırda yalnız dəvətlə açıqdır. Bizimlə əlaqə saxlayın.",
+      "step1": "Evinizin məlumatlarını doldurun",
+      "step2": "Şəkillər yükləyin",
+      "step3": "Yoxlamadan sonra elan yayımlanır"
+    },
+    "listings": {
+      "title": "Elanlarım",
+      "empty": "Hələ elanınız yoxdur",
+      "emptyDescription": "İlk elanınızı yaradın — yoxlamadan sonra saytda görünəcək.",
+      "create": "Yeni elan",
+      "edit": "Redaktə et",
+      "view": "Bax",
+      "newTitle": "Yeni elan",
+      "newDescription": "Elan yaradıldıqdan sonra yoxlamaya göndəriləcək.",
+      "editTitle": "Elanı redaktə et",
+      "editDescription": "Bəzi dəyişikliklər yayımdan əvvəl yoxlanılır."
+    },
+    "moderation": {
+      "pending": "Yoxlanılır",
+      "approved": "Təsdiqlənib",
+      "rejected": "Rədd edilib",
+      "pendingChanges": "Dəyişikliklər yoxlanılır",
+      "pendingChangesBody": "Bu elandakı bəzi dəyişikliklər yoxlanılır. Saytda hələ köhnə versiya görünür.",
+      "rejectedReason": "Rədd səbəbi",
+      "photoPendingAdd": "Yoxlamada",
+      "photoPendingRemove": "Silinmə yoxlamada"
+    }
   }
 }

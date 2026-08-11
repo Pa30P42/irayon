@@ -57,10 +57,17 @@ export function ListingCard({ listing, locale, priority = false }: ListingCardPr
             <CardTitle size="md" className="line-clamp-2">
               {title}
             </CardTitle>
-            <div className="flex shrink-0 items-center gap-1 text-sm" aria-label={t('rating')}>
-              <IconStarFilled size={14} aria-hidden />
-              <span>{listing.rating.toFixed(1)}</span>
-            </div>
+            {/* No reviews yet → no stars. A brand-new host listing showing
+                "0.0" (or a seeded number nobody wrote) is a fabricated signal
+                of trust, and trust is the entire product on a marketplace that
+                settles offline. Legacy listings with real counts are
+                unaffected. */}
+            {listing.reviewCount > 0 ? (
+              <div className="flex shrink-0 items-center gap-1 text-sm" aria-label={t('rating')}>
+                <IconStarFilled size={14} aria-hidden />
+                <span>{listing.rating.toFixed(1)}</span>
+              </div>
+            ) : null}
           </div>
           <p className="text-foreground-muted mt-1 text-sm">{regionName}</p>
           {topAmenities.length > 0 ? (

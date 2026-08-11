@@ -1,4 +1,3 @@
-import { requireAdmin } from '@/lib/admin-auth';
 import { recordAdminLog } from '@/lib/admin-log';
 import {
   apiBadRequest,
@@ -10,6 +9,7 @@ import {
 } from '@/lib/api/api-response';
 import { localizedTextSchema } from '@/lib/api/localized-text';
 import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
+import { requireAdmin, requireSameOrigin } from '@/lib/auth-helpers';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import type { Prisma } from '@prisma/client';
@@ -29,7 +29,14 @@ const amenityUpdateSchema = z.object({
  * intentionally immutable: listings and filter URLs reference it.
  */
 export async function PATCH(request: Request, { params }: Context): Promise<Response> {
-  const auth = await requireAdmin(request);
+  // CSRF: Auth.js protects its own endpoints; every other user-initiated
+  // mutation opts in here explicitly.
+  const csrf = requireSameOrigin(request);
+  if (csrf) return csrf;
+
+  // `force` skips the strict-check caches: a suspension that applies to the
+  // next read but not the next write is not a suspension.
+  const auth = await requireAdmin(request, { force: true });
   if (!auth.ok) return auth.response;
 
   const { id } = await params;
@@ -58,7 +65,12 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
   try {
     const row = await prisma.amenity.update({ where: { id }, data });
     after(() =>
-      recordAdminLog({ action: 'amenity.update', target: id, metadata: { slug: row.slug } }),
+      recordAdminLog({
+        actor: auth.user,
+        action: 'amenity.update',
+        target: id,
+        metadata: { slug: row.slug },
+      }),
     );
     revalidateListingSurfaces();
     return apiOk({ id: row.id, slug: row.slug });
@@ -76,7 +88,14 @@ export async function PATCH(request: Request, { params }: Context): Promise<Resp
  * so a filter option can't silently vanish from under live listings.
  */
 export async function DELETE(request: Request, { params }: Context): Promise<Response> {
-  const auth = await requireAdmin(request);
+  // CSRF: Auth.js protects its own endpoints; every other user-initiated
+  // mutation opts in here explicitly.
+  const csrf = requireSameOrigin(request);
+  if (csrf) return csrf;
+
+  // `force` skips the strict-check caches: a suspension that applies to the
+  // next read but not the next write is not a suspension.
+  const auth = await requireAdmin(request, { force: true });
   if (!auth.ok) return auth.response;
 
   const { id } = await params;
@@ -94,7 +113,12 @@ export async function DELETE(request: Request, { params }: Context): Promise<Res
 
     await prisma.amenity.delete({ where: { id } });
     after(() =>
-      recordAdminLog({ action: 'amenity.delete', target: id, metadata: { slug: amenity.slug } }),
+      recordAdminLog({
+        actor: auth.user,
+        action: 'amenity.delete',
+        target: id,
+        metadata: { slug: amenity.slug },
+      }),
     );
     revalidateListingSurfaces();
     return apiOk({ deleted: true });

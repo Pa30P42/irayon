@@ -8,7 +8,7 @@ import type {
   Meal,
   PlaceType,
 } from '@/types';
-import type { Prisma } from '@prisma/client';
+import { $Enums, type Prisma } from '@prisma/client';
 import { parseLocalized } from './localized-text';
 
 /**
@@ -52,18 +52,36 @@ const RELATION_SELECTS = {
   amenities: { select: { amenity: { select: { slug: true } } } },
 } as const satisfies Prisma.ListingSelect;
 
+/**
+ * Which photos a rendered listing may show.
+ *
+ * `PENDING_ADD` is excluded — it is unreviewed content and must not reach a
+ * page. `PENDING_REMOVE` is INCLUDED — it is approved content whose removal
+ * hasn't been reviewed yet, and hiding it on request would let a host empty a
+ * live listing without anyone approving that.
+ *
+ * Filter first, sort second: `order` is shared across all states, so a hidden
+ * `PENDING_ADD` sitting at position 0 simply doesn't appear and the remaining
+ * photos keep their relative order.
+ */
+const VISIBLE_IMAGE_WHERE = {
+  moderationState: {
+    in: [$Enums.ImageModerationState.LIVE, $Enums.ImageModerationState.PENDING_REMOVE],
+  },
+} as const satisfies Prisma.ImageWhereInput;
+
 export const LISTING_CARD_SELECT = {
   ...CARD_SCALARS,
   ...RELATION_SELECTS,
-  images: { select: { url: true }, orderBy: { order: 'asc' }, take: 1 },
-  _count: { select: { images: true } },
+  images: { select: { url: true }, where: VISIBLE_IMAGE_WHERE, orderBy: { order: 'asc' }, take: 1 },
+  _count: { select: { images: { where: VISIBLE_IMAGE_WHERE } } },
 } as const satisfies Prisma.ListingSelect;
 
 export const LISTING_DETAIL_SELECT = {
   ...CARD_SCALARS,
   ...RELATION_SELECTS,
   description: true,
-  images: { select: { url: true }, orderBy: { order: 'asc' } },
+  images: { select: { url: true }, where: VISIBLE_IMAGE_WHERE, orderBy: { order: 'asc' } },
 } as const satisfies Prisma.ListingSelect;
 
 export type ListingCardRow = Prisma.ListingGetPayload<{ select: typeof LISTING_CARD_SELECT }>;

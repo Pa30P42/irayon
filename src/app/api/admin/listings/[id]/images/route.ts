@@ -1,4 +1,3 @@
-import { requireAdmin } from '@/lib/admin-auth';
 import { recordAdminLog } from '@/lib/admin-log';
 import {
   apiBadRequest,
@@ -9,10 +8,13 @@ import {
   apiServiceUnavailable,
 } from '@/lib/api/api-response';
 import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
+import { requireAdmin, requireSameOrigin } from '@/lib/auth-helpers';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import {
   ALLOWED_IMAGE_MIME_TYPES,
+  MAX_FILES_PER_REQUEST,
+  MAX_IMAGES_PER_LISTING,
   MAX_IMAGE_BYTES,
   isAllowedMime,
   uploadListingImage,
@@ -36,7 +38,14 @@ const fileFieldSchema = z.custom<File>(
  * row is inserted with `order` continuing from the existing max.
  */
 export async function POST(request: Request, { params }: Context): Promise<Response> {
-  const auth = await requireAdmin(request);
+  // CSRF: Auth.js protects its own endpoints; every other user-initiated
+  // mutation opts in here explicitly.
+  const csrf = requireSameOrigin(request);
+  if (csrf) return csrf;
+
+  // `force` skips the strict-check caches: a suspension that applies to the
+  // next read but not the next write is not a suspension.
+  const auth = await requireAdmin(request, { force: true });
   if (!auth.ok) return auth.response;
 
   const { id } = await params;
@@ -67,6 +76,20 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
     return new Response(
       JSON.stringify({ error: { message: 'No files provided (use field name "files")' } }),
       { status: 400, headers: { 'content-type': 'application/json' } },
+    );
+  }
+  // Per-request cap. The byte cap alone bounds one file; without this, one
+  // request can still carry hundreds of them.
+  if (files.length > MAX_FILES_PER_REQUEST) {
+    return apiBadRequestRaw(`At most ${MAX_FILES_PER_REQUEST} files per request`);
+  }
+
+  // Per-listing cap, counted across every moderation state — a pending-add
+  // photo occupies a slot just as much as a live one.
+  const existingCount = await prisma.image.count({ where: { listingId: id } });
+  if (existingCount + files.length > MAX_IMAGES_PER_LISTING) {
+    return apiBadRequestRaw(
+      `A listing can hold at most ${MAX_IMAGES_PER_LISTING} images (currently ${existingCount})`,
     );
   }
 
@@ -124,6 +147,7 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
 
     after(() =>
       recordAdminLog({
+        actor: auth.user,
         action: 'listing.images.upload',
         target: id,
         metadata: { count: created.length },

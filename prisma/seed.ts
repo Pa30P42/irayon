@@ -12,6 +12,7 @@ import ruMessages from '../src/i18n/messages/ru.json' with { type: 'json' };
 import { groupAmenities } from '../src/lib/amenity-groups';
 import { buildListingSearchText } from '../src/lib/api/listing-search-text';
 import { AMENITIES } from '../src/lib/constants';
+import { PLATFORM_HOST_EMAIL, PLATFORM_HOST_NAME } from '../src/lib/platform-host';
 import type { Amenity } from '../src/types';
 
 const prisma = new PrismaClient();
@@ -112,11 +113,44 @@ async function seedAmenities(): Promise<Map<Amenity, string>> {
 
 const toEnumValue = (s: string): string => s.toUpperCase().replace(/-/g, '_');
 
+/**
+ * Owner for the curated catalogue. `listings.hostId` is NOT NULL from M2, and
+ * the seed runs before anyone has signed in — so it needs a host that exists
+ * unconditionally and can never be signed into. See `src/lib/platform-host.ts`
+ * for why this is a reserved `.invalid` address and not `ADMIN_EMAIL`.
+ *
+ * Prefers a real admin when one already exists, so re-seeding an established
+ * database doesn't hand the operator's listings to a placeholder.
+ */
+async function resolvePlatformHostId(): Promise<string> {
+  const existingAdmin = await prisma.user.findFirst({
+    where: { role: 'ADMIN', email: { not: PLATFORM_HOST_EMAIL } },
+    select: { id: true },
+    orderBy: { createdAt: 'asc' },
+  });
+  if (existingAdmin) return existingAdmin.id;
+
+  const placeholder = await prisma.user.upsert({
+    where: { email: PLATFORM_HOST_EMAIL },
+    create: {
+      email: PLATFORM_HOST_EMAIL,
+      name: PLATFORM_HOST_NAME,
+      role: 'ADMIN',
+      becameHostAt: new Date(),
+    },
+    update: {},
+    select: { id: true },
+  });
+  return placeholder.id;
+}
+
 async function seedListings(
   regionIds: Map<string, string>,
   villageIds: Map<string, string>,
   amenityIds: Map<Amenity, string>,
 ): Promise<void> {
+  const hostId = await resolvePlatformHostId();
+
   for (const listing of mockListings) {
     const regionId = regionIds.get(listing.region);
     if (!regionId) {
@@ -164,6 +198,14 @@ async function seedListings(
           activities: listing.activities.map(toEnumValue) as NonNullable<
             Prisma.ListingCreateInput['activities']
           >,
+          // The column default is `pending` (fail-closed, migration M1). Seed
+          // rows are curated platform content and must be publicly visible, so
+          // say so explicitly rather than relying on a default that no longer
+          // means what this code was written against.
+          moderationStatus: 'APPROVED',
+          // Create only: an existing listing keeps whichever host it already
+          // has, so re-seeding after B1 doesn't undo the backfill.
+          hostId,
         },
         update: {
           title: listing.title as unknown as Prisma.InputJsonValue,

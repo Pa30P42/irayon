@@ -1,14 +1,16 @@
 'use client';
 
-import { ExistingImagesGrid } from '@/components/admin/existing-images-grid';
-import { ImageUploader } from '@/components/admin/image-uploader';
+import type { ListingEndpoints } from '@/components/listing-form/endpoints';
+import { ExistingImagesGrid } from '@/components/listing-form/existing-images-grid';
+import { ImageUploader } from '@/components/listing-form/image-uploader';
 import { SectionCard } from '@/components/ui/section-card';
 import { useTranslations } from 'next-intl';
 
 type ExistingImage = { id: string; url: string };
 
 type Props = {
-  mode: 'create' | 'edit';
+  action: 'create' | 'edit';
+  endpoints: ListingEndpoints;
   listingId?: string | undefined;
   existingImages: ExistingImage[];
   onExistingImagesChange: (next: ExistingImage[]) => void;
@@ -16,19 +18,21 @@ type Props = {
 };
 
 export function ListingFormPhotosSection({
-  mode,
+  action,
+  endpoints,
   listingId,
   existingImages,
   onExistingImagesChange,
   onReadyFilesChange,
 }: Props) {
   const tSections = useTranslations('admin.listingForm.sections');
-  const isEdit = mode === 'edit';
+  const isEdit = action === 'edit';
   return (
     <SectionCard title={tSections('photosTitle')} description={tSections('photosDescription')}>
       {isEdit && listingId ? (
         <ExistingImagesGrid
           listingId={listingId}
+          endpoints={endpoints}
           images={existingImages}
           onChange={onExistingImagesChange}
         />

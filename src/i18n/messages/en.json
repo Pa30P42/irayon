@@ -295,7 +295,8 @@
       "new": "New",
       "signOut": "Sign out",
       "amenities": "Amenities",
-      "logs": "Activity log"
+      "logs": "Activity log",
+      "moderation": "Moderation"
     },
     "login": {
       "eyebrow": "iRayon · Admin",
@@ -652,6 +653,42 @@
       "kitchen": "Kitchen",
       "family": "Family",
       "extras": "Extras"
+    },
+    "moderation": {
+      "navLabel": "Moderation",
+      "title": "Moderation queue",
+      "subtitle": "New listings and edits awaiting review. Oldest first.",
+      "empty": "Queue is empty",
+      "emptyDescription": "Nothing is waiting for review.",
+      "newListing": "New listing",
+      "editedListing": "Edit",
+      "host": "Host",
+      "submitted": "Submitted",
+      "currentValue": "Live",
+      "proposedValue": "Proposed",
+      "noFieldChanges": "No text changes",
+      "livePhotos": "Photos on the site",
+      "pendingAdd": "Being added",
+      "pendingRemove": "Being removed",
+      "approve": "Approve",
+      "reject": "Reject",
+      "rejectReason": "Reason for rejection (at least 10 characters)",
+      "rejectSubmit": "Reject and notify",
+      "cancel": "Cancel",
+      "approveFailed": "Approval failed",
+      "wouldEmptyImages": "Cannot approve: the listing would be left with no photos. Reject instead.",
+      "openListing": "Open listing",
+      "fields": {
+        "title": "Title",
+        "description": "Description",
+        "address": "Address",
+        "lat": "Latitude",
+        "lng": "Longitude",
+        "placeType": "Place type",
+        "region": "Region",
+        "villageId": "Village",
+        "phone": "Phone"
+      }
     }
   },
   "notFound": {
@@ -661,5 +698,81 @@
   "errorPage": {
     "title": "Something went wrong",
     "retry": "Try again"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "title": "Sign in to irayon",
+    "subtitle": "Sign in to book a stay or list your own place.",
+    "continueWithGoogle": "Continue with Google",
+    "googleUnavailable": "Google sign-in is not configured yet.",
+    "devTitle": "Development-only sign-in",
+    "devHint": "This form exists only in local development and is fully disabled in production.",
+    "devEmail": "Email",
+    "devName": "Name (optional)",
+    "devSubmit": "Dev sign in",
+    "devFailed": "Sign-in failed. Check the email address.",
+    "noProviders": "No sign-in method is configured. Set AUTH_GOOGLE_ID/SECRET or AUTH_DEV_LOGIN.",
+    "myAccount": "My account",
+    "myBookings": "My bookings",
+    "accountSettings": "Settings",
+    "hostDashboard": "Host dashboard",
+    "becomeHost": "Become a host",
+    "adminPanel": "Admin panel",
+    "reason": {
+      "session_expired": "Your session expired. Please sign in again.",
+      "suspended": "Your account has been suspended. Contact us if you think this is a mistake.",
+      "Configuration": "Sign-in is misconfigured. Please contact an administrator.",
+      "AccessDenied": "Access denied.",
+      "Verification": "That link is no longer valid."
+    }
+  },
+  "host": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "listings": "My listings",
+      "newListing": "New listing",
+      "settings": "Settings"
+    },
+    "dashboard": {
+      "title": "Host dashboard",
+      "subtitle": "Manage your listings here.",
+      "totalListings": "Listings",
+      "pendingReview": "In review",
+      "published": "Published",
+      "rejected": "Rejected"
+    },
+    "start": {
+      "title": "Become a host on irayon",
+      "subtitle": "List your place and welcome guests. Every new listing is reviewed before it goes live.",
+      "cta": "Create your first listing",
+      "closedTitle": "Host signup is closed",
+      "closedBody": "Host signup is currently invite-only. Get in touch and we will set you up.",
+      "step1": "Describe your place",
+      "step2": "Upload photos",
+      "step3": "It goes live once reviewed"
+    },
+    "listings": {
+      "title": "My listings",
+      "empty": "No listings yet",
+      "emptyDescription": "Create your first listing — it appears on the site once reviewed.",
+      "create": "New listing",
+      "edit": "Edit",
+      "view": "View",
+      "newTitle": "New listing",
+      "newDescription": "Your listing is sent for review once created.",
+      "editTitle": "Edit listing",
+      "editDescription": "Some changes are reviewed before they go live."
+    },
+    "moderation": {
+      "pending": "In review",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "pendingChanges": "Changes in review",
+      "pendingChangesBody": "Some of your changes are being reviewed. The site still shows the previous version.",
+      "rejectedReason": "Reason for rejection",
+      "photoPendingAdd": "In review",
+      "photoPendingRemove": "Removal in review"
+    }
   }
 }

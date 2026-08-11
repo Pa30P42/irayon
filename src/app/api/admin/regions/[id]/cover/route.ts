@@ -1,4 +1,3 @@
-import { requireAdmin } from '@/lib/admin-auth';
 import { recordAdminLog } from '@/lib/admin-log';
 import {
   apiBadRequestRaw,
@@ -8,6 +7,7 @@ import {
   apiServiceUnavailable,
 } from '@/lib/api/api-response';
 import { revalidateListingSurfaces } from '@/lib/api/revalidate-listings';
+import { requireAdmin, requireSameOrigin } from '@/lib/auth-helpers';
 import { logger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma';
 import {
@@ -31,7 +31,14 @@ type Context = { params: Promise<{ id: string }> };
  * removed from storage after the response if it lived in our bucket.
  */
 export async function POST(request: Request, { params }: Context): Promise<Response> {
-  const auth = await requireAdmin(request);
+  // CSRF: Auth.js protects its own endpoints; every other user-initiated
+  // mutation opts in here explicitly.
+  const csrf = requireSameOrigin(request);
+  if (csrf) return csrf;
+
+  // `force` skips the strict-check caches: a suspension that applies to the
+  // next read but not the next write is not a suspension.
+  const auth = await requireAdmin(request, { force: true });
   if (!auth.ok) return auth.response;
 
   const { id } = await params;
@@ -93,6 +100,7 @@ export async function POST(request: Request, { params }: Context): Promise<Respo
         }
       }
       await recordAdminLog({
+        actor: auth.user,
         action: 'region.cover.upload',
         target: id,
         metadata: { url: uploaded.publicUrl, previousDeleted },

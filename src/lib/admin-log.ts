@@ -1,3 +1,4 @@
+import { BREAK_GLASS_USER_ID, type AuthUser } from '@/lib/auth-helpers';
 import type { Prisma } from '@prisma/client';
 import { prisma } from './prisma';
 
@@ -13,16 +14,34 @@ export async function recordAdminLog(input: {
   action: string;
   target?: string | null;
   metadata?: Prisma.InputJsonValue;
+  /**
+   * Who did it. A break-glass session has no user row, so it logs
+   * `adminId: null` + `metadata.breakGlass: true` — the FK can't reference a
+   * user that doesn't exist, and "an admin did this but we don't know which"
+   * is exactly the fact worth recording.
+   */
+  actor?: Pick<AuthUser, 'id' | 'breakGlass'> | null;
 }): Promise<void> {
   if (!process.env.DATABASE_URL) return;
+
+  const isBreakGlass = input.actor?.breakGlass === true || input.actor?.id === BREAK_GLASS_USER_ID;
+  const adminId = !input.actor || isBreakGlass ? null : input.actor.id;
+  const metadata =
+    isBreakGlass && input.metadata !== undefined
+      ? ({ ...(input.metadata as object), breakGlass: true } as Prisma.InputJsonValue)
+      : isBreakGlass
+        ? ({ breakGlass: true } as Prisma.InputJsonValue)
+        : input.metadata;
+
   try {
     await prisma.adminLog.create({
       data: {
         action: input.action,
         target: input.target ?? null,
+        adminId,
         // Prisma's JsonValue input doesn't accept `undefined` under
         // exactOptionalPropertyTypes; omit the key when no metadata was given.
-        ...(input.metadata !== undefined ? { metadata: input.metadata } : {}),
+        ...(metadata !== undefined ? { metadata } : {}),
       },
     });
   } catch (err) {

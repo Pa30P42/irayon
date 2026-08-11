@@ -56,6 +56,108 @@ enum ListingStatus {
   @@map("listing_status")
 }
 
+/// Platform-level account capability. "Host" is deliberately NOT a role — it's
+/// a capability flagged by `User.becameHostAt`, so any guest becomes a host
+/// without a role migration.
+enum UserRole {
+  USER  @map("user")
+  ADMIN @map("admin")
+
+  @@map("user_role")
+}
+
+/// Platform gate, orthogonal to `ListingStatus` (the host's lifecycle intent).
+/// A listing is publicly visible only when PUBLISHED **and** APPROVED.
+enum ModerationStatus {
+  PENDING  @map("pending")
+  APPROVED @map("approved")
+  REJECTED @map("rejected")
+
+  @@map("moderation_status")
+}
+
+/// Per-photo moderation state. Always DERIVED via `nextImageState()` /
+/// `markImageForRemoval()` in `src/lib/api/listing-moderation.ts` — never
+/// written literally, because neither default is correct in both contexts
+/// (LIVE is right on a PENDING listing, wrong on an approved one).
+enum ImageModerationState {
+  LIVE           @map("live")
+  PENDING_ADD    @map("pending-add")
+  PENDING_REMOVE @map("pending-remove")
+
+  @@map("image_moderation_state")
+}
+
+/// Platform account. Single model — "host" is a capability (`becameHostAt`),
+/// not an account type. Auth.js (NextAuth v5) owns `name/email/emailVerified/
+/// image` through the Prisma adapter; every other column is ours.
+model User {
+  id              String    @id @default(cuid())
+  name            String?
+  email           String    @unique
+  emailVerified   DateTime?
+  image           String?
+  role            UserRole  @default(USER)
+  /// Drives the locale of every email we send this user.
+  preferredLocale String    @default("az")
+  phone           String?
+  /// Set server-side on the user's first listing create. Presence == host.
+  becameHostAt    DateTime?
+  /// Suspension blocks sign-in AND terminates live sessions (see auth-helpers).
+  suspendedAt     DateTime?
+  /// Bumped to revoke every outstanding JWT for this user. Embedded in the
+  /// token as `sv`; the Node-side strict check compares and kills mismatches.
+  sessionVersion  Int       @default(0)
+
+  accounts          Account[]
+  sessions          Session[]
+  listings          Listing[]  @relation("HostListings")
+  moderatedListings Listing[]  @relation("ModeratedListings")
+  adminLogs         AdminLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([role])
+  @@map("users")
+}
+
+/// Auth.js Prisma adapter — OAuth provider link rows.
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+/// Auth.js Prisma adapter — unused under `strategy: 'jwt'`, created now so a
+/// later switch to database sessions is a config change, not a migration.
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
 model Region {
   id         String    @id @default(cuid())
   slug       String    @unique
@@ -111,39 +213,59 @@ model Amenity {
 }
 
 model Listing {
-  id          String            @id @default(cuid())
-  slug        String            @unique
+  id               String            @id @default(cuid())
+  slug             String            @unique
   /// Localized title: { az, ru, en }
-  title       Json
+  title            Json
   /// Localized description: { az, ru, en }
-  description Json
-  regionId    String
-  region      Region            @relation(fields: [regionId], references: [id])
-  villageId   String?
-  village     Village?          @relation(fields: [villageId], references: [id], onDelete: SetNull)
-  placeType   PlaceType
+  description      Json
+  regionId         String
+  region           Region            @relation(fields: [regionId], references: [id])
+  villageId        String?
+  village          Village?          @relation(fields: [villageId], references: [id], onDelete: SetNull)
+  placeType        PlaceType
   /// Draft/publish/archive workflow. PUBLISHED is the default so existing
   /// rows (and the pre-status admin flow) keep their current visibility.
-  status      ListingStatus     @default(PUBLISHED)
+  status           ListingStatus     @default(PUBLISHED)
+  /// Owning host. Contracted to NOT NULL in M2 once the B1 backfill was
+  /// verified — every listing has an owner, including the legacy catalogue,
+  /// which belongs to the admin's host account.
+  ///
+  /// `Restrict`, not `Cascade`: deleting a user must never silently delete
+  /// their listings (and the bookings that reference them). Accounts are
+  /// anonymised, never row-deleted — see the lifecycle section of the plan.
+  hostId           String
+  host             User              @relation("HostListings", fields: [hostId], references: [id], onDelete: Restrict)
+  /// Platform gate — see `ModerationStatus`. Fail-closed: an omission in any
+  /// future create path yields an invisible listing, never a public one.
+  moderationStatus ModerationStatus  @default(PENDING)
+  /// Reason shown to the host on rejection (min 10 chars, enforced in zod).
+  moderationNote   String?
+  moderatedAt      DateTime?
+  moderatedById    String?
+  moderatedBy      User?             @relation("ModeratedListings", fields: [moderatedById], references: [id], onDelete: SetNull)
+  /// Host edits to *significant* fields park here while the approved content
+  /// stays live. Merged onto the row on approve, dropped on reject.
+  pendingChanges   Json?
   /// One or more category tags. A listing can belong to multiple categories
   /// (e.g. a mountain forest cabin near a river).
-  categories  ListingCategory[]
-  price       Int
-  rating      Float             @default(0)
-  reviewCount Int               @default(0)
-  capacity    Int
-  bedrooms    Int
-  lat         Float
-  lng         Float
-  address     String
-  phone       String?
-  meals       Meal[]
-  activities  Activity[]
+  categories       ListingCategory[]
+  price            Int
+  rating           Float             @default(0)
+  reviewCount      Int               @default(0)
+  capacity         Int
+  bedrooms         Int
+  lat              Float
+  lng              Float
+  address          String
+  phone            String?
+  meals            Meal[]
+  activities       Activity[]
   /// Denormalized lowercase haystack for the `q` search: all three title
   /// locales + address, maintained by the service write paths (see
   /// `buildListingSearchText`). Backfilled + trigram-GIN-indexed in raw SQL
   /// (migration 20260806000200) — Prisma can't express gin_trgm_ops.
-  searchText  String            @default("") @map("search_text")
+  searchText       String            @default("") @map("search_text")
 
   amenities  ListingAmenity[]
   images     Image[]
@@ -170,6 +292,12 @@ model Listing {
   // `hasEvery` array queries on meals/activities translate to @> — GIN-able.
   @@index([meals], type: Gin)
   @@index([activities], type: Gin)
+  // Host cabinet listing table.
+  @@index([hostId, createdAt(sort: Desc)])
+  // Admin moderation queue.
+  @@index([moderationStatus, createdAt(sort: Desc)])
+  // The public visibility gate (`publicListingWhere`) filters on both columns.
+  @@index([status, moderationStatus, createdAt(sort: Desc)])
   @@map("listings")
 }
 
@@ -185,13 +313,17 @@ model ListingAmenity {
 }
 
 model Image {
-  id        String   @id @default(cuid())
-  listingId String
-  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
-  url       String
-  order     Int      @default(0)
-  alt       String?
-  createdAt DateTime @default(now())
+  id              String               @id @default(cuid())
+  listingId       String
+  listing         Listing              @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url             String
+  order           Int                  @default(0)
+  alt             String?
+  /// Derived, never written literally — see `ImageModerationState`. Public
+  /// selects show LIVE + PENDING_REMOVE; PENDING_ADD is invisible until
+  /// approved. `order` is shared across all states (filter first, sort second).
+  moderationState ImageModerationState @default(LIVE)
+  createdAt       DateTime             @default(now())
 
   @@index([listingId, order])
   @@map("images")
@@ -217,8 +349,6 @@ model CallEvent {
 
 /// Audit trail for state-changing admin actions. Read-only after insert;
 /// queried via a forthcoming admin UI to investigate "who changed what".
-/// `adminId` stays nullable through MVP1's single-admin model — once a User
-/// table lands in MVP2 the column will carry the FK.
 model AdminLog {
   id        String   @id @default(cuid())
   /// Stable verb describing the change: `listing.create`, `listing.update`,
@@ -229,11 +359,14 @@ model AdminLog {
   target    String?
   /// Per-call detail blob. Use sparingly — never put PII or secrets here.
   metadata  Json?
-  /// FK to a future User table. Nullable for now so MVP1 inserts don't fail.
+  /// Acting admin. Nullable on purpose: break-glass HMAC logins have no User
+  /// row and log `adminId: null` + `metadata.breakGlass: true`.
   adminId   String?
+  admin     User?    @relation(fields: [adminId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now())
 
   @@index([action, createdAt])
   @@index([target])
+  @@index([adminId, createdAt])
   @@map("admin_logs")
 }

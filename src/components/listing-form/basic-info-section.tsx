@@ -1,7 +1,7 @@
 'use client';
 
-import { type LocaleTab } from '@/components/admin/listing-form-labels';
-import { ListingFormLocaleTabs } from '@/components/admin/listing-form-locale-tabs';
+import { type LocaleTab } from '@/components/listing-form/labels';
+import { ListingFormLocaleTabs } from '@/components/listing-form/locale-tabs';
 import { Field } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { SectionCard } from '@/components/ui/section-card';

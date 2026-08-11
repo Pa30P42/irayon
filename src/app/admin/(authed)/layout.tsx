@@ -1,11 +1,16 @@
 import { AdminLocaleSwitcher } from '@/components/admin/admin-locale-switcher';
 import { AdminLogoutButton } from '@/components/admin/admin-logout-button';
+import { requireAdminPage } from '@/lib/auth-page-guards';
 import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 export default async function AdminAuthedLayout({ children }: { children: ReactNode }) {
+  // Defense in depth. Middleware gates `/admin/*` too, but these server
+  // components used to rely on that 100% — and the matcher had a real hole in
+  // it until Phase 1.2b. A layout that checks for itself survives the next one.
+  const admin = await requireAdminPage();
   const t = await getTranslations('admin');
   return (
     <>
@@ -25,6 +30,12 @@ export default async function AdminAuthedLayout({ children }: { children: ReactN
               className="text-foreground-muted hover:text-foreground shrink-0"
             >
               {t('nav.listings')}
+            </Link>
+            <Link
+              href="/admin/moderation"
+              className="text-foreground-muted hover:text-foreground shrink-0"
+            >
+              {t('nav.moderation')}
             </Link>
             <Link
               href="/admin/regions"
@@ -51,7 +62,7 @@ export default async function AdminAuthedLayout({ children }: { children: ReactN
               {t('nav.new')}
             </Link>
             <AdminLocaleSwitcher />
-            <AdminLogoutButton />
+            <AdminLogoutButton breakGlass={admin.breakGlass} />
           </nav>
         </div>
       </header>

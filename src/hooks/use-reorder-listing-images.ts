@@ -1,15 +1,18 @@
 'use client';
 
+import type { ListingEndpoints } from '@/components/listing-form/endpoints';
 import { useMutation } from '@tanstack/react-query';
 
 type ReorderInput = {
   listingId: string;
   /** ALL image ids in the desired display order (index 0 = cover). */
   order: string[];
+  /** Which cabinet's API to hit — see `components/listing-form/endpoints.ts`. */
+  endpoints: ListingEndpoints;
 };
 
-async function reorderRequest({ listingId, order }: ReorderInput): Promise<void> {
-  const res = await fetch(`/api/admin/listings/${encodeURIComponent(listingId)}/images/reorder`, {
+async function reorderRequest({ listingId, order, endpoints }: ReorderInput): Promise<void> {
+  const res = await fetch(endpoints.reorder(listingId), {
     method: 'PATCH',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ order }),

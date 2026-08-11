@@ -1,5 +1,6 @@
 'use client';
 
+import type { ListingEndpoints } from '@/components/listing-form/endpoints';
 import type { CreateListingInput } from '@/lib/api/listings-create-validator';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -22,7 +23,13 @@ export type SubmitState =
 export type SubmitTarget = { id: string; slug: string };
 
 type UseListingSubmitArgs = {
-  mode: 'create' | 'edit';
+  action: 'create' | 'edit';
+  /**
+   * API base for this cabinet. Passed in rather than hardcoded so the admin and
+   * host forms stay literally the same component — see
+   * `components/listing-form/endpoints.ts`.
+   */
+  endpoints: ListingEndpoints;
   listingId?: string | undefined;
   onSubmitted?: ((result: SubmitTarget) => void) | undefined;
 };
@@ -54,8 +61,14 @@ async function readApiError(res: Response, fallback: string): Promise<string> {
   return `${fallback} (${res.status})`;
 }
 
-async function createListingRequest(values: CreateListingInput): Promise<SubmitTarget> {
-  const res = await fetch('/api/admin/listings', {
+async function createListingRequest({
+  values,
+  endpoints,
+}: {
+  values: CreateListingInput;
+  endpoints: ListingEndpoints;
+}): Promise<SubmitTarget> {
+  const res = await fetch(endpoints.create, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(values),
@@ -69,11 +82,13 @@ async function createListingRequest(values: CreateListingInput): Promise<SubmitT
 async function updateListingRequest({
   listingId,
   values,
+  endpoints,
 }: {
   listingId: string;
   values: CreateListingInput;
+  endpoints: ListingEndpoints;
 }): Promise<SubmitTarget> {
-  const res = await fetch(`/api/admin/listings/${encodeURIComponent(listingId)}`, {
+  const res = await fetch(endpoints.update(listingId), {
     method: 'PATCH',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(values),
@@ -87,13 +102,15 @@ async function updateListingRequest({
 async function uploadListingImagesRequest({
   listingId,
   files,
+  endpoints,
 }: {
   listingId: string;
   files: File[];
+  endpoints: ListingEndpoints;
 }): Promise<void> {
   const form = new FormData();
   for (const f of files) form.append('files', f);
-  const res = await fetch(`/api/admin/listings/${encodeURIComponent(listingId)}/images`, {
+  const res = await fetch(endpoints.images(listingId), {
     method: 'POST',
     body: form,
   });
@@ -102,12 +119,25 @@ async function uploadListingImagesRequest({
   }
 }
 
+/**
+ * Both cabinets render the same listings from different query keys, and a
+ * create/edit from either one can change what the other shows (an admin edit
+ * lands in the host's list; a host create lands in the moderation queue). Bust
+ * all three rather than reason about which surface the user came from.
+ */
+function invalidateListingCaches(queryClient: ReturnType<typeof useQueryClient>): void {
+  queryClient.invalidateQueries({ queryKey: ['listings'] });
+  queryClient.invalidateQueries({ queryKey: ['admin-listings'] });
+  queryClient.invalidateQueries({ queryKey: ['host-listings'] });
+}
+
 export function useListingSubmit({
-  mode,
+  action,
+  endpoints,
   listingId,
   onSubmitted,
 }: UseListingSubmitArgs): UseListingSubmitResult {
-  const isEdit = mode === 'edit';
+  const isEdit = action === 'edit';
   const queryClient = useQueryClient();
   const [state, setState] = useState<SubmitState>({ phase: 'idle' });
 
@@ -122,10 +152,10 @@ export function useListingSubmit({
       if (isEdit) {
         if (!listingId) throw new Error('Edit mode requires a listingId');
         setState({ phase: 'updating' });
-        target = await update.mutateAsync({ listingId, values });
+        target = await update.mutateAsync({ listingId, values, endpoints });
       } else {
         setState({ phase: 'creating' });
-        target = await create.mutateAsync(values);
+        target = await create.mutateAsync({ values, endpoints });
       }
 
       if (readyFiles.length > 0) {
@@ -138,7 +168,7 @@ export function useListingSubmit({
         const failed: { name: string; reason: string }[] = [];
         for (const [index, file] of readyFiles.entries()) {
           try {
-            await upload.mutateAsync({ listingId: target.id, files: [file] });
+            await upload.mutateAsync({ listingId: target.id, files: [file], endpoints });
           } catch (err) {
             // Keep the server's reason. Reporting only the filename turned a
             // misconfigured bucket / dead DB connection into a blind hunt.
@@ -151,8 +181,7 @@ export function useListingSubmit({
         }
         if (failed.length > 0) {
           // The listing itself saved; surface which photos need a retry.
-          queryClient.invalidateQueries({ queryKey: ['listings'] });
-          queryClient.invalidateQueries({ queryKey: ['admin-listings'] });
+          invalidateListingCaches(queryClient);
           setState({
             phase: 'error',
             message: `Saved, but ${failed.length} photo(s) failed to upload: ${failed
@@ -163,9 +192,7 @@ export function useListingSubmit({
         }
       }
 
-      // Invalidate listings cache so admin/public lists pick up the change.
-      queryClient.invalidateQueries({ queryKey: ['listings'] });
-      queryClient.invalidateQueries({ queryKey: ['admin-listings'] });
+      invalidateListingCaches(queryClient);
       setState({ phase: 'success', id: target.id, slug: target.slug });
       onSubmitted?.(target);
     } catch (err) {
