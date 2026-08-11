@@ -1,5 +1,6 @@
 'use client';
 
+import { OpenThreadButton } from '@/components/messaging/open-thread-button';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -106,6 +107,7 @@ export function HostBookingList({ bookings }: { bookings: BookingDto[] }) {
             </div>
 
             <div className="flex shrink-0 flex-wrap gap-2">
+              <OpenThreadButton bookingId={booking.id} basePath="/host/messages" />
               {booking.status === 'pending' ? (
                 <>
                   <Button

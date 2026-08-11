@@ -753,7 +753,8 @@
       "newListing": "New listing",
       "settings": "Settings",
       "bookings": "Bookings",
-      "calendar": "Calendar"
+      "calendar": "Calendar",
+      "messages": "Messages"
     },
     "dashboard": {
       "title": "Host dashboard",
@@ -863,12 +864,43 @@
       "expired": "Expired",
       "cancelled": "Cancelled",
       "completed": "Completed"
-    }
+    },
+    "messagesTitle": "Messages"
   },
   "hostProfile": {
     "title": "Host",
     "memberSince": "Joined",
     "listings": "Listings",
     "noListings": "No active listings"
+  },
+  "messages": {
+    "title": "Messages",
+    "empty": "No messages",
+    "emptyBody": "Once you send a booking request you can message the host here.",
+    "emptyHost": "Conversations with your guests will appear here.",
+    "placeholder": "Write a message…",
+    "send": "Send",
+    "sending": "Sending…",
+    "threadWith": "Conversation",
+    "backToList": "All messages",
+    "conversationFull": "This conversation has reached its message limit.",
+    "openThread": "Message",
+    "tooLong": "Message is too long"
+  },
+  "reports": {
+    "report": "Report",
+    "title": "Send a report",
+    "reason": "Reason",
+    "note": "Details (optional)",
+    "submit": "Submit",
+    "sent": "Report submitted",
+    "already": "You've already reported this.",
+    "reasons": {
+      "spam": "Spam",
+      "inappropriate": "Inappropriate content",
+      "misleading": "Misleading",
+      "scam": "Scam",
+      "other": "Other"
+    }
   }
 }

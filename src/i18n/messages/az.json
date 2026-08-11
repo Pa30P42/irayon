@@ -753,7 +753,8 @@
       "newListing": "Yeni elan",
       "settings": "Tənzimləmələr",
       "bookings": "Rezervasiyalar",
-      "calendar": "Təqvim"
+      "calendar": "Təqvim",
+      "messages": "Mesajlar"
     },
     "dashboard": {
       "title": "Ev sahibi kabineti",
@@ -863,12 +864,43 @@
       "expired": "Müddəti bitdi",
       "cancelled": "Ləğv edildi",
       "completed": "Tamamlandı"
-    }
+    },
+    "messagesTitle": "Mesajlar"
   },
   "hostProfile": {
     "title": "Ev sahibi",
     "memberSince": "Qoşulub",
     "listings": "Elanlar",
     "noListings": "Aktiv elan yoxdur"
+  },
+  "messages": {
+    "title": "Mesajlar",
+    "empty": "Mesaj yoxdur",
+    "emptyBody": "Rezervasiya sorğusu göndərdikdən sonra ev sahibi ilə burada yazışa bilərsiniz.",
+    "emptyHost": "Qonaqlarla yazışmalarınız burada görünəcək.",
+    "placeholder": "Mesaj yazın…",
+    "send": "Göndər",
+    "sending": "Göndərilir…",
+    "threadWith": "Söhbət",
+    "backToList": "Bütün mesajlar",
+    "conversationFull": "Bu söhbətdə mesaj limitinə çatılıb.",
+    "openThread": "Mesajlaş",
+    "tooLong": "Mesaj çox uzundur"
+  },
+  "reports": {
+    "report": "Şikayət et",
+    "title": "Şikayət göndər",
+    "reason": "Səbəb",
+    "note": "Əlavə məlumat (istəyə bağlı)",
+    "submit": "Göndər",
+    "sent": "Şikayətiniz göndərildi",
+    "already": "Bu barədə artıq şikayət göndərmisiniz.",
+    "reasons": {
+      "spam": "Spam",
+      "inappropriate": "Yolverilməz məzmun",
+      "misleading": "Yanıltıcı məlumat",
+      "scam": "Fırıldaq",
+      "other": "Digər"
+    }
   }
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { OpenThreadButton } from '@/components/messaging/open-thread-button';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useCancelBooking } from '@/hooks/use-create-booking';
@@ -79,16 +80,19 @@ export function BookingList({ bookings }: { bookings: BookingDto[] }) {
             ) : null}
           </div>
 
-          {CANCELLABLE.has(booking.status) ? (
-            <Button
-              variant="destructiveGhost"
-              size="sm"
-              disabled={busyId === booking.id}
-              onClick={() => onCancel(booking)}
-            >
-              {busyId === booking.id ? t('cancelling') : t('cancel')}
-            </Button>
-          ) : null}
+          <div className="flex shrink-0 items-center gap-2">
+            <OpenThreadButton bookingId={booking.id} basePath="/account/messages" />
+            {CANCELLABLE.has(booking.status) ? (
+              <Button
+                variant="destructiveGhost"
+                size="sm"
+                disabled={busyId === booking.id}
+                onClick={() => onCancel(booking)}
+              >
+                {busyId === booking.id ? t('cancelling') : t('cancel')}
+              </Button>
+            ) : null}
+          </div>
         </li>
       ))}
     </ul>
